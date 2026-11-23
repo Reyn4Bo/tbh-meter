@@ -6,6 +6,7 @@
 
 import type { RunStatus, RunQuality } from "../../shared/run-types.js";
 import { COUNT_FLOOR_SEC, ACT_BOSS_STAGE_NO } from "../../shared/run-types.js";
+import { formatStageCode } from "../../shared/stage-code.js";
 
 // Re-export the system-rule constants so the converter (and its tests) keep importing them from
 // here, while their single source of truth lives in shared/run-types.ts — shared because PR6's
@@ -29,12 +30,12 @@ export function modeName(difficulty: number | null): string {
   return MODE_NAMES[difficulty] ?? "?";
 }
 
-/** Stage label "act-stageNo" (e.g. "3-9"). This is TRIVIAL display formatting of two raw
- *  numbers — NOT a catalog name — so it lives here, not at render. "?" for either side missing,
- *  so the UI never shows "null-null". */
+/** Stage label "act-stageNo" (e.g. "3-9"; "P-20" for a 1.3.2 Plaguelands act). This is TRIVIAL
+ *  display formatting of two raw numbers — NOT a catalog name — so it lives here, not at render. "?"
+ *  for either side missing, so the UI never shows "null-null". Delegates to the shared
+ *  formatStageCode so the renderer's stageCode() renders the SAME code. */
 export function resolveStage(act: number | null, stageNo: number | null): string {
-  if (act == null || stageNo == null) return "?";
-  return `${act}-${stageNo}`;
+  return formatStageCode(act, stageNo);
 }
 
 /** dps = totalDamage / reference-seconds. The reference is the OFFICIAL clear time when the run
@@ -130,4 +131,16 @@ export function classifyQuality(args: {
     quality = "counted";
   }
   return { quality, partial };
+}
+
+/** `{ "6": 123.4 }` (JSON-string enum keys) → `{6: 123.4}`, finite positive values only; {} when absent
+ *  (an older reader/plugin without breakdowns). Pure, never throws. */
+export function cookBreakdown(raw: unknown): Record<number, number> {
+  const out: Record<number, number> = {};
+  if (!raw || typeof raw !== "object") return out;
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const key = Number(k);
+    if (Number.isFinite(key) && typeof v === "number" && Number.isFinite(v) && v > 0) out[key] = v;
+  }
+  return out;
 }

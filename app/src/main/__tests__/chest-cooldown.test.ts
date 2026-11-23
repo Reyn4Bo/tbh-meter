@@ -18,7 +18,7 @@ import type { LiveSnapshot } from "../../shared/run-types.js";
 
 // Concrete stages from data/stages.json, picked so observeDrop resolves a known box:
 //   1101 (Normal 1-1) → box 920011 (Lv4);  1103 (Normal 1-3) → ALSO box 920011 (same level).
-//   4309 (Torment 3-9) → box 920801;        4109 (Torment 1-9) → ALSO box 920801 (the #3 case).
+//   4208 (Torment 2-8) → box 920801;        4109 (Torment 1-9) → ALSO box 920801 (the #3 case).
 //   3101 (Hell 1-1)   → box 920501 (Lv50);  1110 (Normal 1-10) → box 930101 (act-boss, NOT blue).
 const BOX_920011 = 920011;
 const BOX_920801 = 920801;
@@ -73,16 +73,16 @@ describe("observeDrop", () => {
 
   it("fires on a rising edge, reporting the box + originating stage", () => {
     const seen: SeenCounts = new Map();
-    observeDrop(seen, snap(4309, 0)); // seed
-    expect(observeDrop(seen, snap(4309, 1))).toEqual({ dropped: true, boxKey: BOX_920801, stageKey: 4309 });
-    expect(observeDrop(seen, snap(4309, 1))).toEqual({ dropped: false, boxKey: BOX_920801, stageKey: 4309 });
+    observeDrop(seen, snap(4208, 0)); // seed
+    expect(observeDrop(seen, snap(4208, 1))).toEqual({ dropped: true, boxKey: BOX_920801, stageKey: 4208 });
+    expect(observeDrop(seen, snap(4208, 1))).toEqual({ dropped: false, boxKey: BOX_920801, stageKey: 4208 });
   });
 
   it("treats the SAME box on different stages as one cooldown (the #3 fix)", () => {
     const seen: SeenCounts = new Map();
     // Drop the Lv80 box on 3-9, then move to 1-9 (a new run resets the count) and drop again.
-    observeDrop(seen, snap(4309, 0));
-    expect(observeDrop(seen, snap(4309, 1))!.dropped).toBe(true); // dropped on 3-9
+    observeDrop(seen, snap(4208, 0));
+    expect(observeDrop(seen, snap(4208, 1))!.dropped).toBe(true); // dropped on 2-8
     expect(observeDrop(seen, snap(4109, 0))!.dropped).toBe(false); // new run on 1-9 → reset, no false drop
     const second = observeDrop(seen, snap(4109, 1))!;
     expect(second.dropped).toBe(true); // dropped on 1-9 → same Lv80 box
@@ -92,10 +92,10 @@ describe("observeDrop", () => {
 
   it("does not fire on a run reset (count drops), but the next rise from there does", () => {
     const seen: SeenCounts = new Map();
-    observeDrop(seen, snap(4309, 0));
-    expect(observeDrop(seen, snap(4309, 1))!.dropped).toBe(true);
-    expect(observeDrop(seen, snap(4309, 0))!.dropped).toBe(false); // new run reset
-    expect(observeDrop(seen, snap(4309, 1))!.dropped).toBe(true); // rise again -> real drop
+    observeDrop(seen, snap(4208, 0));
+    expect(observeDrop(seen, snap(4208, 1))!.dropped).toBe(true);
+    expect(observeDrop(seen, snap(4208, 0))!.dropped).toBe(false); // new run reset
+    expect(observeDrop(seen, snap(4208, 1))!.dropped).toBe(true); // rise again -> real drop
   });
 
   it("keeps different boxes independent (a drop on box B is not a rise on box A)", () => {

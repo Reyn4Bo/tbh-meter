@@ -44,8 +44,11 @@ from metrics.gold import (resolve_combat_gold_klass, combat_gold_klass_ok,
                           gold_index_by_structure)
 from metrics import xp
 from metrics.dps import DpsTracker
+from metrics.progress import stage_total_mobs, wave_reduction
+from metrics.combat import read_combat, run_damage, run_taken
 from game import build, save
-from game.models import live_monsters as read_live_monsters, live_stage_key as read_live_stage_key
+from game.models import (live_monsters as read_live_monsters, live_stage_key as read_live_stage_key,
+                         log_stage as read_log_stage, stage_kills as read_stage_kills)
 
 TARGETS = ["MonsterSpawnManager", "LogManager", "StageClearLog", "StageFailedLog",
            "GetBoxLog", "HeroDieLog", "ResurrectionLog",
@@ -98,7 +101,7 @@ PENDING_CLOSE_GRACE = 3.0
 # reader only logs/diags `partial`; the converter is the persisted spec). See docs/invariants/run-lifecycle.
 PARTIAL_CAPTURE_MIN = 0.95
 
-GAME_VERSION = "1.00.28"   # FALLBACK: the GameAssembly.dll build the reader was made against; the INSTALLED version comes from the game's Version.txt (_detect_game_version)
+GAME_VERSION = "1.3.2"   # FALLBACK: the GameAssembly.dll build the reader was made against; the INSTALLED version comes from the game's Version.txt (_detect_game_version)
 # raw/<id>.json: the LIVE format the reader emits (1 file per run). Bump ONLY when the SHAPE of the
 # output changes — NOT per game build (re-seed/address doesn't count). The converter (app) dispatches
 # on this value. Mirrors app/src/shared/raw-types.ts::RawRunV2. See [[invariants/schema-versioning]].
@@ -132,7 +135,12 @@ def _detect_game_version(handle):
         return None
 
 
-CACHE_FMT = 9   # bump when the cache shape changes. 9 = stage_info includes ACTBOSS stages (x-10) — old calibs lack those keys and the fast path reuses them forever, so force ONE re-scan. 8 = CALIB-ONLY: a calib{fp:...} block keyed by build fingerprint — relative anchor_rva (ASLR-stable) + indices{name:idx} + idx_ut + build-stable catalogs. The LEGACY absolute-address cache (sc_class/msm/lm/... + load_cache/save_cache/_managers_ok) WAS REMOVED: calib is build-keyed and the fast path revalidates by round-trip + instance size every launch (it stores no absolute address, so there's nothing to revalidate by address). History: 7 = +die_class/res_class; 6 = +gb_class; 5 = +gold_klass; 4 = +sm_list for live party.
+CACHE_FMT = 10   # bump when the cache shape changes. 10 = stage_info rows gain a 5th value, wave_mobs (WaveMonsterAmount; 0 for boss-only) — needed to subtract the WaveCountReduction runes from the stage total (the 4-tuple only kept waves*mobs). 9 =stage_info includes ACTBOSS stages (x-10) — old calibs lack those keys and the fast path reuses them forever, so force ONE re-scan. 8 = CALIB-ONLY: a calib{fp:...} block keyed by build fingerprint — relative anchor_rva (ASLR-stable) + indices{name:idx} + idx_ut + build-stable catalogs. The LEGACY absolute-address cache (sc_class/msm/lm/... + load_cache/save_cache/_managers_ok) WAS REMOVED: calib is build-keyed and the fast path revalidates by round-trip + instance size every launch (it stores no absolute address, so there's nothing to revalidate by address). History: 7 = +die_class/res_class; 6 = +gb_class; 5 = +gold_klass; 4 = +sm_list for live party.
+
+
+# Fast-path retry while the game is still booting (resolve_all): 6 tries 5s apart ≈ 25s before the cold scan.
+FAST_RETRY_TRIES = 6
+FAST_RETRY_SEC = 5
 
 
 def _seed_path():
@@ -145,8 +153,9 @@ def _seed_path():
 
 def _stage_info_ok(stage_info):
     """Sanity check on the stage_info catalog: non-empty and EVERY row in shape (act, stage_no, horde,
-    diff) — 4 ints, with plausible act/stage_no (1..200, mirrors the row gate in
-    _read_catalogs; horde has NO range-check — boss x-10 legitimately has horde=0) and diff
+    diff, wave_mobs) — 5 ints (fmt 10), with plausible act/stage_no (1..200, mirrors the row gate in
+    _read_catalogs; horde has NO range-check — boss x-10 legitimately has horde=0; wave_mobs >= 0, 0 on a
+    boss-only row, and when > 0 it must divide horde — the catalog's waves*mobs product) and diff
     within EStageDifficulty (the DIFF_NAMES keys, exactly what close_run/overlay
     resolve via DIFF_NAMES.get). A row outside this = suspect catalog (scan misread or
     poisoned cache): serving/persisting it would mean PERMANENT mode "?".
@@ -159,10 +168,11 @@ def _stage_info_ok(stage_info):
         return False
     # bool is a subclass of int in Python: a `true` in a hand-edited cache would pass as
     # diff=1 — exclude it explicitly (real JSON from save_calib only produces ints).
-    return all(isinstance(row, tuple) and len(row) == 4
+    return all(isinstance(row, tuple) and len(row) == 5
                and all(isinstance(x, int) and not isinstance(x, bool) for x in row)
                and 1 <= row[0] <= 200 and 1 <= row[1] <= 200
                and row[3] in DIFF_NAMES
+               and row[4] >= 0 and (row[4] == 0 or row[2] % row[4] == 0)
                for row in stage_info.values())
 
 
@@ -354,7 +364,8 @@ def build_raw_record(*, ts_ms, run_outcome, game_version, duration,
                      stage_key, act, stage_no, difficulty, total_mobs,
                      mobs, total_damage, clear_time,
                      gold, gold_ok, gold_source, xp_gained, xp_ok, xp_source,
-                     drops, heroes, heroes_ok, runes, inventory, stash):
+                     drops, heroes, heroes_ok, runes, inventory, stash, hero_damage=None,
+                     hero_taken=None):
     """Builds the RAW v2 record (raw/<id>.json) from ALREADY-read values — RAW observation, NO
     deriving (dps/rates/labels/partial/skip/status are the CONVERTER's job, app). Each DATA field goes
     in an ok/err envelope (shared.envelope) so the converter can distinguish "didn't-read" from "read zero"
@@ -400,12 +411,21 @@ def build_raw_record(*, ts_ms, run_outcome, game_version, duration,
         "runes": ok(runes) if runes is not None else err("runes unread (save/list unreadable)"),
         "inventory": ok(inventory) if inventory is not None else err("inventory unread (save/list unreadable)"),
         "stash": ok(stash) if stash is not None else err("stash unread (save/list unreadable)"),
+        # {heroKey: {damage, hits, crits, crit_damage}} for this run, from the OPTIONAL in-game combat plugin
+        # (metrics/combat.py). err when the plugin isn't running (or restarted mid-run) — never a fake {}.
+        # Additive WITHOUT a RAW_SCHEMA_VERSION bump (the converter reads by name; an older app ignores it).
+        "hero_damage": (ok({str(k): v for k, v in hero_damage.items()}) if hero_damage is not None
+                        else err("combat plugin not running")),
+        # damage TAKEN per victim hero (plugin >= 0.4; {} with an older plugin), same envelope rule.
+        "hero_taken": (ok({str(k): v for k, v in hero_taken.items()}) if hero_taken is not None
+                       else err("combat plugin not running")),
     }
 
 
 def build_live_record(*, run, stage_key, act, stage_no, difficulty,
                        mobs, total_mobs, damage_now, elapsed, gold_now, xp_now, party, drops,
-                       party_stats=None, party_progress=None, party_slots=None):
+                       party_stats=None, party_progress=None, party_slots=None, party_items=None,
+                       party_damage=None, party_taken=None, party_dead=None):
     """Builds the RAW LIVE snapshot (live.json, overwritten ~1x/s) from ALREADY-read values —
     RAW observation, NO cooking. The reader STOPPED deriving dps/label/format here: it emits only the
     live numbers/ids and the APP cooks (computeDps/resolveStage/modeName) with the SAME helpers as the
@@ -430,7 +450,17 @@ def build_live_record(*, run, stage_key, act, stage_no, difficulty,
       → no ETA shown. Empty = no live party.
     - `party_slots` = {heroKey: slot} — the formation position (0/1/2) of each deployed hero in the
       live HeroList. `party` is already ordered by it; this rides alongside so the overlay can place by
-      EXACT position (gaps included). ADDITIVE too (same schema-versioning exception). Empty = no live party."""
+      EXACT position (gaps included). ADDITIVE too (same schema-versioning exception). Empty = no live party.
+    - `party_items` = {heroKey: [itemKey]} — each deployed hero's equipped items from the run-start build
+      snapshot (save, refreshed every new run). Lets the overlay apply item UNIQUE mods that FINAL_STATS
+      doesn't carry (1.3.2 Eternal Armor: elemental resistances unify to the highest). ADDITIVE too.
+    - `party_damage` = {heroKey: {damage, hits, crits, crit_damage}} accumulated in THIS run, from the
+      OPTIONAL in-game combat plugin (metrics/combat.py). `null` when the plugin isn't running — the
+      overlay then shows team DPS only. ADDITIVE too. Each hero also carries base_attack_damage + by_type
+      (EDamageType flag combo) / by_attribute (EDamageAttribute) breakdowns.
+    - `party_taken` = same shape, damage TAKEN per victim hero (plugin >= 0.4). ADDITIVE too.
+    - `party_dead` = [heroKey] of run heroes currently DEAD (out of the live HeroList). Their party_progress /
+      party_stats are the last-known values of this run (build.carry_last_known). ADDITIVE too."""
     return {
         "raw_schema_version": RAW_SCHEMA_VERSION,
         "run": run,
@@ -449,6 +479,10 @@ def build_live_record(*, run, stage_key, act, stage_no, difficulty,
         "party_stats": party_stats or {},
         "party_progress": party_progress or {},
         "party_slots": party_slots or {},
+        "party_items": party_items or {},
+        "party_damage": ({str(k): v for k, v in party_damage.items()} if party_damage is not None else None),
+        "party_taken": ({str(k): v for k, v in party_taken.items()} if party_taken is not None else None),
+        "party_dead": list(party_dead or []),
     }
 
 
@@ -578,6 +612,62 @@ class LogScanCursor:
         return out
 
 
+# How long a drop in StageManager.STAGE_KILLS must stay UNEXPLAINED by a StageClearLog/StageFailedLog before
+# it counts as a manual restart. Live (1.3.2) the counter zeroes on the SAME tick the clear log appears, but
+# a 10Hz loop can see the zero a tick or two early — without this window a real clear would be closed as
+# 'abandoned' first (and its StageClearLog then close a ~0s empty run as the success).
+STAGE_RELOAD_CONFIRM = 1.5
+
+
+class StageReloadDetector:
+    """Manual RESTART of the same stage (→ the open run is 'abandoned'), from StageManager.STAGE_KILLS.
+
+    The game logs nothing on a manual restart; the only trace is the per-stage kill counter dropping back
+    toward 0. Until 1.00.28 the signal was the DeadMonsterUnit list, which did NOT reset on a clear; 1.3.2
+    deleted that list, and its replacement (STAGE_KILLS) ALSO resets around a clear/fail. Two guards:
+      1. A drop is only a CANDIDATE: it becomes a reload once STAGE_RELOAD_CONFIRM passes with no clear/fail
+         closing the run — the caller `cancel()`s it when a clear/fail log closes the run (call update()
+         BEFORE the log scan and cancel() AFTER it, so a drop seen on the clear's own tick is cancelled too).
+      2. A drop only counts if the counter GREW since the last close (this run killed something that is now
+         being reset). Live 1.3.2: a CLEAR zeroes the counter on the log's tick, but a FAIL logs first and the
+         stage reloads ~1.5-2.5s LATER (counter still frozen at the failed attempt's total, then → 0). Without
+         this guard that post-fail reload confirmed after the 3s adopt grace → a phantom 3s 'abandoned' run.
+    Pure (time is a parameter)."""
+
+    def __init__(self):
+        self._prev = None
+        self._drop_at = None
+        self._grown = False         # did the counter rise since the last close/drop? (guard 2)
+
+    def reset(self):
+        """Forget everything (attach/re-attach: the counter of a new game instance is unrelated)."""
+        self._prev = None
+        self._drop_at = None
+        self._grown = False
+
+    def cancel(self):
+        """A clear/fail closed the run: the pending drop was that stage's end, not a manual restart — and a
+        drop BEFORE the new run kills anything is that close's own stage reload (guard 2)."""
+        self._drop_at = None
+        self._grown = False
+
+    def update(self, kills, now):
+        """Feed this tick's STAGE_KILLS (None = unreadable: ignored). True ONCE when a drop is confirmed."""
+        if kills is not None:
+            if self._prev is not None:
+                if kills > self._prev:
+                    self._grown = True
+                elif kills < self._prev - 2:
+                    if self._grown and self._drop_at is None:
+                        self._drop_at = now
+                    self._grown = False     # the new attempt starts from here
+            self._prev = kills
+        if self._drop_at is not None and now - self._drop_at >= STAGE_RELOAD_CONFIRM:
+            self._drop_at = None
+            return True
+        return False
+
+
 def _should_skip_run(measured, clear_time, stage):
     """A run under 30s does NOT count (discarded) — EXCEPT stage x-10 (boss-only fight, can
     last seconds), which always counts. `stage` is the stage NUMBER (StageNo), NOT an
@@ -656,6 +746,10 @@ def _flush_pending_rec(pending):
               f"{(pending.get('rec') or {}).get('id', '?')} lost")
 
 
+# StageInfoData types with NO horde waves (boss only): they enter the catalog with horde=0.
+BOSS_ONLY_STAGE_TYPES = frozenset({EStageType.ACTBOSS, EStageType.CONTAMINACTBOSS})
+
+
 def _read_catalogs(reader, inst):
     """Derives the build-stable catalogs (stage_info/item_cat/hero_cat) from the resolved
     *Data instances. Used by the scan (slow path); the fast path reuses calib's."""
@@ -687,9 +781,12 @@ def _read_catalogs(reader, inst):
         # filter above and the stage stayed OUT of the catalog: mode "?" at close/overlay
         # and blind stage adoption/switch in the loop. Validate by STAGE_TYPE + plausible
         # fields; horde = 0 (the consumers' "+1 = the boss" already covers the total).
-        boss_ok = st == EStageType.ACTBOSS and diff_ok and actsno_ok
+        # 1.3.2 added CONTAMINACTBOSS (the contaminated x-10 boss, also no horde waves): same treatment, else
+        # those 9 stages fell out of the catalog exactly like x-10 did before fmt 9.
+        boss_ok = st in BOSS_ONLY_STAGE_TYPES and diff_ok and actsno_ok
         if sk is not None and (waves_ok or boss_ok):
-            stage_info[sk] = (act, sno, wa * wm if waves_ok else 0, diff)
+            # 5th = mobs per wave (fmt 10): lets stage_total_mobs subtract the WaveCountReduction runes.
+            stage_info[sk] = (act, sno, wa * wm if waves_ok else 0, diff, wm if waves_ok else 0)
     item_cat = {}
     for a in inst.get("ItemInfoData", []):
         ik = reader.ri32(a + ItemInfoData.ITEM_KEY)
@@ -832,6 +929,29 @@ def _calibrate(reader, pid, fp, cache_path, classes, stage_info, item_cat, hero_
           "fast path armed for this build")
 
 
+def _fill_catalogs_from_seed(tup, fp):
+    """Scan catalogs with HOLES vs the bundled seed of the SAME fp → fill the missing keys from the seed.
+
+    The completeness-vs-seed gate (_covers_seed_keys) already keeps a holey catalog from being persisted or
+    shadowing the seed on the NEXT launch — but THIS session would still run on it (a scan on a game that
+    is still booting read stages=59/192, items=1416/7039: stage/mode "?" and no wave total on every run).
+    Catalogs are build CONSTANTS and the seed is ground truth for which keys exist, so the seed fills the
+    holes; a key the scan DID read keeps the scan's value (presence-only trust, same rule as the gate).
+    No seed for the fp → returned unchanged."""
+    seed = _read_calib(_seed_path(), fp) if fp else None
+    if seed is None:
+        return tup
+    stage_info, item_cat, hero_cat = tup[6], tup[7], tup[8]
+    if _covers_seed_keys(seed, stage_info, item_cat, hero_cat):
+        return tup
+    filled = [{**seed[name], **cur} for name, cur in
+              (("stage_info", stage_info), ("item_cat", item_cat), ("hero_cat", hero_cat))]
+    print(f"[calib] scan catalogs incomplete (stages={len(stage_info)} items={len(item_cat)} "
+          f"heroes={len(hero_cat)}) — filled from seed (stages={len(filled[0])} "
+          f"items={len(filled[1])} heroes={len(filled[2])})")
+    return (*tup[:6], *filled, *tup[9:])
+
+
 def resolve_all(reader, pid, fp, cache_path):
     """Orchestrates resolution GATED by build fingerprint (§1: thin — all RVA logic lives
     in typeinfo/resolver/gold). Fallback chain (§6): calib[fp] (build-stable) → scan+calibrate.
@@ -845,11 +965,22 @@ def resolve_all(reader, pid, fp, cache_path):
     if fp and ga_base:
         calib = load_calib(cache_path, fp)
         if calib:
-            tup = _resolve_fast(reader, ga_base, calib)
-            if tup is not None:
-                print(f"[calib] fast path (fp {fp}) — resolved via RVA, no scan")
-                diag(f"[resolve] path=FAST fp={fp} (calib hit, RVA, no scan)")
-                return tup
+            # Attached to a game that is still BOOTING (the app re-spawns the reader every few seconds while
+            # the game is closed, so it can attach ~1s after launch): the type table isn't populated yet and
+            # the round-trip fails although the calib is right. Retry the (cheap — it fails before the
+            # backref) fast path for a bounded while before paying the scan, which on a booting game would
+            # ALSO read half-loaded catalogs (seen live: stages=59/192 → stage/mode "?" all session).
+            for attempt in range(FAST_RETRY_TRIES):
+                tup = _resolve_fast(reader, ga_base, calib)
+                if tup is not None:
+                    print(f"[calib] fast path (fp {fp}) — resolved via RVA, no scan"
+                          + (f" (after {attempt} retr{'y' if attempt == 1 else 'ies'})" if attempt else ""))
+                    diag(f"[resolve] path=FAST fp={fp} (calib hit, RVA, no scan, retries={attempt})")
+                    return tup
+                if attempt + 1 < FAST_RETRY_TRIES:
+                    if attempt == 0:
+                        print("[calib] fast path not ready (game still loading?) — retrying")
+                    time.sleep(FAST_RETRY_SEC)
             print("[calib] fast path sanity-fail (RVA/idx/size) — falling back to scan")
             diag(f"[resolve] fast-path SANITY-FAIL (RVA/idx/size) → cold scan fp={fp}")
         else:
@@ -860,6 +991,7 @@ def resolve_all(reader, pid, fp, cache_path):
     _emit_status("scanning")   # app: splash shows "first time on this version, mapping (~1 min)"
     print("resolving classes/instances (~1-2min)...")
     tup, classes = _resolve_scan(reader)
+    tup = _fill_catalogs_from_seed(tup, fp)
     (sc_class, sf_class, msm, lm, _csd, _psd, stage_info,
      item_cat, hero_cat, _sm, gold_klass, *_rest) = tup
     if msm and lm and sc_class and sf_class:
@@ -885,6 +1017,9 @@ def run(hz, output_dir, debug=False):
     # chef): shared.memory/il2cpp (attach/resolve), game.save/build, metrics.gold/xp/dps.
     reader = Reader(handle)
     print(f"[ok] attached (pid {pid}).")
+    # The attached game's pid — the optional combat plugin stamps combat.json with it, so a file left by an
+    # earlier game session is rejected (metrics/combat.read_combat). Updated on re-attach.
+    game_pid = pid
     _emit_status("resolving")   # app: splash shows "reading the game's memory"
     gv = _detect_game_version(handle)
     game_version = gv or GAME_VERSION
@@ -1033,6 +1168,16 @@ def run(hz, output_dir, debug=False):
                 "party_live_start": pl0,
                 "xp_acc": xpacc,
                 "build": build.read_build(reader, p, item_cat, hero_cat),
+                # Waves the account's WaveCountReduction runes remove from every stage (save, per run) —
+                # the stage total is (waves − this) × mobs/wave + boss (metrics.progress.stage_total_mobs).
+                "wave_reduction": wave_reduction(build.read_runes(reader, p)),
+                # Optional combat-plugin baseline (cumulative per-hero damage at the run start; None = plugin
+                # absent → set lazily on the first valid snapshot, see the 1s live block).
+                "combat_start": read_combat(pid=game_pid),
+                # last-known live progress / FINAL stats per hero this run — kept for a hero while it is dead
+                # (out of the live HeroList), see build.carry_last_known.
+                "last_progress": {},
+                "last_stats": {},
                 "drops": [],
                 # heroKeys seen deployed during the run (accumulated from the 1s snapshot) — covers the
                 # sm that resolves LATE: pl_start empty, but the party appears seconds later.
@@ -1065,7 +1210,7 @@ def run(hz, output_dir, debug=False):
     _seed_read, _seed_size = _loglist_size_reader()
     log_cursor.seed(_seed_read, _seed_size, LOG_SCAN_CAP)
     last_alive = 0
-    prev_dead = None    # previous DeadMonsterUnit size (to detect a stage reload)
+    reload_det = StageReloadDetector()   # manual restart of the same stage (StageManager.STAGE_KILLS drop)
     dead_reads = 0      # consecutive failing reads = game closed/restarted (re-attach)
     last_snap = 0.0
     last_refresh = 0.0
@@ -1107,14 +1252,17 @@ def run(hz, output_dir, debug=False):
         si = stage_info.get(stage_key)
         act = si[0] if si else None
         stage = si[1] if si else None
-        total = (si[2] + 1) if si else None
+        total = stage_total_mobs(si, R.get("wave_reduction", 0))
         mode = DIFF_NAMES.get(si[3], "?") if si else "?"
         clear_time = 0
         wave_now = wave_tot = None
         if status in ("success", "fail") and e is not None:
-            la, ls = reader.ri32(e + StageClearLog.ACT), reader.ri32(e + StageClearLog.STAGE)
-            act = la if la is not None else act
-            stage = ls if ls is not None else stage
+            # act/stage of the logged stage: log -> StageCache -> StageInfoData (1.3.2; was 2 plain ints).
+            # None (bad read) keeps the catalog act/stage of stage_key.
+            ls = read_log_stage(reader, e, StageClearLog.STAGE_CACHE if status == "success"
+                                else StageFailedLog.STAGE_CACHE)
+            if ls is not None:
+                act, stage = ls[1], ls[2]
             if status == "success":
                 clear_time = reader.ri32(e + StageClearLog.CLEAR_TIME) or 0
             else:
@@ -1296,6 +1444,7 @@ def run(hz, output_dir, debug=False):
         # dps/rates/partial/mode/stage-string/totals (the converter derives them). Read fields go
         # in an ok/err envelope. The `dps`/`partial` above are only for the summary/live; they do NOT enter here.
         ts_ms = int(time.time() * 1000)   # id = END timestamp in ms (the run's identity; no session/counter)
+        _combat_end = read_combat(pid=game_pid)   # optional combat plugin snapshot at close (None = absent)
         rec = build_raw_record(
             ts_ms=ts_ms, run_outcome=status,
             game_version=game_version, duration=measured,
@@ -1305,7 +1454,10 @@ def run(hz, output_dir, debug=False):
             gold=gold_gain, gold_ok=gold_ok, gold_source=ge_src,
             xp_gained=xp_best, xp_ok=xp_ok, xp_source=xp_src,
             drops=R["drops"], heroes=heroes_out, heroes_ok=(not party_degraded),
-            runes=runes, inventory=inventory, stash=stash)
+            runes=runes, inventory=inventory, stash=stash,
+            # per-hero damage of THIS run from the optional combat plugin (None = plugin absent → err)
+            hero_damage=run_damage(R.get("combat_start"), _combat_end),
+            hero_taken=run_taken(R.get("combat_start"), _combat_end))
         rec_path = os.path.join(raw_dir, f"{rec['id']}.json")   # raw/<ts_ms>.json (id = ts in ms)
         if status == "success":
             # SUCCESS pends instead of writing NOW: the clear's boss box (GetBoxLog mt=1/2)
@@ -1353,6 +1505,7 @@ def run(hz, output_dir, debug=False):
                         handle = open_process(npid)
                         if handle:
                             reader = Reader(handle)
+                            game_pid = npid
                             print(f"[re-attaching] game came back (pid {npid}), re-resolving (~1-2min)...")
                             # The restart may have been a game update -> re-read version + recompute
                             # the fp BEFORE resolving (the restart changes the ga_base per ASLR — the calib's
@@ -1400,7 +1553,7 @@ def run(hz, output_dir, debug=False):
                                 _rs_read, _rs_size = _loglist_size_reader()
                                 log_cursor.seed(_rs_read, _rs_size, LOG_SCAN_CAP)
                                 last_alive = 0
-                                prev_dead = None
+                                reload_det.reset()
                                 cur_key = reader.ri32(csd + CommonSaveData.CURRENT_STAGE_KEY) if csd else None
                                 dead_reads = 0
                                 print(f"[ok] re-attached (game version {game_version}"
@@ -1436,17 +1589,15 @@ def run(hz, output_dir, debug=False):
             elif cur_key is None and csd:
                 cur_key = reader.ri32(csd + CommonSaveData.CURRENT_STAGE_KEY)
             _si = stage_info.get(cur_key)
-            # +1 = the boss (StageInfoData counts only the horde mobs; we also kill the boss)
-            total_mobs = (_si[2] + 1) if _si else None
+            # horde (minus the rune-removed waves) + 1 boss — StageInfoData counts only the horde mobs
+            total_mobs = stage_total_mobs(_si, R.get("wave_reduction", 0))
             stage_lbl = f"{_si[0]}-{_si[1]}" if _si else "?"
             mode_txt = DIFF_NAMES.get(_si[3], "?") if _si else "?"
 
-            # Manual RESTART of the SAME stage: DeadMonsterUnit is cumulative and DROPS when the
-            # stage reloads on a manual restart. Clear/auto-replay do NOT zero it (they log separately).
-            dead_now = reader.ri32((reader.rptr(msm + MonsterSpawnManager.DEAD_MONSTER_LIST) or 0) + List.SIZE)
-            reloaded = (prev_dead is not None and dead_now is not None and dead_now < prev_dead - 2)
-            if dead_now is not None:
-                prev_dead = dead_now
+            # Manual RESTART of the SAME stage: the per-stage kill counter DROPS when the stage reloads.
+            # It ALSO drops on a clear/fail, so the detector only confirms a drop that no clear/fail log
+            # explains within STAGE_RELOAD_CONFIRM (cancel() after the log scan below).
+            reloaded = reload_det.update(read_stage_kills(reader, sm), now)
 
             # close by LOG: StageClearLog (success) or StageFailedLog (fail). Detection of which
             # entries are NEW is rotation-aware (LogScanCursor, by OBJECT POINTER): the LOG_LIST is
@@ -1505,6 +1656,8 @@ def run(hz, output_dir, debug=False):
                     rev = _suffix_int(reader.read_string(reader.rptr(e + ResurrectionLog.HERO)))
                     if rev is not None:
                         R["revives"][rev] = R["revives"].get(rev, 0) + 1
+            if closed:
+                reload_det.cancel()   # the kill-counter drop (if any) was this clear/fail, not a restart
 
             # Pending-close expired (GRACE elapsed with no more boss box) → flush and clear. AFTER
             # the LOG_LIST scan on purpose: a boss box surfacing on the SAME tick the
@@ -1519,8 +1672,8 @@ def run(hz, output_dir, debug=False):
             if cur_key is not None and cur_key in stage_info and (
                     R["stage_key"] is None or now < R["adopt_until"]):
                 R["stage_key"] = cur_key
-            # END by RESTART/switch without clear/fail: dead dropped (reload of the same stage) OR
-            # bceo changed (stage switch). Once the grace is past, abandon the partial and restart.
+            # END by RESTART/switch without clear/fail: a confirmed kill-counter drop (reload of the same
+            # stage) OR the live stage key changed (stage switch). Once the grace is past, abandon and restart.
             if not closed and now >= R["adopt_until"] and R["stage_key"] is not None:
                 switched = (cur_key is not None and cur_key in stage_info
                             and cur_key != R["stage_key"])
@@ -1609,6 +1762,17 @@ def run(hz, output_dir, debug=False):
                 # time-to-level — assembled from the SAME pl_end + xp accumulator already in hand
                 # (metrics/xp keeps this orchestrator read-free). Additive in live.json (like party_stats).
                 live_progress = xp.party_progress(R["xp_acc"], pl_end)
+                # Optional combat plugin → per-hero damage of THIS run. A run that started before the
+                # plugin's file was valid gets its baseline on the first valid snapshot (counts from then).
+                _cs = read_combat(pid=game_pid)
+                if R.get("combat_start") is None and _cs is not None:
+                    R["combat_start"] = _cs
+                live_damage = run_damage(R.get("combat_start"), _cs)
+                # A DEAD hero leaves the live HeroList until it revives — keep its last-known progress/stats
+                # this run (level badge + resist tooltip stay) and flag it in party_dead for the overlay.
+                live_stats = build.carry_last_known(live_stats, R["last_stats"], party_keys)
+                live_progress = build.carry_last_known(live_progress, R["last_progress"], party_keys)
+                party_dead = build.dead_heroes(party_keys, pl_end)
                 live_rec = build_live_record(
                     run=run_num,
                     stage_key=cur_key,
@@ -1622,7 +1786,11 @@ def run(hz, output_dir, debug=False):
                     party_stats=live_stats,
                     party_progress=live_progress,
                     party_slots={hk: slot_by_hero[hk] for hk in party_keys
-                                 if slot_by_hero.get(hk) is not None})
+                                 if slot_by_hero.get(hk) is not None},
+                    party_items=build.equipped_item_keys(R["build"], party_keys),
+                    party_damage=live_damage,
+                    party_taken=run_taken(R.get("combat_start"), _cs),
+                    party_dead=party_dead)
                 _write_atomic(live_path, json.dumps(live_rec))
                 last_snap = now
             time.sleep(interval)

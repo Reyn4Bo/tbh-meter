@@ -82,7 +82,7 @@ The close is decided by comparing the new entry's klass-pointer against `sc_clas
 
 (The same entries also carry `GetBoxLog`/`HeroDieLog`/`ResurrectionLog`, matched by the
 same klass-pointer pattern.) There is also a third
-outcome — `close_run("abandoned", ...)` — when the stage reloads (DeadMonsterUnit drops) or the
+outcome — `close_run("abandoned", ...)` — when the stage reloads (the per-stage kill counter `StageManager.STAGE_KILLS` drops and no clear/fail log explains it within `STAGE_RELOAD_CONFIRM` — `StageReloadDetector`; 1.3.2 deleted the old `DeadMonsterUnit` signal, and the new counter ALSO resets on a clear, hence the debounce) or the
 player switches stage without clearing/failing, once past the initial grace window.
 
 ## Pending-close: the boss box arrives AFTER the clear (only the success WRITE is delayed)

@@ -6,6 +6,7 @@ import { RAW_V1_EXAMPLE } from "../../shared/__fixtures__/raw-v1.js";
 import { RAW_V2_EXAMPLE } from "../../shared/__fixtures__/raw-v2.js";
 import { STRUCTURED_V1_EXAMPLE } from "../../shared/__fixtures__/structured-v1.js";
 import type { Field } from "../../shared/raw-types.js";
+import { STRUCTURED_SCHEMA_VERSION } from "../converter/convert.js";
 
 describe("RAW v1 contract", () => {
   it("stamps raw_schema_version = 1", () => {
@@ -62,7 +63,7 @@ describe("RAW v2 contract (Redesign 2 — identity = end-ts in ms, no session)",
 describe("STRUCTURED v1 contract", () => {
   it("carries the converter verdict + schema provenance", () => {
     expect(STRUCTURED_V1_EXAMPLE.quality).toBe("counted");
-    expect(STRUCTURED_V1_EXAMPLE.structuredSchemaVersion).toBe(1);
+    expect(STRUCTURED_V1_EXAMPLE.structuredSchemaVersion).toBe(STRUCTURED_SCHEMA_VERSION);
     expect(STRUCTURED_V1_EXAMPLE.schemaVersion).toBe(1); // the raw schema it was derived from
     expect(STRUCTURED_V1_EXAMPLE.issues).toEqual({});
   });

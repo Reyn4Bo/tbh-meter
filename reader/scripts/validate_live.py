@@ -238,7 +238,7 @@ def main():
                    f"slots={party_slots} herolist_index={raw_slots}"))
 
     # [dps] MonsterSpawnManager + UnitHealthController: DPS = Σ of monster HP drops. models.live_monsters
-    # iterates (unit, hp_cur, hp_max) reading MONSTER_LIST/SUMMONED_LIST + Unit.HEALTH_CONTROLLER + HP@0x40/0x4C.
+    # iterates (unit, hp_cur, hp_max) reading MONSTER_LIST/SUMMONED_LIST + Unit.HEALTH_CONTROLLER + HP_CURRENT/HP_MAX.
     # NEVER exercised live before (matrix: DPS is L=✗) → a MONSTER_LIST/HP shift left dps=0 silently
     # across the fleet. Requires >=1 live monster with hp_max>0 (proves the whole chain: list + HealthController + HP).
     mons = list(models.live_monsters(reader, msm)) if msm else []

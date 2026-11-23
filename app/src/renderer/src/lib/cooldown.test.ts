@@ -49,11 +49,12 @@ describe("game-data derivation (Normal Pasture = stageKey 1101, blue box 920011)
 });
 
 describe("blueBoxes (the route picker's universe)", () => {
-  it("lists the distinct blue boxes, sorted by level (Lv4 first, Lv80 last)", () => {
+  it("lists the distinct blue boxes, sorted by level (Lv4 first, Lv90 last)", () => {
     const boxes = blueBoxes();
     expect(boxes.length).toBeGreaterThan(1);
     expect(boxes[0]).toEqual({ boxKey: 920011, level: 4 });
-    expect(boxes[boxes.length - 1]).toEqual({ boxKey: 920801, level: 80 });
+    // 1.3.2 added Lv90 (920901: Torment 2-9 + 3-x); the 925xxx contaminated boxes are NOT blue.
+    expect(boxes[boxes.length - 1]).toEqual({ boxKey: 920901, level: 90 });
     // strictly ascending by level
     const levels = boxes.map((b) => b.level ?? 0);
     expect(levels).toEqual([...levels].sort((a, b) => a - b));

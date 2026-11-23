@@ -1,9 +1,22 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { Swords, ScrollText, Minus, Plus, X, ShieldAlert, Pin, PinOff } from "lucide-react";
+import {
+  Swords,
+  ScrollText,
+  Minus,
+  Plus,
+  X,
+  ShieldAlert,
+  Pin,
+  PinOff,
+  PanelBottom,
+  PanelBottomDashed,
+  Gamepad2,
+} from "lucide-react";
 import type { LiveSnapshot } from "../../../shared/run-types.js";
 import type { ReaderState } from "../../../shared/ipc-types.js";
 import { humanize, formatDuration, modeBadgeClass, modeTextClass, modeLabel } from "~/lib/format";
-import { heroSprite } from "~/lib/game-data";
+import { heroName, heroSprite } from "~/lib/game-data";
+import { HERO_DPS_BG, HERO_DPS_TEXT, heroDpsRows, sharePct, type HeroDpsRow } from "~/lib/hero-damage";
 import { stageThreat, hasThreat } from "~/lib/stage-threat";
 import { StageThreatBadges } from "~/components/StageThreat";
 import { HeroFrame } from "~/components/HeroFrame";
@@ -31,6 +44,10 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
   const [status, setStatus] = useState<ReaderState>("idle");
   const [expanded, setExpanded] = useState(true);
   const [pinned, setPinned] = useState(true);
+  // Optional per-hero DPS (Settings toggle). Off → team DPS only, even if a stray plugin file exists.
+  const [perHeroDps, setPerHeroDps] = useState(false);
+  // Taskbar-icon toggles (also in Settings) — mirrored here so they're one click away on the overlay.
+  const [taskbar, setTaskbar] = useState<TaskbarState>({ hideMeter: false, hideGame: false });
   // Smooth elapsed clock: anchored to each snapshot's elapsedSec + wall time, advanced by a
   // local interval. Decouples the displayed seconds from the file-poll/reader-write cadence,
   // which otherwise alias (poll 700ms vs write ~1s) and make the second tick unevenly.
@@ -49,10 +66,14 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
     void window.meter.getSettings().then((s) => {
       setExpanded(s.liveExpanded);
       setPinned(s.alwaysOnTop);
+      setPerHeroDps(s.perHeroDps);
+      setTaskbar({ hideMeter: s.hideTaskbarIcon, hideGame: s.hideGameTaskbarIcon });
     });
     return window.meter.onSettingsChanged((s) => {
       setExpanded(s.liveExpanded);
       setPinned(s.alwaysOnTop);
+      setPerHeroDps(s.perHeroDps);
+      setTaskbar({ hideMeter: s.hideTaskbarIcon, hideGame: s.hideGameTaskbarIcon });
     });
   }, []);
 
@@ -143,6 +164,7 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
           onToggle={toggle}
           pinned={pinned}
           onTogglePin={togglePin}
+          taskbar={taskbar}
         >
           <span className="flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500">
             <span className="size-1.5 rounded-full bg-zinc-600" />
@@ -160,6 +182,10 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
   }
 
   const mobsLabel = snap.totalMobs != null ? `${snap.mobs}/${snap.totalMobs}` : String(snap.mobs);
+  // Per-hero DPS (optional combat plugin) — one row set shared by the share bar and the party avatars.
+  const dpsRows = perHeroDps ? heroDpsRows(snap.party, snap.partyDamage, snap.elapsedSec) : null;
+  // Damage TAKEN rows (plugin >= 0.4) — same formation order → same per-hero colours as the DPS rows.
+  const takenRows = perHeroDps ? heroDpsRows(snap.party, snap.partyTaken, snap.elapsedSec) : null;
 
   // ── Lean 2-line strip ──────────────────────────────────────────────────────
   if (!expanded) {
@@ -188,6 +214,7 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
             {humanize(snap.dps)}
             {snap.approx && <span className="ml-0.5 align-top text-[10px] text-zinc-500">~</span>}
           </span>
+          <TaskbarButtons state={taskbar} />
           <PinButton pinned={pinned} onTogglePin={togglePin} />
           <IconButton title={t("live.openLogs")} onClick={onOpenLogs}>
             <ScrollText className="size-3.5" />
@@ -229,6 +256,7 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
         onToggle={toggle}
         pinned={pinned}
         onTogglePin={togglePin}
+        taskbar={taskbar}
         run={snap.runNumber}
         stage={snap.stage}
         mode={snap.mode}
@@ -245,6 +273,8 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
             {snap.approx && <span className="ml-0.5 align-top text-[11px] text-zinc-500">~</span>}
           </span>
         </div>
+
+        {dpsRows && <PartyDpsBar rows={dpsRows} taken={takenRows} />}
 
         <Bar value={snap.mobs} total={snap.totalMobs} className="mt-2" />
         <div className="mt-1 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-zinc-500">
@@ -279,6 +309,10 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
             party={snap.party}
             partyStats={snap.partyStats}
             partyProgress={snap.partyProgress}
+            partyItems={snap.partyItems ?? null}
+            dpsRows={dpsRows}
+            takenRows={takenRows}
+            dead={snap.partyDead ?? null}
             elapsedSec={snap.elapsedSec}
             mode={snap.mode}
           />
@@ -303,6 +337,7 @@ function TitleBar({
   onToggle,
   pinned,
   onTogglePin,
+  taskbar,
   run,
   stage,
   mode,
@@ -315,6 +350,7 @@ function TitleBar({
   onToggle: () => void;
   pinned: boolean;
   onTogglePin: () => void;
+  taskbar: TaskbarState;
   run?: number | null;
   stage?: string;
   mode?: string;
@@ -358,6 +394,7 @@ function TitleBar({
       )}
       <span className="ml-auto flex shrink-0 items-center gap-2">
         {children}
+        <TaskbarButtons state={taskbar} />
         <PinButton pinned={pinned} onTogglePin={onTogglePin} />
         <IconButton title={t("live.openLogs")} onClick={onOpenLogs}>
           <ScrollText className="size-3.5" />
@@ -368,6 +405,10 @@ function TitleBar({
 }
 
 /** Mob-progress bar (mobs / totalMobs). Empty track when the total is unknown. */
+/** The ONE track style shared by every overlay bar (mobs progress, DPS share, damage-taken share) so they
+ *  line up edge to edge with the same height, colour and rounding. */
+const TRACK = "h-1.5 overflow-hidden rounded-full bg-surface-700";
+
 function Bar({
   value,
   total,
@@ -379,7 +420,7 @@ function Bar({
 }) {
   const pct = total != null && total > 0 ? Math.min(100, (value / total) * 100) : null;
   return (
-    <div className={cn("h-1 overflow-hidden rounded-full bg-surface-600", className)}>
+    <div className={cn(TRACK, className)}>
       {pct != null && (
         <span
           className="block h-full rounded-full bg-gradient-to-r from-brand-600 to-brand-400 transition-[width] duration-700 ease-out"
@@ -466,12 +507,20 @@ function PartyFrame({
   party,
   partyStats,
   partyProgress,
+  partyItems,
+  dpsRows,
+  takenRows,
+  dead,
   elapsedSec,
   mode,
 }: {
+  dead: number[] | null;
   party: number[] | null;
   partyStats: Record<number, Record<number, number>> | null;
   partyProgress: Record<number, { level: number; exp: number; gain: number }> | null;
+  partyItems: Record<number, number[]> | null;
+  dpsRows: HeroDpsRow[] | null;
+  takenRows: HeroDpsRow[] | null;
   elapsedSec: number;
   mode: string;
 }) {
@@ -488,11 +537,75 @@ function PartyFrame({
           src={h.src}
           stats={partyStats?.[h.key]}
           progress={partyProgress?.[h.key]}
+          items={partyItems?.[h.key]}
+          dps={dpsRows?.find((r) => r.heroKey === h.key)}
+          taken={takenRows?.find((r) => r.heroKey === h.key)}
+          dead={dead?.includes(h.key) ?? false}
           elapsedSec={elapsedSec}
           mode={mode}
         />
       ))}
     </span>
+  );
+}
+
+/** Per-hero DPS share under the team DPS: a stacked bar (one colour per hero, formation order) and a
+ *  legend line "● Name DPS share". Only rendered when the optional combat plugin feeds per-hero damage. */
+function PartyDpsBar({ rows, taken }: { rows: HeroDpsRow[]; taken?: HeroDpsRow[] | null }) {
+  const t = useT();
+  const hasTaken = !!taken && taken.some((r) => r.damage > 0);
+  return (
+    <>
+      {/* Every bar here and the mobs bar below share TRACK and sit full-width, with their caption on the
+          line underneath — so the three bars line up edge to edge. */}
+      <div className="mt-2">
+        <ShareBar rows={rows} />
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 font-mono text-[10px] tabular-nums">
+          {rows.map((r) => (
+            <span key={r.heroKey} className="flex items-center gap-1">
+              <span className={cn("size-1.5 shrink-0 rounded-full", HERO_DPS_BG[r.color])} />
+              <span className="text-zinc-400">{heroName(r.heroKey)}</span>
+              <span className="font-semibold text-white">{humanize(r.dps)}</span>
+              <span className="text-zinc-500">{sharePct(r.share)}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+      {/* Damage TAKEN share (plugin >= 0.4) — who is tanking, same hero colours. */}
+      {hasTaken && (
+        <div className="mt-2">
+          <ShareBar rows={taken!} />
+          <div className="mt-1 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider tabular-nums">
+            <span className="text-white">{t("live.taken")}</span>
+            <span className="flex items-center gap-2">
+              {taken!.map((r) => (
+                <span key={r.heroKey} className="flex items-center gap-1">
+                  <span className={cn("size-1.5 shrink-0 rounded-full", HERO_DPS_BG[r.color])} />
+                  <span className={HERO_DPS_TEXT[r.color]}>{sharePct(r.share)}</span>
+                </span>
+              ))}
+            </span>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/** A full-width stacked share bar on the shared TRACK — one segment per hero, in its colour. */
+function ShareBar({ rows }: { rows: HeroDpsRow[] }) {
+  return (
+    <div className={cn(TRACK, "flex")}>
+      {rows
+        .filter((r) => r.share > 0)
+        .map((r) => (
+          <span
+            key={r.heroKey}
+            className={cn("h-full transition-[width] duration-700", HERO_DPS_BG[r.color])}
+            style={{ width: `${r.share * 100}%` }}
+          />
+        ))}
+    </div>
   );
 }
 
@@ -618,5 +731,41 @@ function PinButton({ pinned, onTogglePin }: { pinned: boolean; onTogglePin: () =
     >
       {pinned ? <Pin className="size-3.5" /> : <PinOff className="size-3.5" />}
     </IconButton>
+  );
+}
+
+/** Taskbar-icon state mirrored from settings (hideTaskbarIcon / hideGameTaskbarIcon). */
+interface TaskbarState {
+  hideMeter: boolean;
+  hideGame: boolean;
+}
+
+/** One-click taskbar toggles (same settings as the Settings → taskbar rows): the meter's own button and
+ *  the game's. Hidden = "non-default" → amber, like the unpinned pin. The settings-changed echo re-syncs
+ *  LiveView's state, so the click only writes the setting. */
+function TaskbarButtons({ state }: { state: TaskbarState }) {
+  const t = useT();
+  const hidden = "text-amber-400 hover:text-amber-300";
+  return (
+    <>
+      <IconButton
+        title={state.hideMeter ? t("live.showTaskbarTitle") : t("live.hideTaskbarTitle")}
+        onClick={() => void window.meter.setSettings({ hideTaskbarIcon: !state.hideMeter })}
+        className={state.hideMeter ? hidden : undefined}
+      >
+        {state.hideMeter ? (
+          <PanelBottomDashed className="size-3.5" />
+        ) : (
+          <PanelBottom className="size-3.5" />
+        )}
+      </IconButton>
+      <IconButton
+        title={state.hideGame ? t("live.showGameTaskbarTitle") : t("live.hideGameTaskbarTitle")}
+        onClick={() => void window.meter.setSettings({ hideGameTaskbarIcon: !state.hideGame })}
+        className={state.hideGame ? hidden : undefined}
+      >
+        <Gamepad2 className="size-3.5" />
+      </IconButton>
+    </>
   );
 }

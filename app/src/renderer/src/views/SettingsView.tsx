@@ -11,7 +11,12 @@ import {
   Plus,
   FileText,
 } from "lucide-react";
-import type { AppSettings, UpdateStatus } from "../../../shared/ipc-types.js";
+import type {
+  AppSettings,
+  CombatPluginStatus,
+  CombatPluginToggleResult,
+  UpdateStatus,
+} from "../../../shared/ipc-types.js";
 import { FONT_SCALE_MIN, FONT_SCALE_MAX, clampFontScale } from "../../../shared/ipc-types.js";
 import { COUNT_FLOOR_SEC } from "../../../shared/run-types.js";
 import { AUTO_LOCALE, LOCALES } from "../../../shared/i18n/index.js";
@@ -138,6 +143,14 @@ export function SettingsView({ settings, onSettingsChange }: SettingsViewProps) 
 
       <div className="border-t border-surface-600 pt-3">
         <StartupRow settings={settings} onSettingsChange={onSettingsChange} />
+      </div>
+
+      <div className="border-t border-surface-600 pt-3">
+        <TaskbarRow settings={settings} onSettingsChange={onSettingsChange} />
+      </div>
+
+      <div className="border-t border-surface-600 pt-3">
+        <PerHeroDpsRow settings={settings} />
       </div>
 
       <div className="border-t border-surface-600 pt-3">
@@ -344,6 +357,170 @@ function StartupRow({
         <span className="block text-[11px] text-zinc-500">{t("settings.startupDesc")}</span>
       </span>
     </label>
+  );
+}
+
+/** Taskbar section: hide the meter's own taskbar button (the tray icon stays) and, optionally, the game's
+ *  (a Windows-shell tweak in main/game-taskbar.ts — no game memory/files touched). */
+function TaskbarRow({
+  settings,
+  onSettingsChange,
+}: {
+  settings: AppSettings;
+  onSettingsChange: (partial: Partial<AppSettings>) => void;
+}) {
+  const t = useT();
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="flex cursor-pointer items-start gap-2">
+        <input
+          type="checkbox"
+          checked={settings.hideTaskbarIcon}
+          onChange={(e) => onSettingsChange({ hideTaskbarIcon: e.target.checked })}
+          className="mt-0.5 size-3.5 shrink-0 cursor-pointer accent-brand-500"
+        />
+        <span>
+          <span className="text-xs font-medium text-zinc-300">{t("settings.hideTaskbar")}</span>
+          <span className="block text-[11px] text-zinc-500">{t("settings.hideTaskbarDesc")}</span>
+        </span>
+      </label>
+      <label className="flex cursor-pointer items-start gap-2">
+        <input
+          type="checkbox"
+          checked={settings.hideGameTaskbarIcon}
+          onChange={(e) => onSettingsChange({ hideGameTaskbarIcon: e.target.checked })}
+          className="mt-0.5 size-3.5 shrink-0 cursor-pointer accent-brand-500"
+        />
+        <span>
+          <span className="text-xs font-medium text-zinc-300">{t("settings.hideGameTaskbar")}</span>
+          <span className="block text-[11px] text-zinc-500">
+            {t("settings.hideGameTaskbarDesc")}
+          </span>
+        </span>
+      </label>
+    </div>
+  );
+}
+
+/** Optional per-hero DPS. OFF (default) = the meter is a pure memory reader and never touches the game
+ *  folder. Turning it ON first shows the risk note + an explicit Install button; the main process then
+ *  copies the bundled BepInEx + plugin into the game folder (the checkbox only flips on success). Turning it
+ *  OFF removes what was installed. Both need the game closed. */
+function PerHeroDpsRow({ settings }: { settings: AppSettings }) {
+  const t = useT();
+  const [status, setStatus] = useState<CombatPluginStatus | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+
+  useEffect(() => {
+    void window.meter.getCombatPluginStatus().then(setStatus);
+  }, []);
+
+  const errorText = (r: CombatPluginToggleResult): string => {
+    switch (r.error) {
+      case "game-running":
+        return t("settings.perHeroDpsGameRunning");
+      case "no-game-dir":
+        return t("settings.perHeroDpsNoGameDir");
+      case "unsupported":
+        return t("settings.perHeroDpsUnsupported");
+      default:
+        return t("settings.perHeroDpsFailed", { detail: r.detail ?? "?" });
+    }
+  };
+
+  const apply = async (enabled: boolean): Promise<void> => {
+    setBusy(true);
+    setMessage(null);
+    try {
+      const r = await window.meter.setCombatPluginEnabled(enabled);
+      setStatus(r.status);
+      setMessage(
+        r.ok
+          ? { tone: "ok", text: t(enabled ? "settings.perHeroDpsInstalled" : "settings.perHeroDpsRemoved") }
+          : { tone: "err", text: errorText(r) },
+      );
+      if (r.ok) setConfirming(false);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pickDir = async (): Promise<void> => {
+    const s = await window.meter.pickGameDir();
+    if (s) {
+      setStatus(s);
+      setMessage(s.gameDir ? null : { tone: "err", text: t("settings.perHeroDpsNoGameDir") });
+    }
+  };
+
+  return (
+    <div>
+      <label className="flex cursor-pointer items-start gap-2">
+        <input
+          type="checkbox"
+          checked={settings.perHeroDps}
+          disabled={busy}
+          onChange={(e) => {
+            if (e.target.checked) setConfirming(true); // install only after the explicit confirm below
+            else void apply(false);
+          }}
+          className="mt-0.5 size-3.5 shrink-0 cursor-pointer accent-brand-500"
+        />
+        <span>
+          <span className="text-xs font-medium text-zinc-300">{t("settings.perHeroDps")}</span>
+          <span className="block text-[11px] text-zinc-500">{t("settings.perHeroDpsDesc")}</span>
+        </span>
+      </label>
+
+      {confirming && !settings.perHeroDps && (
+        <div className="ml-5 mt-2 rounded border border-amber-500/40 bg-amber-500/5 px-2.5 py-2">
+          <p className="text-[11px] text-amber-200/90">{t("settings.perHeroDpsRisk")}</p>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void apply(true)}
+              className="cursor-pointer rounded bg-brand-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-500 disabled:opacity-50"
+            >
+              {t("settings.perHeroDpsInstall")}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setConfirming(false)}
+              className="cursor-pointer rounded px-2.5 py-1 text-xs text-zinc-400 transition-colors hover:text-zinc-200"
+            >
+              {t("common.cancel")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {(confirming || settings.perHeroDps || message) && (
+        <div className="ml-5 mt-1.5 flex items-center gap-2">
+          <span className="shrink-0 text-[11px] text-zinc-500">{t("settings.perHeroDpsGameDir")}</span>
+          <span className="min-w-0 flex-1 truncate rounded bg-surface-800/80 px-2 py-0.5 font-mono text-[11px] text-zinc-400">
+            {status?.gameDir ?? "—"}
+            {status?.installed && status.installedVersion ? ` · v${status.installedVersion}` : ""}
+          </span>
+          <button
+            type="button"
+            onClick={() => void pickDir()}
+            className="shrink-0 cursor-pointer rounded px-2 py-0.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+          >
+            {t("settings.perHeroDpsPickDir")}
+          </button>
+        </div>
+      )}
+
+      {message && (
+        <p className={cn("ml-5 mt-1 text-[11px]", message.tone === "ok" ? "text-emerald-300" : "text-rose-300")}>
+          {message.text}
+        </p>
+      )}
+    </div>
   );
 }
 

@@ -7800,11 +7800,11 @@
   ],
   "bossMonsterKey": 20111,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": 9200520,
@@ -7924,11 +7924,11 @@
   ],
   "bossMonsterKey": 20024,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -7999,11 +7999,11 @@
   ],
   "bossMonsterKey": 20021,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8078,11 +8078,11 @@
   ],
   "bossMonsterKey": 20031,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8157,11 +8157,11 @@
   ],
   "bossMonsterKey": 20041,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8236,11 +8236,11 @@
   ],
   "bossMonsterKey": 20071,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8315,11 +8315,11 @@
   ],
   "bossMonsterKey": 20081,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8394,11 +8394,11 @@
   ],
   "bossMonsterKey": 20023,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8473,11 +8473,11 @@
   ],
   "bossMonsterKey": 20061,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": null,
@@ -8552,11 +8552,11 @@
   ],
   "bossMonsterKey": 20111,
   "monsterDrop": {
-   "itemKey": 910801,
+   "itemKey": 910901,
    "rate": 8
   },
   "bossDrop": {
-   "itemKey": 920801,
+   "itemKey": 920901,
    "rate": 80
   },
   "firstClearDropKey": 9200520,
@@ -8629,6 +8629,4816 @@
    "hp": 383270,
    "gold": 39660,
    "exp": 782600
+  }
+ },
+ {
+  "key": 201201,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 1,
+  "stageLevel": 40,
+  "nextStageKey": 201202,
+  "waveAmount": 17,
+  "waveMonsterAmount": 15,
+  "monsters": [
+   {
+    "monster": "10011",
+    "weight": 300
+   },
+   {
+    "monster": "10021",
+    "weight": 240
+   },
+   {
+    "monster": "10022",
+    "weight": 180
+   },
+   {
+    "monster": "10031",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20024,
+  "monsterDrop": {
+   "itemKey": 915001,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925001,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201202,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 2,
+  "stageLevel": 40,
+  "nextStageKey": 201203,
+  "waveAmount": 17,
+  "waveMonsterAmount": 15,
+  "monsters": [
+   {
+    "monster": "10041",
+    "weight": 300
+   },
+   {
+    "monster": "10042",
+    "weight": 240
+   },
+   {
+    "monster": "10043",
+    "weight": 180
+   },
+   {
+    "monster": "10051",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20021,
+  "monsterDrop": {
+   "itemKey": 915001,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925002,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201203,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 3,
+  "stageLevel": 40,
+  "nextStageKey": 201204,
+  "waveAmount": 17,
+  "waveMonsterAmount": 15,
+  "monsters": [
+   {
+    "monster": "10053",
+    "weight": 300
+   },
+   {
+    "monster": "20011",
+    "weight": 240
+   },
+   {
+    "monster": "20021",
+    "weight": 180
+   },
+   {
+    "monster": "20023",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20031,
+  "monsterDrop": {
+   "itemKey": 915001,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925003,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201204,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 4,
+  "stageLevel": 40,
+  "nextStageKey": 201205,
+  "waveAmount": 17,
+  "waveMonsterAmount": 15,
+  "monsters": [
+   {
+    "monster": "20024",
+    "weight": 300
+   },
+   {
+    "monster": "20031",
+    "weight": 240
+   },
+   {
+    "monster": "20041",
+    "weight": 180
+   },
+   {
+    "monster": "20042",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20041,
+  "monsterDrop": {
+   "itemKey": 915001,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925004,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201205,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 5,
+  "stageLevel": 40,
+  "nextStageKey": 201206,
+  "waveAmount": 17,
+  "waveMonsterAmount": 15,
+  "monsters": [
+   {
+    "monster": "20051",
+    "weight": 300
+   },
+   {
+    "monster": "20061",
+    "weight": 240
+   },
+   {
+    "monster": "20062",
+    "weight": 180
+   },
+   {
+    "monster": "20071",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 56
+   }
+  ],
+  "bossMonsterKey": 20071,
+  "monsterDrop": {
+   "itemKey": 915001,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925005,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201206,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 6,
+  "stageLevel": 40,
+  "nextStageKey": 201207,
+  "waveAmount": 18,
+  "waveMonsterAmount": 16,
+  "monsters": [
+   {
+    "monster": "20081",
+    "weight": 300
+   },
+   {
+    "monster": "20091",
+    "weight": 240
+   },
+   {
+    "monster": "20111",
+    "weight": 180
+   },
+   {
+    "monster": "20121",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 76
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915006,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925006,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201207,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 7,
+  "stageLevel": 40,
+  "nextStageKey": 201208,
+  "waveAmount": 18,
+  "waveMonsterAmount": 16,
+  "monsters": [
+   {
+    "monster": "30011",
+    "weight": 300
+   },
+   {
+    "monster": "30012",
+    "weight": 240
+   },
+   {
+    "monster": "30013",
+    "weight": 180
+   },
+   {
+    "monster": "30021",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 96
+   }
+  ],
+  "bossMonsterKey": 20023,
+  "monsterDrop": {
+   "itemKey": 915006,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925007,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201208,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 8,
+  "stageLevel": 40,
+  "nextStageKey": 201209,
+  "waveAmount": 18,
+  "waveMonsterAmount": 16,
+  "monsters": [
+   {
+    "monster": "30031",
+    "weight": 300
+   },
+   {
+    "monster": "30041",
+    "weight": 240
+   },
+   {
+    "monster": "30042",
+    "weight": 180
+   },
+   {
+    "monster": "30043",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 77
+   },
+   {
+    "monster": "2010003",
+    "weight": 41
+   }
+  ],
+  "bossMonsterKey": 20061,
+  "monsterDrop": {
+   "itemKey": 915006,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925008,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201209,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 9,
+  "stageLevel": 40,
+  "nextStageKey": 201210,
+  "waveAmount": 18,
+  "waveMonsterAmount": 16,
+  "monsters": [
+   {
+    "monster": "30044",
+    "weight": 300
+   },
+   {
+    "monster": "30051",
+    "weight": 240
+   },
+   {
+    "monster": "30061",
+    "weight": 180
+   },
+   {
+    "monster": "30071",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 91
+   },
+   {
+    "monster": "2010003",
+    "weight": 49
+   }
+  ],
+  "bossMonsterKey": 20111,
+  "monsterDrop": {
+   "itemKey": 915006,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925009,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201210,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 10,
+  "stageLevel": 40,
+  "nextStageKey": 201211,
+  "waveAmount": 18,
+  "waveMonsterAmount": 16,
+  "monsters": [
+   {
+    "monster": "30081",
+    "weight": 300
+   },
+   {
+    "monster": "30082",
+    "weight": 240
+   },
+   {
+    "monster": "30083",
+    "weight": 180
+   },
+   {
+    "monster": "30084",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 106
+   },
+   {
+    "monster": "2010003",
+    "weight": 57
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915006,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925010,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201211,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 11,
+  "stageLevel": 40,
+  "nextStageKey": 201212,
+  "waveAmount": 19,
+  "waveMonsterAmount": 17,
+  "monsters": [
+   {
+    "monster": "30091",
+    "weight": 300
+   },
+   {
+    "monster": "10011",
+    "weight": 240
+   },
+   {
+    "monster": "10021",
+    "weight": 180
+   },
+   {
+    "monster": "10022",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 94
+   },
+   {
+    "monster": "2010002",
+    "weight": 43
+   },
+   {
+    "monster": "2010003",
+    "weight": 50
+   }
+  ],
+  "bossMonsterKey": 20024,
+  "monsterDrop": {
+   "itemKey": 915011,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925011,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201212,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 12,
+  "stageLevel": 40,
+  "nextStageKey": 201213,
+  "waveAmount": 19,
+  "waveMonsterAmount": 17,
+  "monsters": [
+   {
+    "monster": "10031",
+    "weight": 300
+   },
+   {
+    "monster": "10041",
+    "weight": 240
+   },
+   {
+    "monster": "10042",
+    "weight": 180
+   },
+   {
+    "monster": "10043",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 121
+   },
+   {
+    "monster": "2010002",
+    "weight": 56
+   },
+   {
+    "monster": "2010003",
+    "weight": 65
+   }
+  ],
+  "bossMonsterKey": 20021,
+  "monsterDrop": {
+   "itemKey": 915011,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925012,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201213,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 13,
+  "stageLevel": 40,
+  "nextStageKey": 201214,
+  "waveAmount": 19,
+  "waveMonsterAmount": 17,
+  "monsters": [
+   {
+    "monster": "10051",
+    "weight": 300
+   },
+   {
+    "monster": "10053",
+    "weight": 240
+   },
+   {
+    "monster": "20011",
+    "weight": 180
+   },
+   {
+    "monster": "20021",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 119
+   },
+   {
+    "monster": "2010002",
+    "weight": 55
+   },
+   {
+    "monster": "2010003",
+    "weight": 64
+   }
+  ],
+  "bossMonsterKey": 20031,
+  "monsterDrop": {
+   "itemKey": 915011,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925013,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201214,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 14,
+  "stageLevel": 40,
+  "nextStageKey": 201215,
+  "waveAmount": 19,
+  "waveMonsterAmount": 17,
+  "monsters": [
+   {
+    "monster": "20023",
+    "weight": 300
+   },
+   {
+    "monster": "20024",
+    "weight": 240
+   },
+   {
+    "monster": "20031",
+    "weight": 180
+   },
+   {
+    "monster": "20041",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 151
+   },
+   {
+    "monster": "2010002",
+    "weight": 69
+   },
+   {
+    "monster": "2010003",
+    "weight": 82
+   }
+  ],
+  "bossMonsterKey": 20041,
+  "monsterDrop": {
+   "itemKey": 915011,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925014,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201215,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 15,
+  "stageLevel": 40,
+  "nextStageKey": 201216,
+  "waveAmount": 19,
+  "waveMonsterAmount": 17,
+  "monsters": [
+   {
+    "monster": "20042",
+    "weight": 300
+   },
+   {
+    "monster": "20051",
+    "weight": 240
+   },
+   {
+    "monster": "20061",
+    "weight": 180
+   },
+   {
+    "monster": "20062",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 146
+   },
+   {
+    "monster": "2010002",
+    "weight": 68
+   },
+   {
+    "monster": "2010003",
+    "weight": 79
+   }
+  ],
+  "bossMonsterKey": 20071,
+  "monsterDrop": {
+   "itemKey": 915011,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925015,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201216,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 16,
+  "stageLevel": 40,
+  "nextStageKey": 201217,
+  "waveAmount": 20,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "20071",
+    "weight": 300
+   },
+   {
+    "monster": "20081",
+    "weight": 240
+   },
+   {
+    "monster": "20091",
+    "weight": 180
+   },
+   {
+    "monster": "20111",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 184
+   },
+   {
+    "monster": "2010002",
+    "weight": 85
+   },
+   {
+    "monster": "2010003",
+    "weight": 99
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915016,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925016,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201217,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 17,
+  "stageLevel": 40,
+  "nextStageKey": 201218,
+  "waveAmount": 20,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "20121",
+    "weight": 300
+   },
+   {
+    "monster": "30011",
+    "weight": 240
+   },
+   {
+    "monster": "30012",
+    "weight": 180
+   },
+   {
+    "monster": "30013",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 176
+   },
+   {
+    "monster": "2010002",
+    "weight": 82
+   },
+   {
+    "monster": "2010003",
+    "weight": 95
+   }
+  ],
+  "bossMonsterKey": 20023,
+  "monsterDrop": {
+   "itemKey": 915016,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925017,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201218,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 18,
+  "stageLevel": 40,
+  "nextStageKey": 201219,
+  "waveAmount": 20,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "30021",
+    "weight": 300
+   },
+   {
+    "monster": "30031",
+    "weight": 240
+   },
+   {
+    "monster": "30041",
+    "weight": 180
+   },
+   {
+    "monster": "30042",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 220
+   },
+   {
+    "monster": "2010002",
+    "weight": 101
+   },
+   {
+    "monster": "2010003",
+    "weight": 119
+   }
+  ],
+  "bossMonsterKey": 20061,
+  "monsterDrop": {
+   "itemKey": 915016,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925018,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201219,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 19,
+  "stageLevel": 40,
+  "nextStageKey": 201220,
+  "waveAmount": 20,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "30043",
+    "weight": 300
+   },
+   {
+    "monster": "30044",
+    "weight": 240
+   },
+   {
+    "monster": "30051",
+    "weight": 180
+   },
+   {
+    "monster": "30061",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 210
+   },
+   {
+    "monster": "2010002",
+    "weight": 96
+   },
+   {
+    "monster": "2010003",
+    "weight": 113
+   }
+  ],
+  "bossMonsterKey": 20111,
+  "monsterDrop": {
+   "itemKey": 915016,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925019,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201220,
+  "name": "Nightmare Plaguelands",
+  "names": {
+   "zh-hans": "噩梦瘟疫之地",
+   "en-us": "Nightmare Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "NIGHTMARE",
+  "act": 21,
+  "stageNo": 20,
+  "stageLevel": 40,
+  "nextStageKey": null,
+  "waveAmount": 20,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "30071",
+    "weight": 300
+   },
+   {
+    "monster": "30081",
+    "weight": 240
+   },
+   {
+    "monster": "30082",
+    "weight": 180
+   },
+   {
+    "monster": "30083",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 260
+   },
+   {
+    "monster": "2010002",
+    "weight": 119
+   },
+   {
+    "monster": "2010003",
+    "weight": 140
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915016,
+   "rate": 1.4
+  },
+  "bossDrop": {
+   "itemKey": 925020,
+   "rate": 40
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 201301,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 1,
+  "stageLevel": 65,
+  "nextStageKey": 201302,
+  "waveAmount": 19,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "10011",
+    "weight": 300
+   },
+   {
+    "monster": "10021",
+    "weight": 240
+   },
+   {
+    "monster": "10022",
+    "weight": 180
+   },
+   {
+    "monster": "10031",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20024,
+  "monsterDrop": {
+   "itemKey": 915101,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925101,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201302,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 2,
+  "stageLevel": 65,
+  "nextStageKey": 201303,
+  "waveAmount": 19,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "10041",
+    "weight": 300
+   },
+   {
+    "monster": "10042",
+    "weight": 240
+   },
+   {
+    "monster": "10043",
+    "weight": 180
+   },
+   {
+    "monster": "10051",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20021,
+  "monsterDrop": {
+   "itemKey": 915101,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925102,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201303,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 3,
+  "stageLevel": 65,
+  "nextStageKey": 201304,
+  "waveAmount": 19,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "10053",
+    "weight": 300
+   },
+   {
+    "monster": "20011",
+    "weight": 240
+   },
+   {
+    "monster": "20021",
+    "weight": 180
+   },
+   {
+    "monster": "20023",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20031,
+  "monsterDrop": {
+   "itemKey": 915101,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925103,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201304,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 4,
+  "stageLevel": 65,
+  "nextStageKey": 201305,
+  "waveAmount": 19,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "20024",
+    "weight": 300
+   },
+   {
+    "monster": "20031",
+    "weight": 240
+   },
+   {
+    "monster": "20041",
+    "weight": 180
+   },
+   {
+    "monster": "20042",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20041,
+  "monsterDrop": {
+   "itemKey": 915101,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925104,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201305,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 5,
+  "stageLevel": 65,
+  "nextStageKey": 201306,
+  "waveAmount": 19,
+  "waveMonsterAmount": 18,
+  "monsters": [
+   {
+    "monster": "20051",
+    "weight": 300
+   },
+   {
+    "monster": "20061",
+    "weight": 240
+   },
+   {
+    "monster": "20062",
+    "weight": 180
+   },
+   {
+    "monster": "20071",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 56
+   }
+  ],
+  "bossMonsterKey": 20071,
+  "monsterDrop": {
+   "itemKey": 915101,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925105,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201306,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 6,
+  "stageLevel": 65,
+  "nextStageKey": 201307,
+  "waveAmount": 20,
+  "waveMonsterAmount": 19,
+  "monsters": [
+   {
+    "monster": "20081",
+    "weight": 300
+   },
+   {
+    "monster": "20091",
+    "weight": 240
+   },
+   {
+    "monster": "20111",
+    "weight": 180
+   },
+   {
+    "monster": "20121",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 76
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915106,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925106,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201307,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 7,
+  "stageLevel": 65,
+  "nextStageKey": 201308,
+  "waveAmount": 20,
+  "waveMonsterAmount": 19,
+  "monsters": [
+   {
+    "monster": "30011",
+    "weight": 300
+   },
+   {
+    "monster": "30012",
+    "weight": 240
+   },
+   {
+    "monster": "30013",
+    "weight": 180
+   },
+   {
+    "monster": "30021",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 96
+   }
+  ],
+  "bossMonsterKey": 20023,
+  "monsterDrop": {
+   "itemKey": 915106,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925107,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201308,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 8,
+  "stageLevel": 65,
+  "nextStageKey": 201309,
+  "waveAmount": 20,
+  "waveMonsterAmount": 19,
+  "monsters": [
+   {
+    "monster": "30031",
+    "weight": 300
+   },
+   {
+    "monster": "30041",
+    "weight": 240
+   },
+   {
+    "monster": "30042",
+    "weight": 180
+   },
+   {
+    "monster": "30043",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 77
+   },
+   {
+    "monster": "2010003",
+    "weight": 41
+   }
+  ],
+  "bossMonsterKey": 20061,
+  "monsterDrop": {
+   "itemKey": 915106,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925108,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201309,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 9,
+  "stageLevel": 65,
+  "nextStageKey": 201310,
+  "waveAmount": 20,
+  "waveMonsterAmount": 19,
+  "monsters": [
+   {
+    "monster": "30044",
+    "weight": 300
+   },
+   {
+    "monster": "30051",
+    "weight": 240
+   },
+   {
+    "monster": "30061",
+    "weight": 180
+   },
+   {
+    "monster": "30071",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 91
+   },
+   {
+    "monster": "2010003",
+    "weight": 49
+   }
+  ],
+  "bossMonsterKey": 20111,
+  "monsterDrop": {
+   "itemKey": 915106,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925109,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201310,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 10,
+  "stageLevel": 65,
+  "nextStageKey": 201311,
+  "waveAmount": 20,
+  "waveMonsterAmount": 19,
+  "monsters": [
+   {
+    "monster": "30081",
+    "weight": 300
+   },
+   {
+    "monster": "30082",
+    "weight": 240
+   },
+   {
+    "monster": "30083",
+    "weight": 180
+   },
+   {
+    "monster": "30084",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 106
+   },
+   {
+    "monster": "2010003",
+    "weight": 57
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915106,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925110,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201311,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 11,
+  "stageLevel": 65,
+  "nextStageKey": 201312,
+  "waveAmount": 21,
+  "waveMonsterAmount": 20,
+  "monsters": [
+   {
+    "monster": "30091",
+    "weight": 300
+   },
+   {
+    "monster": "10011",
+    "weight": 240
+   },
+   {
+    "monster": "10021",
+    "weight": 180
+   },
+   {
+    "monster": "10022",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 94
+   },
+   {
+    "monster": "2010002",
+    "weight": 43
+   },
+   {
+    "monster": "2010003",
+    "weight": 50
+   }
+  ],
+  "bossMonsterKey": 20024,
+  "monsterDrop": {
+   "itemKey": 915111,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925111,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201312,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 12,
+  "stageLevel": 65,
+  "nextStageKey": 201313,
+  "waveAmount": 21,
+  "waveMonsterAmount": 20,
+  "monsters": [
+   {
+    "monster": "10031",
+    "weight": 300
+   },
+   {
+    "monster": "10041",
+    "weight": 240
+   },
+   {
+    "monster": "10042",
+    "weight": 180
+   },
+   {
+    "monster": "10043",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 121
+   },
+   {
+    "monster": "2010002",
+    "weight": 56
+   },
+   {
+    "monster": "2010003",
+    "weight": 65
+   }
+  ],
+  "bossMonsterKey": 20021,
+  "monsterDrop": {
+   "itemKey": 915111,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925112,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201313,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 13,
+  "stageLevel": 65,
+  "nextStageKey": 201314,
+  "waveAmount": 21,
+  "waveMonsterAmount": 20,
+  "monsters": [
+   {
+    "monster": "10051",
+    "weight": 300
+   },
+   {
+    "monster": "10053",
+    "weight": 240
+   },
+   {
+    "monster": "20011",
+    "weight": 180
+   },
+   {
+    "monster": "20021",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 119
+   },
+   {
+    "monster": "2010002",
+    "weight": 55
+   },
+   {
+    "monster": "2010003",
+    "weight": 64
+   }
+  ],
+  "bossMonsterKey": 20031,
+  "monsterDrop": {
+   "itemKey": 915111,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925113,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201314,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 14,
+  "stageLevel": 65,
+  "nextStageKey": 201315,
+  "waveAmount": 21,
+  "waveMonsterAmount": 20,
+  "monsters": [
+   {
+    "monster": "20023",
+    "weight": 300
+   },
+   {
+    "monster": "20024",
+    "weight": 240
+   },
+   {
+    "monster": "20031",
+    "weight": 180
+   },
+   {
+    "monster": "20041",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 151
+   },
+   {
+    "monster": "2010002",
+    "weight": 69
+   },
+   {
+    "monster": "2010003",
+    "weight": 82
+   }
+  ],
+  "bossMonsterKey": 20041,
+  "monsterDrop": {
+   "itemKey": 915111,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925114,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201315,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 15,
+  "stageLevel": 65,
+  "nextStageKey": 201316,
+  "waveAmount": 21,
+  "waveMonsterAmount": 20,
+  "monsters": [
+   {
+    "monster": "20042",
+    "weight": 300
+   },
+   {
+    "monster": "20051",
+    "weight": 240
+   },
+   {
+    "monster": "20061",
+    "weight": 180
+   },
+   {
+    "monster": "20062",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 146
+   },
+   {
+    "monster": "2010002",
+    "weight": 68
+   },
+   {
+    "monster": "2010003",
+    "weight": 79
+   }
+  ],
+  "bossMonsterKey": 20071,
+  "monsterDrop": {
+   "itemKey": 915111,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925115,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201316,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 16,
+  "stageLevel": 65,
+  "nextStageKey": 201317,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "20071",
+    "weight": 300
+   },
+   {
+    "monster": "20081",
+    "weight": 240
+   },
+   {
+    "monster": "20091",
+    "weight": 180
+   },
+   {
+    "monster": "20111",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 184
+   },
+   {
+    "monster": "2010002",
+    "weight": 85
+   },
+   {
+    "monster": "2010003",
+    "weight": 99
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915116,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925116,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201317,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 17,
+  "stageLevel": 65,
+  "nextStageKey": 201318,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "20121",
+    "weight": 300
+   },
+   {
+    "monster": "30011",
+    "weight": 240
+   },
+   {
+    "monster": "30012",
+    "weight": 180
+   },
+   {
+    "monster": "30013",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 176
+   },
+   {
+    "monster": "2010002",
+    "weight": 82
+   },
+   {
+    "monster": "2010003",
+    "weight": 95
+   }
+  ],
+  "bossMonsterKey": 20023,
+  "monsterDrop": {
+   "itemKey": 915116,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925117,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201318,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 18,
+  "stageLevel": 65,
+  "nextStageKey": 201319,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "30021",
+    "weight": 300
+   },
+   {
+    "monster": "30031",
+    "weight": 240
+   },
+   {
+    "monster": "30041",
+    "weight": 180
+   },
+   {
+    "monster": "30042",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 220
+   },
+   {
+    "monster": "2010002",
+    "weight": 101
+   },
+   {
+    "monster": "2010003",
+    "weight": 119
+   }
+  ],
+  "bossMonsterKey": 20061,
+  "monsterDrop": {
+   "itemKey": 915116,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925118,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201319,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 19,
+  "stageLevel": 65,
+  "nextStageKey": 201320,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "30043",
+    "weight": 300
+   },
+   {
+    "monster": "30044",
+    "weight": 240
+   },
+   {
+    "monster": "30051",
+    "weight": 180
+   },
+   {
+    "monster": "30061",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 210
+   },
+   {
+    "monster": "2010002",
+    "weight": 96
+   },
+   {
+    "monster": "2010003",
+    "weight": 113
+   }
+  ],
+  "bossMonsterKey": 20111,
+  "monsterDrop": {
+   "itemKey": 915116,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925119,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201320,
+  "name": "Hell Plaguelands",
+  "names": {
+   "zh-hans": "地狱瘟疫之地",
+   "en-us": "Hell Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "HELL",
+  "act": 22,
+  "stageNo": 20,
+  "stageLevel": 65,
+  "nextStageKey": null,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "30071",
+    "weight": 300
+   },
+   {
+    "monster": "30081",
+    "weight": 240
+   },
+   {
+    "monster": "30082",
+    "weight": 180
+   },
+   {
+    "monster": "30083",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 260
+   },
+   {
+    "monster": "2010002",
+    "weight": 119
+   },
+   {
+    "monster": "2010003",
+    "weight": 140
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915116,
+   "rate": 1
+  },
+  "bossDrop": {
+   "itemKey": 925120,
+   "rate": 30
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 8735,
+   "hp": 165770,
+   "gold": 17610,
+   "exp": 341600
+  }
+ },
+ {
+  "key": 201401,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 1,
+  "stageLevel": 90,
+  "nextStageKey": 201402,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "10011",
+    "weight": 300
+   },
+   {
+    "monster": "10021",
+    "weight": 240
+   },
+   {
+    "monster": "10022",
+    "weight": 180
+   },
+   {
+    "monster": "10031",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20024,
+  "monsterDrop": {
+   "itemKey": 915201,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925201,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201402,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 2,
+  "stageLevel": 90,
+  "nextStageKey": 201403,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "10041",
+    "weight": 300
+   },
+   {
+    "monster": "10042",
+    "weight": 240
+   },
+   {
+    "monster": "10043",
+    "weight": 180
+   },
+   {
+    "monster": "10051",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20021,
+  "monsterDrop": {
+   "itemKey": 915201,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925202,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201403,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 3,
+  "stageLevel": 90,
+  "nextStageKey": 201404,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "10053",
+    "weight": 300
+   },
+   {
+    "monster": "20011",
+    "weight": 240
+   },
+   {
+    "monster": "20021",
+    "weight": 180
+   },
+   {
+    "monster": "20023",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20031,
+  "monsterDrop": {
+   "itemKey": 915201,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925203,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201404,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 4,
+  "stageLevel": 90,
+  "nextStageKey": 201405,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "20024",
+    "weight": 300
+   },
+   {
+    "monster": "20031",
+    "weight": 240
+   },
+   {
+    "monster": "20041",
+    "weight": 180
+   },
+   {
+    "monster": "20042",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   }
+  ],
+  "bossMonsterKey": 20041,
+  "monsterDrop": {
+   "itemKey": 915201,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925204,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201405,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 5,
+  "stageLevel": 90,
+  "nextStageKey": 201406,
+  "waveAmount": 22,
+  "waveMonsterAmount": 21,
+  "monsters": [
+   {
+    "monster": "20051",
+    "weight": 300
+   },
+   {
+    "monster": "20061",
+    "weight": 240
+   },
+   {
+    "monster": "20062",
+    "weight": 180
+   },
+   {
+    "monster": "20071",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 56
+   },
+   {
+    "monster": "2010004",
+    "weight": 13
+   }
+  ],
+  "bossMonsterKey": 20071,
+  "monsterDrop": {
+   "itemKey": 915201,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925205,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201406,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 6,
+  "stageLevel": 90,
+  "nextStageKey": 201407,
+  "waveAmount": 23,
+  "waveMonsterAmount": 22,
+  "monsters": [
+   {
+    "monster": "20081",
+    "weight": 300
+   },
+   {
+    "monster": "20091",
+    "weight": 240
+   },
+   {
+    "monster": "20111",
+    "weight": 180
+   },
+   {
+    "monster": "20121",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 76
+   },
+   {
+    "monster": "2010004",
+    "weight": 17
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915206,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925206,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201407,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 7,
+  "stageLevel": 90,
+  "nextStageKey": 201408,
+  "waveAmount": 23,
+  "waveMonsterAmount": 22,
+  "monsters": [
+   {
+    "monster": "30011",
+    "weight": 300
+   },
+   {
+    "monster": "30012",
+    "weight": 240
+   },
+   {
+    "monster": "30013",
+    "weight": 180
+   },
+   {
+    "monster": "30021",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 96
+   },
+   {
+    "monster": "2010004",
+    "weight": 22
+   }
+  ],
+  "bossMonsterKey": 20023,
+  "monsterDrop": {
+   "itemKey": 915206,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925207,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201408,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 8,
+  "stageLevel": 90,
+  "nextStageKey": 201409,
+  "waveAmount": 23,
+  "waveMonsterAmount": 22,
+  "monsters": [
+   {
+    "monster": "30031",
+    "weight": 300
+   },
+   {
+    "monster": "30041",
+    "weight": 240
+   },
+   {
+    "monster": "30042",
+    "weight": 180
+   },
+   {
+    "monster": "30043",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 77
+   },
+   {
+    "monster": "2010003",
+    "weight": 41
+   },
+   {
+    "monster": "2010004",
+    "weight": 27
+   }
+  ],
+  "bossMonsterKey": 20061,
+  "monsterDrop": {
+   "itemKey": 915206,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925208,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201409,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 9,
+  "stageLevel": 90,
+  "nextStageKey": 201410,
+  "waveAmount": 23,
+  "waveMonsterAmount": 22,
+  "monsters": [
+   {
+    "monster": "30044",
+    "weight": 300
+   },
+   {
+    "monster": "30051",
+    "weight": 240
+   },
+   {
+    "monster": "30061",
+    "weight": 180
+   },
+   {
+    "monster": "30071",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 91
+   },
+   {
+    "monster": "2010003",
+    "weight": 49
+   },
+   {
+    "monster": "2010004",
+    "weight": 32
+   }
+  ],
+  "bossMonsterKey": 20111,
+  "monsterDrop": {
+   "itemKey": 915206,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925209,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201410,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 10,
+  "stageLevel": 90,
+  "nextStageKey": 201411,
+  "waveAmount": 23,
+  "waveMonsterAmount": 22,
+  "monsters": [
+   {
+    "monster": "30081",
+    "weight": 300
+   },
+   {
+    "monster": "30082",
+    "weight": 240
+   },
+   {
+    "monster": "30083",
+    "weight": 180
+   },
+   {
+    "monster": "30084",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 106
+   },
+   {
+    "monster": "2010003",
+    "weight": 57
+   },
+   {
+    "monster": "2010004",
+    "weight": 37
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915206,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925210,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201411,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 11,
+  "stageLevel": 90,
+  "nextStageKey": 201412,
+  "waveAmount": 24,
+  "waveMonsterAmount": 23,
+  "monsters": [
+   {
+    "monster": "30091",
+    "weight": 300
+   },
+   {
+    "monster": "10011",
+    "weight": 240
+   },
+   {
+    "monster": "10021",
+    "weight": 180
+   },
+   {
+    "monster": "10022",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 94
+   },
+   {
+    "monster": "2010002",
+    "weight": 43
+   },
+   {
+    "monster": "2010003",
+    "weight": 50
+   },
+   {
+    "monster": "2010004",
+    "weight": 43
+   }
+  ],
+  "bossMonsterKey": 20024,
+  "monsterDrop": {
+   "itemKey": 915211,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925211,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201412,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 12,
+  "stageLevel": 90,
+  "nextStageKey": 201413,
+  "waveAmount": 24,
+  "waveMonsterAmount": 23,
+  "monsters": [
+   {
+    "monster": "10031",
+    "weight": 300
+   },
+   {
+    "monster": "10041",
+    "weight": 240
+   },
+   {
+    "monster": "10042",
+    "weight": 180
+   },
+   {
+    "monster": "10043",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 121
+   },
+   {
+    "monster": "2010002",
+    "weight": 56
+   },
+   {
+    "monster": "2010003",
+    "weight": 65
+   },
+   {
+    "monster": "2010004",
+    "weight": 56
+   }
+  ],
+  "bossMonsterKey": 20021,
+  "monsterDrop": {
+   "itemKey": 915211,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925212,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201413,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 13,
+  "stageLevel": 90,
+  "nextStageKey": 201414,
+  "waveAmount": 24,
+  "waveMonsterAmount": 23,
+  "monsters": [
+   {
+    "monster": "10051",
+    "weight": 300
+   },
+   {
+    "monster": "10053",
+    "weight": 240
+   },
+   {
+    "monster": "20011",
+    "weight": 180
+   },
+   {
+    "monster": "20021",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 119
+   },
+   {
+    "monster": "2010002",
+    "weight": 55
+   },
+   {
+    "monster": "2010003",
+    "weight": 64
+   },
+   {
+    "monster": "2010004",
+    "weight": 55
+   }
+  ],
+  "bossMonsterKey": 20031,
+  "monsterDrop": {
+   "itemKey": 915211,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925213,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201414,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 14,
+  "stageLevel": 90,
+  "nextStageKey": 201415,
+  "waveAmount": 24,
+  "waveMonsterAmount": 23,
+  "monsters": [
+   {
+    "monster": "20023",
+    "weight": 300
+   },
+   {
+    "monster": "20024",
+    "weight": 240
+   },
+   {
+    "monster": "20031",
+    "weight": 180
+   },
+   {
+    "monster": "20041",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 151
+   },
+   {
+    "monster": "2010002",
+    "weight": 69
+   },
+   {
+    "monster": "2010003",
+    "weight": 82
+   },
+   {
+    "monster": "2010004",
+    "weight": 69
+   }
+  ],
+  "bossMonsterKey": 20041,
+  "monsterDrop": {
+   "itemKey": 915211,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925214,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201415,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 15,
+  "stageLevel": 90,
+  "nextStageKey": 201416,
+  "waveAmount": 24,
+  "waveMonsterAmount": 23,
+  "monsters": [
+   {
+    "monster": "20042",
+    "weight": 300
+   },
+   {
+    "monster": "20051",
+    "weight": 240
+   },
+   {
+    "monster": "20061",
+    "weight": 180
+   },
+   {
+    "monster": "20062",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 146
+   },
+   {
+    "monster": "2010002",
+    "weight": 68
+   },
+   {
+    "monster": "2010003",
+    "weight": 79
+   },
+   {
+    "monster": "2010004",
+    "weight": 67
+   }
+  ],
+  "bossMonsterKey": 20071,
+  "monsterDrop": {
+   "itemKey": 915211,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925215,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201416,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 16,
+  "stageLevel": 90,
+  "nextStageKey": 201417,
+  "waveAmount": 25,
+  "waveMonsterAmount": 24,
+  "monsters": [
+   {
+    "monster": "20071",
+    "weight": 300
+   },
+   {
+    "monster": "20081",
+    "weight": 240
+   },
+   {
+    "monster": "20091",
+    "weight": 180
+   },
+   {
+    "monster": "20111",
+    "weight": 140
+   },
+   {
+    "monster": "10023",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 184
+   },
+   {
+    "monster": "2010002",
+    "weight": 85
+   },
+   {
+    "monster": "2010003",
+    "weight": 99
+   },
+   {
+    "monster": "2010004",
+    "weight": 85
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915216,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925216,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201417,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 17,
+  "stageLevel": 90,
+  "nextStageKey": 201418,
+  "waveAmount": 25,
+  "waveMonsterAmount": 24,
+  "monsters": [
+   {
+    "monster": "20121",
+    "weight": 300
+   },
+   {
+    "monster": "30011",
+    "weight": 240
+   },
+   {
+    "monster": "30012",
+    "weight": 180
+   },
+   {
+    "monster": "30013",
+    "weight": 140
+   },
+   {
+    "monster": "10052",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 176
+   },
+   {
+    "monster": "2010002",
+    "weight": 82
+   },
+   {
+    "monster": "2010003",
+    "weight": 95
+   },
+   {
+    "monster": "2010004",
+    "weight": 81
+   }
+  ],
+  "bossMonsterKey": 20023,
+  "monsterDrop": {
+   "itemKey": 915216,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925217,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201418,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 18,
+  "stageLevel": 90,
+  "nextStageKey": 201419,
+  "waveAmount": 25,
+  "waveMonsterAmount": 24,
+  "monsters": [
+   {
+    "monster": "30021",
+    "weight": 300
+   },
+   {
+    "monster": "30031",
+    "weight": 240
+   },
+   {
+    "monster": "30041",
+    "weight": 180
+   },
+   {
+    "monster": "30042",
+    "weight": 140
+   },
+   {
+    "monster": "30101",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 220
+   },
+   {
+    "monster": "2010002",
+    "weight": 101
+   },
+   {
+    "monster": "2010003",
+    "weight": 119
+   },
+   {
+    "monster": "2010004",
+    "weight": 101
+   }
+  ],
+  "bossMonsterKey": 20061,
+  "monsterDrop": {
+   "itemKey": 915216,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925218,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201419,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 19,
+  "stageLevel": 90,
+  "nextStageKey": 201420,
+  "waveAmount": 25,
+  "waveMonsterAmount": 24,
+  "monsters": [
+   {
+    "monster": "30043",
+    "weight": 300
+   },
+   {
+    "monster": "30044",
+    "weight": 240
+   },
+   {
+    "monster": "30051",
+    "weight": 180
+   },
+   {
+    "monster": "30061",
+    "weight": 140
+   },
+   {
+    "monster": "30102",
+    "weight": 200
+   },
+   {
+    "monster": "2010001",
+    "weight": 210
+   },
+   {
+    "monster": "2010002",
+    "weight": 96
+   },
+   {
+    "monster": "2010003",
+    "weight": 113
+   },
+   {
+    "monster": "2010004",
+    "weight": 96
+   }
+  ],
+  "bossMonsterKey": 20111,
+  "monsterDrop": {
+   "itemKey": 915216,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925219,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 201420,
+  "name": "Torment Plaguelands",
+  "names": {
+   "zh-hans": "折磨瘟疫之地",
+   "en-us": "Torment Plaguelands"
+  },
+  "type": "PLAGUE",
+  "difficulty": "TORMENT",
+  "act": 23,
+  "stageNo": 20,
+  "stageLevel": 90,
+  "nextStageKey": null,
+  "waveAmount": 25,
+  "waveMonsterAmount": 24,
+  "monsters": [
+   {
+    "monster": "30071",
+    "weight": 300
+   },
+   {
+    "monster": "30081",
+    "weight": 240
+   },
+   {
+    "monster": "30082",
+    "weight": 180
+   },
+   {
+    "monster": "30083",
+    "weight": 140
+   },
+   {
+    "monster": "30103",
+    "weight": 200
+   },
+   {
+    "monster": "30104",
+    "weight": 150
+   },
+   {
+    "monster": "2010001",
+    "weight": 260
+   },
+   {
+    "monster": "2010002",
+    "weight": 119
+   },
+   {
+    "monster": "2010003",
+    "weight": 140
+   },
+   {
+    "monster": "2010004",
+    "weight": 119
+   }
+  ],
+  "bossMonsterKey": 20081,
+  "monsterDrop": {
+   "itemKey": 915216,
+   "rate": 0.6
+  },
+  "bossDrop": {
+   "itemKey": 925220,
+   "rate": 20
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 2119,
+  "name": "Contaminated Throne",
+  "names": {
+   "zh-hans": "被污染的王座",
+   "en-us": "Contaminated Throne"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "NIGHTMARE",
+  "act": 1,
+  "stageNo": 10,
+  "stageLevel": 40,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 10912,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935001,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190102,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 1600,
+   "hp": 53270,
+   "gold": 6110,
+   "exp": 111600
+  }
+ },
+ {
+  "key": 2219,
+  "name": "Contaminated Underchannel",
+  "names": {
+   "zh-hans": "被污染的地下水道",
+   "en-us": "Contaminated Underchannel"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "NIGHTMARE",
+  "act": 2,
+  "stageNo": 10,
+  "stageLevel": 45,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 20912,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935002,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190102,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 2200,
+   "hp": 70770,
+   "gold": 7910,
+   "exp": 147600
+  }
+ },
+ {
+  "key": 2319,
+  "name": "Contaminated Command Chamber",
+  "names": {
+   "zh-hans": "被污染的指挥室",
+   "en-us": "Contaminated Command Chamber"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "NIGHTMARE",
+  "act": 3,
+  "stageNo": 10,
+  "stageLevel": 52,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 30912,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935003,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190102,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 3500,
+   "hp": 99470,
+   "gold": 10850,
+   "exp": 206400
+  }
+ },
+ {
+  "key": 3119,
+  "name": "Contaminated Throne",
+  "names": {
+   "zh-hans": "被污染的王座",
+   "en-us": "Contaminated Throne"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "HELL",
+  "act": 1,
+  "stageNo": 10,
+  "stageLevel": 60,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 10913,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935101,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190103,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 6085,
+   "hp": 138270,
+   "gold": 14810,
+   "exp": 285600
+  }
+ },
+ {
+  "key": 3219,
+  "name": "Contaminated Underchannel",
+  "names": {
+   "zh-hans": "被污染的地下水道",
+   "en-us": "Contaminated Underchannel"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "HELL",
+  "act": 2,
+  "stageNo": 10,
+  "stageLevel": 69,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 20913,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935102,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190103,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 11755,
+   "hp": 189570,
+   "gold": 20030,
+   "exp": 390000
+  }
+ },
+ {
+  "key": 3319,
+  "name": "Contaminated Command Chamber",
+  "names": {
+   "zh-hans": "被污染的指挥室",
+   "en-us": "Contaminated Command Chamber"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "HELL",
+  "act": 3,
+  "stageNo": 10,
+  "stageLevel": 77,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 30913,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935103,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190103,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 20945,
+   "hp": 241970,
+   "gold": 25350,
+   "exp": 496400
+  }
+ },
+ {
+  "key": 4119,
+  "name": "Contaminated Throne",
+  "names": {
+   "zh-hans": "被污染的王座",
+   "en-us": "Contaminated Throne"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "TORMENT",
+  "act": 1,
+  "stageNo": 10,
+  "stageLevel": 85,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 10914,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935201,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190104,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 44785,
+   "hp": 300770,
+   "gold": 31310,
+   "exp": 615600
+  }
+ },
+ {
+  "key": 4219,
+  "name": "Contaminated Underchannel",
+  "names": {
+   "zh-hans": "被污染的地下水道",
+   "en-us": "Contaminated Underchannel"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "TORMENT",
+  "act": 2,
+  "stageNo": 10,
+  "stageLevel": 90,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 20914,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935202,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190104,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 87185,
+   "hp": 340770,
+   "gold": 35360,
+   "exp": 696600
+  }
+ },
+ {
+  "key": 4319,
+  "name": "Contaminated Command Chamber",
+  "names": {
+   "zh-hans": "被污染的指挥室",
+   "en-us": "Contaminated Command Chamber"
+  },
+  "type": "CONTAMINACTBOSS",
+  "difficulty": "TORMENT",
+  "act": 3,
+  "stageNo": 10,
+  "stageLevel": 95,
+  "nextStageKey": null,
+  "waveAmount": null,
+  "waveMonsterAmount": null,
+  "monsters": [],
+  "bossMonsterKey": 30914,
+  "monsterDrop": {
+   "itemKey": null,
+   "rate": null
+  },
+  "bossDrop": {
+   "itemKey": 935203,
+   "rate": null
+  },
+  "firstClearDropKey": null,
+  "soulstone": {
+   "itemKey": 190104,
+   "amount": 1
+  },
+  "bossMultipliers": {
+   "damage": null,
+   "hp": null,
+   "gold": null,
+   "exp": null
+  },
+  "levelScaling": {
+   "atk": 245585,
+   "hp": 383270,
+   "gold": 39660,
+   "exp": 782600
+  }
+ },
+ {
+  "key": 2901,
+  "name": "Jack-o'-Lantern Canyon",
+  "names": {
+   "zh-hans": "南瓜灯峡谷",
+   "en-us": "Jack-o'-Lantern Canyon"
+  },
+  "type": "EVENT",
+  "difficulty": "NIGHTMARE",
+  "act": 3,
+  "stageNo": 1,
+  "stageLevel": 39,
+  "nextStageKey": null,
+  "waveAmount": 15,
+  "waveMonsterAmount": 13,
+  "monsters": [
+   {
+    "monster": "5000101",
+    "weight": 1000
+   },
+   {
+    "monster": "5000102",
+    "weight": 500
+   },
+   {
+    "monster": "10031",
+    "weight": 1000
+   },
+   {
+    "monster": "5000103",
+    "weight": 1000
+   }
+  ],
+  "bossMonsterKey": 5000102,
+  "monsterDrop": {
+   "itemKey": 940001,
+   "rate": 76.9
+  },
+  "bossDrop": {
+   "itemKey": 941001,
+   "rate": 1000
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 1510,
+   "hp": 50070,
+   "gold": 5780,
+   "exp": 105000
+  }
+ },
+ {
+  "key": 3901,
+  "name": "Jack-o'-Lantern Canyon",
+  "names": {
+   "zh-hans": "南瓜灯峡谷",
+   "en-us": "Jack-o'-Lantern Canyon"
+  },
+  "type": "EVENT",
+  "difficulty": "HELL",
+  "act": 3,
+  "stageNo": 1,
+  "stageLevel": 59,
+  "nextStageKey": null,
+  "waveAmount": 15,
+  "waveMonsterAmount": 16,
+  "monsters": [
+   {
+    "monster": "5000101",
+    "weight": 1000
+   },
+   {
+    "monster": "5000102",
+    "weight": 500
+   },
+   {
+    "monster": "10031",
+    "weight": 1000
+   },
+   {
+    "monster": "5000103",
+    "weight": 1000
+   }
+  ],
+  "bossMonsterKey": 5000102,
+  "monsterDrop": {
+   "itemKey": 940101,
+   "rate": 62.5
+  },
+  "bossDrop": {
+   "itemKey": 941101,
+   "rate": 1000
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 5705,
+   "hp": 133070,
+   "gold": 14280,
+   "exp": 275000
+  }
+ },
+ {
+  "key": 4901,
+  "name": "Jack-o'-Lantern Canyon",
+  "names": {
+   "zh-hans": "南瓜灯峡谷",
+   "en-us": "Jack-o'-Lantern Canyon"
+  },
+  "type": "EVENT",
+  "difficulty": "TORMENT",
+  "act": 3,
+  "stageNo": 1,
+  "stageLevel": 84,
+  "nextStageKey": null,
+  "waveAmount": 15,
+  "waveMonsterAmount": 19,
+  "monsters": [
+   {
+    "monster": "5000101",
+    "weight": 1000
+   },
+   {
+    "monster": "5000102",
+    "weight": 500
+   },
+   {
+    "monster": "10031",
+    "weight": 1000
+   },
+   {
+    "monster": "5000103",
+    "weight": 1000
+   }
+  ],
+  "bossMonsterKey": 5000102,
+  "monsterDrop": {
+   "itemKey": 940201,
+   "rate": 52.6
+  },
+  "bossDrop": {
+   "itemKey": 941201,
+   "rate": 1000
+  },
+  "firstClearDropKey": null,
+  "soulstone": null,
+  "bossMultipliers": {
+   "damage": 3000,
+   "hp": 6000,
+   "gold": 3000,
+   "exp": 6000
+  },
+  "levelScaling": {
+   "atk": 40105,
+   "hp": 293070,
+   "gold": 30530,
+   "exp": 600000
   }
  }
 ]

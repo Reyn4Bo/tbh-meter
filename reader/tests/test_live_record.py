@@ -94,6 +94,24 @@ def test_party_slots_pass_through_and_default_empty():
     assert _live(party_slots=slots)["party_slots"] == slots
 
 
+def test_party_items_pass_through_and_default_empty():
+    # {heroKey: [itemKey]} equipped items (run-start build) — lets the overlay apply item UNIQUE mods
+    # FINAL_STATS lacks (1.3.2 Eternal Armor 516193: elemental resists unify to the highest). Default {}.
+    assert _live()["party_items"] == {}
+    items = {601: [516193, 300001], 101: []}
+    assert _live(party_items=items)["party_items"] == items
+
+
+def test_party_damage_null_without_plugin_and_stringified_keys():
+    # per-hero damage of the run from the optional combat plugin; None (no plugin) stays null, not {}.
+    assert _live()["party_damage"] is None
+    dmg = {601: {"damage": 250.0, "hits": 10, "crits": 4, "crit_damage": 120.0}}
+    assert _live(party_damage=dmg)["party_damage"] == {"601": dmg[601]}
+    assert _live()["party_taken"] is None
+    assert _live()["party_dead"] == [] and _live(party_dead=[301])["party_dead"] == [301]
+    assert _live(party_taken={101: {"damage": 40.0}})["party_taken"] == {"101": {"damage": 40.0}}
+
+
 def test_no_envelope_no_outcome_no_cooked_fields():
     # RAW: NO envelope (ephemeral, not audited), NO run_outcome (run in progress), and ZERO
     # cooked presentation (dps/label/mode/stage-string) — the app cooks it.

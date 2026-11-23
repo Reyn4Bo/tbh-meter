@@ -20,7 +20,7 @@ code_anchors:
   - game/obscured.py::decode_obscured_double
 asserts:
   - config.offsets.Unit.CORE_STATS_OBSCURED == 0x104
-  - config.offsets.Monster.CACHE_OBSCURED == 0x3C0
+  - config.offsets.Monster.CACHE_OBSCURED == 0x3E8
   - config.offsets.EEquipClassType.Knight == 1
   - config.offsets.EEquipClassType.Ranger == 2
 guarded_by:
@@ -43,7 +43,7 @@ it, and emits a meaningless number). The hard rule: read the **PLAIN** equivalen
   `ObscuredInt`, as the old skill claimed — the comment in `config/offsets.py` is the truth). Use
   **`StatsHolder.FINAL_STATS`** (`xd.FINAL_STATS`), a **PLAIN** `Dict<StatType,float>` with the 64
   final stats. (It's a `DictFloat` — [[invariants/dict-strides]] dictates the geometry.)
-- **`Monster.CACHE_OBSCURED`** (`ud.tl`) — Obscured. Use the **`Monster` PLAIN fields** (e.g.
+- **`Monster.CACHE_OBSCURED`** (1.3.2: `xo.wd`, its stats are ObscuredInt/Float) — Obscured. Use the **`Monster` PLAIN fields** (e.g.
   `Monster.STAGE_KEY` for the live stageKey). Never dereference the ciphered cache.
 
 The two offsets exist in `config/offsets.py` ONLY as **named markers** ("DO NOT READ"), so this note can

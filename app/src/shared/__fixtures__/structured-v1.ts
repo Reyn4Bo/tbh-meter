@@ -12,7 +12,7 @@ export const STRUCTURED_V1_EXAMPLE: RunRecord = {
   // `id === sessionId:run` holds because both come from the raw unchanged.
   sessionId: "1717799000-12345",
   schemaVersion: 1, // the RAW/reader schema version this was converted from
-  structuredSchemaVersion: 1, // the converter's own output version
+  structuredSchemaVersion: 2, // the converter's own output version (2 = Plaguelands "P-n" stage label)
   gameVersion: "1.00.10",
   run: 7,
   status: "success", // game outcome (from raw run_outcome)

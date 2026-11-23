@@ -154,19 +154,33 @@ class TestReadCatalogs:
     def test_normal_stage_total_is_waves_times_mobs(self):
         mem = _write_stage_row({}, 0x1000, sk=1001, st=EStageType.NORMAL,
                                wa=10, wm=5, act=3, sno=4, diff=2)
-        assert self._catalogs(mem, [0x1000]) == {1001: (3, 4, 50, 2)}
+        assert self._catalogs(mem, [0x1000]) == {1001: (3, 4, 50, 2, 5)}
 
     def test_actboss_without_waves_is_kept_with_zero_horde(self):
         # the bug: x-10 has wa/wm out of range -> hit the filter and the mode turned into "?"
         mem = _write_stage_row({}, 0x1000, sk=4310, st=EStageType.ACTBOSS,
                                wa=0, wm=0, act=3, sno=10, diff=3)
-        assert self._catalogs(mem, [0x1000]) == {4310: (3, 10, 0, 3)}
+        assert self._catalogs(mem, [0x1000]) == {4310: (3, 10, 0, 3, 0)}
+
+    def test_contaminated_actboss_kept_with_zero_horde(self):
+        # 1.3.2: CONTAMINACTBOSS (x-19 key, StageNo 10, no waves) — without it the 9 contaminated boss
+        # stages fell out of the live catalog (seed had 183 of the CSV's 192).
+        mem = _write_stage_row({}, 0x1000, sk=4319, st=EStageType.CONTAMINACTBOSS,
+                               wa=0, wm=0, act=3, sno=10, diff=3)
+        assert self._catalogs(mem, [0x1000]) == {4319: (3, 10, 0, 3, 0)}
+
+    def test_plague_stage_needs_waves(self):
+        # PLAGUE has horde waves: kept by the normal wave rule, NOT by the boss-only exemption.
+        ok = _write_stage_row({}, 0x1000, sk=201201, st=EStageType.PLAGUE, wa=15, wm=17, act=21, sno=1, diff=1)
+        assert self._catalogs(ok, [0x1000]) == {201201: (21, 1, 255, 1, 17)}
+        nowave = _write_stage_row({}, 0x1000, sk=201201, st=EStageType.PLAGUE, wa=0, wm=0, act=21, sno=1, diff=1)
+        assert self._catalogs(nowave, [0x1000]) == {}
 
     def test_actboss_with_valid_waves_keeps_wave_total(self):
         # if a build gives the boss-stage valid waves, the real total wins over the 0
         mem = _write_stage_row({}, 0x1000, sk=4310, st=EStageType.ACTBOSS,
                                wa=2, wm=3, act=3, sno=10, diff=1)
-        assert self._catalogs(mem, [0x1000]) == {4310: (3, 10, 6, 1)}
+        assert self._catalogs(mem, [0x1000]) == {4310: (3, 10, 6, 1, 3)}
 
     def test_garbage_row_rejected(self):
         # garbage instance: type out of the enum and no waves -> not entered
@@ -204,7 +218,7 @@ class TestReadCatalogs:
         for diff in (0, 1, 2, 3):
             mem = _write_stage_row({}, 0x1000, sk=2001, st=EStageType.NORMAL,
                                    wa=2, wm=3, act=1, sno=1, diff=diff)
-            assert self._catalogs(mem, [0x1000]) == {2001: (1, 1, 6, diff)}
+            assert self._catalogs(mem, [0x1000]) == {2001: (1, 1, 6, diff, 3)}
 
     def test_actboss_with_invalid_diff_still_rejected(self):
         # boss_ok already validated diff (the x-10 fix); the symmetry can't have loosened it
@@ -237,52 +251,58 @@ class TestReadCatalogs:
         # valid edges (1 and 200) still enter — the gate is 1 <= x <= 200, inclusive
         mem = _write_stage_row({}, 0x1000, sk=1001, st=EStageType.NORMAL,
                                wa=10, wm=5, act=1, sno=200, diff=2)
-        assert self._catalogs(mem, [0x1000]) == {1001: (1, 200, 50, 2)}
+        assert self._catalogs(mem, [0x1000]) == {1001: (1, 200, 50, 2, 5)}
         mem = _write_stage_row({}, 0x2000, sk=2001, st=EStageType.NORMAL,
                                wa=10, wm=5, act=200, sno=1, diff=2)
-        assert self._catalogs(mem, [0x2000]) == {2001: (200, 1, 50, 2)}
+        assert self._catalogs(mem, [0x2000]) == {2001: (200, 1, 50, 2, 5)}
 
 
 class TestStageInfoOk:
     """_stage_info_ok = the sanity gate for the stage_info catalog, used on LOAD (_read_calib
     rejects a poisoned calib → falls back to seed/scan, self-heals) and on PERSIST (save_calib
-    doesn't write a bad catalog). Rows = (act, stage_no, horde, diff) with diff ∈ EStageDifficulty
-    and act/stage_no in 1..200 (mirrors _read_catalogs's row gate); horde has NO range-check
-    (boss x-10 legitimately has horde=0)."""
+    doesn't write a bad catalog). Rows = (act, stage_no, horde, diff, wave_mobs) (fmt 10) with diff ∈
+    EStageDifficulty and act/stage_no in 1..200 (mirrors _read_catalogs's row gate); horde has NO
+    range-check (boss x-10 legitimately has horde=0); wave_mobs >= 0 and divides horde when > 0."""
 
     def test_valid_catalog_ok(self):
-        assert _stage_info_ok({1001: (1, 1, 50, 0), 4310: (4, 10, 0, 3)})
+        assert _stage_info_ok({1001: (1, 1, 50, 0, 5), 4310: (4, 10, 0, 3, 0)})
 
     def test_empty_rejected(self):
         assert not _stage_info_ok({})
 
     def test_invalid_diff_rejected(self):
         # diff -1 is exactly the shape of the pre-fix poisoned cache
-        assert not _stage_info_ok({1001: (1, 1, 50, 0), 1002: (1, 2, 60, -1)})
-        assert not _stage_info_ok({1001: (1, 1, 50, 4)})
+        assert not _stage_info_ok({1001: (1, 1, 50, 0, 5), 1002: (1, 2, 60, -1, 6)})
+        assert not _stage_info_ok({1001: (1, 1, 50, 4, 5)})
 
     def test_act_or_stage_no_out_of_range_rejected(self):
         # (0, 0, ...) is exactly the shape of the pre-fix `act or 0`/`sno or 0` fallback
         # (a horde misread entered zeroed); outside 1..200 = a misread too
-        assert not _stage_info_ok({1001: (0, 1, 50, 0)})
-        assert not _stage_info_ok({1001: (1, 0, 50, 0)})
-        assert not _stage_info_ok({1001: (0, 0, 50, 0)})
-        assert not _stage_info_ok({1001: (201, 1, 50, 0)})
-        assert not _stage_info_ok({1001: (1, 201, 50, 0)})
+        assert not _stage_info_ok({1001: (0, 1, 50, 0, 5)})
+        assert not _stage_info_ok({1001: (1, 0, 50, 0, 5)})
+        assert not _stage_info_ok({1001: (0, 0, 50, 0, 5)})
+        assert not _stage_info_ok({1001: (201, 1, 50, 0, 5)})
+        assert not _stage_info_ok({1001: (1, 201, 50, 0, 5)})
 
     def test_zero_horde_not_range_checked(self):
         # horde=0 is LEGITIMATE (boss x-10, no horde waves) — row[2] has no range-check
-        assert _stage_info_ok({4310: (4, 10, 0, 3)})
+        assert _stage_info_ok({4310: (4, 10, 0, 3, 0)})
+
+    def test_wave_mobs_must_divide_horde(self):
+        # horde = waves × wave_mobs: a wave_mobs that doesn't divide it (or is negative) is a misread
+        assert not _stage_info_ok({1001: (1, 1, 50, 0, 7)})
+        assert not _stage_info_ok({1001: (1, 1, 50, 0, -5)})
 
     def test_wrong_shape_rejected(self):
         assert not _stage_info_ok({1001: (1, 1, 50)})            # 3-tuple
-        assert not _stage_info_ok({1001: (1, 1, 50, "0")})       # non-int diff
-        assert not _stage_info_ok({1001: [1, 1, 50, 0]})         # list (not reconstructed)
+        assert not _stage_info_ok({1001: (1, 1, 50, 0)})         # pre-fmt-10 4-tuple (an old cache)
+        assert not _stage_info_ok({1001: (1, 1, 50, "0", 5)})    # non-int diff
+        assert not _stage_info_ok({1001: [1, 1, 50, 0, 5]})      # list (not reconstructed)
 
     def test_bool_rejected(self):
         # bool is a subclass of int: a `true` in a hand-edited cache would pass as diff=1
-        assert not _stage_info_ok({1001: (1, 1, 50, True)})      # bool diff
-        assert not _stage_info_ok({1001: (1, True, 50, 0)})      # any bool field
+        assert not _stage_info_ok({1001: (1, 1, 50, True, 5)})   # bool diff
+        assert not _stage_info_ok({1001: (1, True, 50, 0, 5)})   # any bool field
 
 
 def test_bundled_seed_passes_load_validation():

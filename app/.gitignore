@@ -8,3 +8,5 @@ src/renderer/public/sprites/
 resources/reader/
 *.local
 .DS_Store
+# Optional per-hero DPS plugin + BepInEx pack, staged by scripts/stage-combat-plugin.mjs (bundled via extraResources).
+resources/combat-plugin/

@@ -139,7 +139,7 @@ export function resolveOutputDir(): string {
 // bottom-edge drag writes settings at rAF rate (#232), and re-issuing setAlwaysOnTop
 // with an unchanged flag still cycles the window's z-order on Windows. Keyed by window
 // (a recreated window starts fresh and gets a full apply).
-const appliedLive = new WeakMap<BrowserWindow, { opacity: number; alwaysOnTop: boolean; zoom: number }>();
+const appliedLive = new WeakMap<BrowserWindow, { opacity: number; alwaysOnTop: boolean; zoom: number; skipTaskbar: boolean }>();
 const appliedListZoom = new WeakMap<BrowserWindow, number>();
 
 /** Apply opacity + always-on-top + font scale (zoom) from settings to the LIVE window. */
@@ -153,7 +153,8 @@ export function applyLiveSettings(liveWin: BrowserWindow): void {
   if (prev?.opacity !== opacity) liveWin.setOpacity(opacity);
   if (prev?.alwaysOnTop !== cache.alwaysOnTop) liveWin.setAlwaysOnTop(cache.alwaysOnTop, "screen-saver");
   if (prev?.zoom !== zoom) liveWin.webContents.setZoomFactor(zoom);
-  appliedLive.set(liveWin, { opacity, alwaysOnTop: cache.alwaysOnTop, zoom });
+  if (prev?.skipTaskbar !== cache.hideTaskbarIcon) liveWin.setSkipTaskbar(cache.hideTaskbarIcon);
+  appliedLive.set(liveWin, { opacity, alwaysOnTop: cache.alwaysOnTop, zoom, skipTaskbar: cache.hideTaskbarIcon });
 }
 
 /** Apply the font scale (zoom) from settings to the RUNS-LIST window (#232). */

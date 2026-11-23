@@ -190,6 +190,26 @@ export interface RawRunV2 extends RawObserved {
   inventory?: Field<RawSnapshotItem[]>;
   /** Items in stash slots at run close — separate from inventory. */
   stash?: Field<RawSnapshotItem[]>;
+  /** Per-hero damage of this run (`{heroKey: {...}}`, JSON-string keys) from the OPTIONAL in-game combat
+   *  plugin (reader metrics/combat.py). err ("combat plugin not running") is the NORMAL case without the
+   *  plugin — the converter reads it quietly (no issue, no degrade). Optional: older raws lack it. */
+  hero_damage?: Field<Record<string, RawHeroDamage>>;
+  /** Per-hero damage TAKEN (victim) this run — same shape and quiet-err rule as hero_damage (plugin >= 0.4). */
+  hero_taken?: Field<Record<string, RawHeroDamage>>;
+}
+
+/** One hero's run damage as the reader emits it (raw `hero_damage` / live `party_damage`). */
+export interface RawHeroDamage {
+  damage: number;
+  hits: number;
+  crits: number;
+  crit_damage: number;
+  /** Plugin >= 0.4 breakdowns (absent on older reader output). */
+  base_attack_damage?: number;
+  /** EDamageType [Flags] combo ("6" = Projectile|AOE) → damage. */
+  by_type?: Record<string, number>;
+  /** EDamageAttribute ("0" Physical … "4" Chaos) → damage. */
+  by_attribute?: Record<string, number>;
 }
 
 /** Either raw schema the converter may encounter; it dispatches on `raw_schema_version`. */

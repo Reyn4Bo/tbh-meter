@@ -446,6 +446,34 @@ def read_build(reader, psd, item_cat, hero_cat):
     return out
 
 
+def carry_last_known(live, last, hero_keys):
+    """Per-hero map for the overlay that survives a DEATH: a dead hero drops out of StageManager.HeroList, so
+    its live progress/stats vanish until it revives (the overlay then lost its level badge + resist tooltip).
+    `last` (a per-run cache, mutated) is refreshed with every live value; the result covers `hero_keys` with
+    the live value when present, else the hero's last-known one. Pure apart from updating `last`."""
+    last.update(live or {})
+    return {k: last[k] for k in hero_keys or () if k in last}
+
+
+def dead_heroes(hero_keys, live_party):
+    """Heroes of the run that are NOT in the live party right now (= dead, awaiting revive). [] when the live
+    party read is empty — that's indistinguishable from a failed read, so nobody is flagged on it."""
+    if not live_party:
+        return []
+    return [k for k in hero_keys or () if k not in live_party]
+
+
+def equipped_item_keys(build_recs, hero_keys):
+    """{heroKey: [itemKey, ...]} of the KNOWN equipped items of the given heroes, from a read_build snapshot
+    (pure: no memory reads). Feeds live.json `party_items` so the overlay can apply item-granted UNIQUE mods
+    the FINAL_STATS dict doesn't reflect (e.g. 1.3.2 Eternal Armor: elemental resistances unify to the
+    highest). Unknown handles (UNKNOWN_ITEM_KEY) are skipped; a hero absent from the snapshot gets no entry."""
+    want = set(hero_keys or ())
+    return {h["heroKey"]: [it["itemKey"] for it in h.get("items", ())
+                           if it.get("itemKey") not in (None, UNKNOWN_ITEM_KEY)]
+            for h in build_recs or () if h.get("heroKey") in want}
+
+
 def _item_view(reader, it, item_cat):
     """1 save item -> RAW dict (itemKey/rarity/slot/level/uniqueId + mods). None if itemKey is unreadable.
     Same shape as the equipped item in read_build (the app resolves name/sprite by itemKey)."""
@@ -477,6 +505,12 @@ def _list_or_none(reader, list_obj, cap):
     if not b or len(b) < size * 8:
         return None
     return [p for p in struct.unpack(f"<{size}Q", b) if p]
+
+
+def read_runes(reader, psd):
+    """Public: [{key, level}] of the account runes, or None if unreadable (see _read_runes). Feeds
+    metrics.progress.wave_reduction at each run start."""
+    return _read_runes(reader, psd) if psd else None
 
 
 def _read_runes(reader, psd):

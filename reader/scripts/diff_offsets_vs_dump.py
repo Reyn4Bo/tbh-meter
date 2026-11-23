@@ -83,7 +83,9 @@ def parse_dump(path):
     Takes the body with the MOST fields per name (ignores forward-decls)."""
     lines = open(path, encoding="utf-8", errors="replace").read().split("\n")
     classes, enums, tdi, bases = {}, {}, {}, {}
-    decl = re.compile(r'\b(class|struct|enum)\s+(\w+)\b(.*?)(?://|$)')
+    # [\w.]+ keeps NESTED names whole (`xo.StageCache`): `\w+` cut them at the dot, so every nested
+    # class of an obfuscated outer type collapsed into ONE entry (`xo`) and was unreachable.
+    decl = re.compile(r'\b(class|struct|enum)\s+([\w.]+)\b(.*?)(?://|$)')
     for i, line in enumerate(lines):
         m = decl.search(line)
         if not m:
@@ -148,9 +150,7 @@ _NAME_OVERRIDE = {
         "CURRENCIES": "currenySaveDatas", "HEROES": "heroSaveDatas",
         "INVENTORY_SLOTS": "inventorySaveDatas",
     },
-    "MonsterSpawnManager": {
-        "DEAD_MONSTER_LIST": "DeadMonsterUnit", "SUMMONED_LIST": "SummonedMonsterList",
-    },
+    "MonsterSpawnManager": {"SUMMONED_LIST": "SummonedMonsterList"},
     "HeroSaveData": {"EQUIPPED_ITEMS": "equippedItemIds", "EQUIPPED_SKILLS": "equippedSKillKey"},
     "StageInfoData": {"WAVE_MOB_AMOUNT": "WaveMonsterAmount"},
 }
@@ -216,6 +216,13 @@ def main():
         return 2
     dclasses, denums, dtdi, dbases = parse_dump(args.dump)
     dclass_ci = {k.lower(): k for k in dclasses}
+    # Nested class under an OBFUSCATED outer type (e.g. `xo.StageCache`): the outer name drifts per
+    # build, so match by the UNIQUE `.Name` suffix instead of hard-coding the prefix.
+    _nested = {}
+    for k in dclasses:
+        if "." in k:
+            _nested.setdefault(k.rsplit(".", 1)[1], []).append(k)
+    dclass_nested = {k: v[0] for k, v in _nested.items() if len(v) == 1}
     shifts, unver, ok = [], [], 0
     name_unver = []   # fields whose dump name is obfuscated (drift) — can't be checked by name
 
@@ -243,7 +250,7 @@ def main():
         # name → class in the dump: the name itself, the curated alias, or case-insensitive (last resort).
         dname = (name if name in dclasses
                  else CLASS_ALIAS.get(name) if CLASS_ALIAS.get(name) in dclasses
-                 else dclass_ci.get(name.lower()))
+                 else dclass_ci.get(name.lower()) or dclass_nested.get(name))
         if dname is None:
             unver.append(name)
             print(f"  ?  {name:22s} not found by name (obfuscated?) — validate live")
@@ -268,6 +275,15 @@ def main():
                 name_unver.append(f"{name}.{a}")
             elif exp_n and got_n and not _name_matches(exp_n, got_n):
                 badname.append((a, o, exp_n, got_n))
+        # STRIDE (array element size of a struct): a field the game APPENDED at/after the stride means the
+        # struct grew and every element after [0] is read misaligned (1.3.2: ItemEnchantSaveData gained
+        # `string EnchantVersion @0x20` → stride 0x1C→0x28, and the offset-only check stayed green).
+        stride = getattr(getattr(O, name, None), "STRIDE", None)
+        if isinstance(stride, int):
+            for o in sorted(own):
+                if o >= stride:
+                    bad.append((f"STRIDE(field {_fname(own[o])} @0x{o:X} ≥ stride)", stride))
+                    break
         if bad or badname:
             # Insertion: if any field shifted, show the ENTIRE class window (field@offset) so the
             # maintainer can see WHERE the new field came in (the bucket-box insertion was invisible in the diff).

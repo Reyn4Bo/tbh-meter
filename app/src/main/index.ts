@@ -17,6 +17,7 @@ import { clampFontScale } from "../shared/ipc-types.js";
 import { createLiveDrag } from "./live-drag.js";
 import { registerIpcHandlers } from "./ipc.js";
 import { createTray, destroyTray, refreshTrayMenu } from "./tray.js";
+import { restoreGameTaskbarOnQuit } from "./game-taskbar.js";
 import { getRunsSource } from "./sources/runs-source.js";
 import { getLiveSource } from "./sources/live-source.js";
 import { logsDir } from "./logs-archive.js";
@@ -166,7 +167,8 @@ function createLiveWindow(): BrowserWindow {
     // edge-handle via setBounds (meter:set-window-width); height is content-pinned.
     resizable: false,
     alwaysOnTop: settings.alwaysOnTop,
-    skipTaskbar: false,
+    // Settings → hide the meter's taskbar icon (the tray icon stays the way back).
+    skipTaskbar: settings.hideTaskbarIcon,
     icon: appIconAsset,
     backgroundColor: "#00000000",
     show: false,
@@ -653,5 +655,7 @@ app.on("will-quit", () => runIfPrimary(isPrimaryInstance, () => {
   getRunsSource().stop();
   getLiveSource().stop();
   _ingestor?.stop();
+  // Give the game its taskbar button back if we were hiding it (bounded, best effort).
+  restoreGameTaskbarOnQuit();
   destroyTray();
 }));

@@ -12,8 +12,17 @@
 // `session_id` is passed THROUGH verbatim — the reader owns session identity, the converter never
 // re-mints it (identity & session — which corrected the original "converter mints" idea).
 
-import type { Field, AnyRawRun, RawHero, RawDrop, MetricSource } from "../../shared/raw-types.js";
 import type {
+  Field,
+  AnyRawRun,
+  RawHero,
+  RawDrop,
+  MetricSource,
+  RawHeroDamage,
+  RawRunV2,
+} from "../../shared/raw-types.js";
+import type {
+  HeroDamage,
   RunRecord,
   RunHero,
   RunItem,
@@ -22,7 +31,7 @@ import type {
   RunStatus,
   RunDrop,
 } from "../../shared/run-types.js";
-import { classifyQuality, computeDps, computeRate, modeName, resolveStage, round } from "./helpers.js";
+import { classifyQuality, computeDps, computeRate, cookBreakdown, modeName, resolveStage, round } from "./helpers.js";
 import { asStatus } from "../sources/runs-source.js";
 
 /** Coerce a raw metric-source tag to the MetricSource union, defaulting an off-union value to "".
@@ -42,7 +51,9 @@ function numOrNull(v: unknown): number | null {
 /** The converter's own output schema version. Regenerable: bump this to force a re-convert of
  *  every `logs/<id>.json` (the ingestor re-runs convert when a log's version is older). Distinct
  *  from the raw/reader schema version (provenance, carried as `schemaVersion`). */
-export const STRUCTURED_SCHEMA_VERSION = 1;
+// 2 = Plaguelands stage label "P-<stageNo>" instead of the meaningless game act ("23-20") — the bump
+//     re-converts stored logs so already-recorded plague runs pick up the new label.
+export const STRUCTURED_SCHEMA_VERSION = 2;
 
 /** Unwrap a Field: on `ok` return its value; on error return `fallback` AND record the reason under
  *  `issues[name]`. This is the whole point of the envelope — a failed read becomes a tracked issue,
@@ -149,6 +160,33 @@ function mapHero(raw: RawHero): RunHero {
   return hero;
 }
 
+/** The raw `hero_damage` envelope → `{heroKey: {total, hits, crits, critDamage}}` (dps is added by the
+ *  caller on the run's reference time), keeping only finite non-negative numbers. Null for an absent/err
+ *  envelope (plugin not running / older raw) — never an issue. Pure, never throws. */
+function readHeroDamage(
+  field: RawRunV2["hero_damage"],
+): Record<number, Omit<HeroDamage, "dps">> | null {
+  if (!field || field.ok !== true || !field.value || typeof field.value !== "object") return null;
+  const fin = (v: unknown): number => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : 0);
+  const out: Record<number, Omit<HeroDamage, "dps">> = {};
+  for (const [k, raw] of Object.entries(field.value)) {
+    const hk = Number(k);
+    if (!Number.isFinite(hk) || !raw || typeof raw !== "object") continue;
+    const v = raw as Partial<Record<keyof RawHeroDamage, unknown>>;   // untrusted JSON
+    const entry: Omit<HeroDamage, "dps"> = {
+      total: fin(v.damage), hits: fin(v.hits), crits: fin(v.crits), critDamage: fin(v.crit_damage),
+    };
+    // Plugin >= 0.4 breakdowns — only emitted when present (older raws keep the lean shape).
+    if (v.base_attack_damage !== undefined) entry.baseAttackDamage = fin(v.base_attack_damage);
+    const byType = cookBreakdown(v.by_type);
+    if (Object.keys(byType).length > 0) entry.byType = byType;
+    const byAttribute = cookBreakdown(v.by_attribute);
+    if (Object.keys(byAttribute).length > 0) entry.byAttribute = byAttribute;
+    out[hk] = entry;
+  }
+  return out;
+}
+
 /** Convert ONE raw run record into the structured RunRecord. Pure. Dispatches by
  *  `raw_schema_version`: v1 (legacy: id = session_id:run) and v2 (Redesign 2: id = the run's end-ts
  *  in ms, NO session_id/run). The observed DATA fields are identical (RawObserved); only the
@@ -177,6 +215,10 @@ export function convert(raw: AnyRawRun): RunRecord {
   const xpGained = unwrap(raw.xp_gained, 0, "xp_gained", issues);
   const drops = mapDrops(unwrap(raw.drops, [], "drops", issues));
   const heroes = unwrap(raw.heroes, [], "heroes", issues).map(mapHero);
+  // Per-hero damage (OPTIONAL combat plugin). Read QUIETLY — its err ("combat plugin not running") is the
+  // normal state without the plugin, so it must not become an issue (that would flag every run "Bugged").
+  const heroDamage = readHeroDamage(raw.raw_schema_version === 2 ? raw.hero_damage : undefined);
+  const heroTaken = readHeroDamage(raw.raw_schema_version === 2 ? raw.hero_taken : undefined);
 
   // Coerce status at the convert boundary (raw is an untrusted JSON cast), mirroring the read path
   // (loadStructured.asStatus). An off-union/garbage run_outcome (a hand-edited/corrupt raw) is
@@ -187,6 +229,13 @@ export function convert(raw: AnyRawRun): RunRecord {
   const duration = typeof raw.duration === "number" ? raw.duration : 0;
 
   const dps = round(computeDps(totalDamage, clearTime, duration));
+  for (const h of heroes) {
+    // dps on the run's OWN reference time (clear time, else duration) → the heroes' dps sum to the run's.
+    const d = heroDamage?.[h.heroKey];
+    if (d) h.damage = { ...d, dps: round(computeDps(d.total, clearTime, duration)) };
+    const tk = heroTaken?.[h.heroKey];
+    if (tk) h.taken = { ...tk, dps: round(computeDps(tk.total, clearTime, duration)) };
+  }
   const goldPerSec = round(computeRate(goldGained, clearTime, duration));
   const xpPerSec = round(computeRate(xpGained, clearTime, duration));
 

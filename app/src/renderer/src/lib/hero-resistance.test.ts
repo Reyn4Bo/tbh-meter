@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { heroResistances } from "./hero-resistance";
+import {
+  heroResistances,
+  ITEM_CHAOS_RES_FROM_HIGHEST_ELEMENT,
+  ITEM_ELEMENT_RES_UNIFY_TO_HIGHEST,
+} from "./hero-resistance";
 
 // The numbers here are the exact live-confirmed cases (hero 201, 3-9 Torment) used to lock the
 // formula — see memory tbh-stage-difficulty-res-penalty. StatType ids: 52=AllElemental, 12=Fire,
@@ -47,5 +51,32 @@ describe("heroResistances", () => {
   it("reports own vs effective separately for the UI", () => {
     const fire = heroResistances({ 52: 27, 12: 10 }, "Torment")!.resistances[0];
     expect(fire).toEqual({ element: "Fire", own: 37, effective: -23 });
+  });
+
+  // Game 1.3.2 — the live Slayer (601) FINAL_STATS in 3-9 Torment, checked against the in-game panel
+  // (Fire/Cold/Lightning 113%, Chaos 76%). 70/72/77/80 = Decrease{Fire,Cold,Lightning,Chaos}Resistance.
+  const SLAYER_1_3_2 = { 12: 147, 13: 0, 14: 0, 15: 136, 52: 36, 70: 10, 72: 30, 77: 15, 80: 0 };
+
+  it("1.3.2: subtracts the Decrease<Element>Resistance stats (Fire 113 / Chaos 76 = the game panel)", () => {
+    const info = heroResistances(SLAYER_1_3_2, "Torment")!;
+    expect(byEl(info)).toEqual({ Fire: 113, Cold: -54, Lightning: -39, Chaos: 76 });
+  });
+
+  it("Eternal Armor (516193): Fire/Cold/Lightning unify to the highest → 113/113/113 like the game", () => {
+    const info = heroResistances(SLAYER_1_3_2, "Torment", [300001, ITEM_ELEMENT_RES_UNIFY_TO_HIGHEST])!;
+    expect(byEl(info)).toEqual({ Fire: 113, Cold: 113, Lightning: 113, Chaos: 76 });
+  });
+
+  it("Dimensional Armor (518173): Chaos takes the highest elemental (by analogy — not panel-confirmed)", () => {
+    const info = heroResistances(SLAYER_1_3_2, "Torment", [ITEM_CHAOS_RES_FROM_HIGHEST_ELEMENT])!;
+    expect(byEl(info)).toEqual({ Fire: 113, Cold: -54, Lightning: -39, Chaos: 113 });
+  });
+
+  it("no items / unrelated items / older reader (undefined) → no unique mod applied", () => {
+    for (const items of [undefined, null, [], [300001]]) {
+      expect(byEl(heroResistances(SLAYER_1_3_2, "Torment", items))).toEqual({
+        Fire: 113, Cold: -54, Lightning: -39, Chaos: 76,
+      });
+    }
   });
 });

@@ -101,6 +101,21 @@ describe("cookLive — derives the overlay snapshot from the reader's raw live",
     ).toBeNull();
   });
 
+  it("re-keys party_items (JSON-string keys) to numbers, keeping only finite item keys", () => {
+    const snap = cookLive(
+      rawLive({ party_items: { "601": [516193, NaN as unknown as number, 300001], "101": [] } }),
+    );
+    expect(snap.partyItems).toEqual({ 601: [516193, 300001], 101: [] });
+  });
+
+  it("maps a missing/invalid party_items to null (older reader → no unique mods applied)", () => {
+    expect(cookLive(rawLive({ party_items: undefined })).partyItems).toBeNull();
+    expect(cookLive(rawLive({ party_items: {} })).partyItems).toBeNull();
+    expect(
+      cookLive(rawLive({ party_items: { "601": "x" as unknown as number[] } })).partyItems,
+    ).toBeNull();
+  });
+
   it("re-keys party_progress (JSON-string keys) to numbers, keeping only all-finite entries", () => {
     const snap = cookLive(
       rawLive({
@@ -162,5 +177,46 @@ describe("cookLive matches modeName/resolveStage exactly (shared with the conver
   });
   it("uses the same stage formatting", () => {
     expect(cookLive(rawLive({ act: 3, stageNo: 10 })).stage).toBe(resolveStage(3, 10));
+  });
+});
+
+describe("cookLive — party_damage (optional combat plugin)", () => {
+  it("re-keys to numbers and camelCases crit_damage", () => {
+    const snap = cookLive(
+      rawLive({ party_damage: { "601": { damage: 250, hits: 10, crits: 4, crit_damage: 120 } } }),
+    );
+    expect(snap.partyDamage).toEqual({
+      601: { damage: 250, hits: 10, crits: 4, critDamage: 120, byType: {}, byAttribute: {} },
+    });
+  });
+
+  it("parses the type/element breakdowns and party_taken (plugin >= 0.4)", () => {
+    const snap = cookLive(
+      rawLive({
+        party_damage: {
+          "601": { damage: 250, hits: 10, crits: 4, crit_damage: 120, by_type: { "6": 200, "2": 50, x: 1 }, by_attribute: { "0": 250 } },
+        },
+        party_taken: { "101": { damage: 40, hits: 7, crits: 2, crit_damage: 15, by_attribute: { "1": 30, "0": 10 } } },
+      }),
+    );
+    expect(snap.partyDamage![601].byType).toEqual({ 6: 200, 2: 50 });
+    expect(snap.partyTaken).toEqual({ 101: { damage: 40, hits: 7, crits: 2, critDamage: 15, byType: {}, byAttribute: { 1: 30, 0: 10 } } });
+    expect(cookLive(rawLive({})).partyTaken).toBeNull();
+  });
+
+  it("null/absent → null (plugin not running); {} stays {} (running, nobody hit yet); bad rows dropped", () => {
+    expect(cookLive(rawLive({ party_damage: null })).partyDamage).toBeNull();
+    expect(cookLive(rawLive({ party_damage: undefined })).partyDamage).toBeNull();
+    expect(cookLive(rawLive({ party_damage: {} })).partyDamage).toEqual({});
+    expect(
+      cookLive(rawLive({ party_damage: { "601": { damage: NaN, hits: 1, crits: 0, crit_damage: 0 } } })).partyDamage,
+    ).toEqual({});
+  });
+});
+
+describe("cookLive — party_dead", () => {
+  it("keeps finite hero keys; absent → null (older reader)", () => {
+    expect(cookLive(rawLive({ party_dead: [301, NaN as unknown as number, 201] })).partyDead).toEqual([301, 201]);
+    expect(cookLive(rawLive({})).partyDead).toBeNull();
   });
 });

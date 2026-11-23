@@ -449,3 +449,42 @@ describe("convert — raw v2 (Redesign 2: id = end-ts ms, no session)", () => {
     expect(convert(RAW_V2_EXAMPLE)).toEqual(convert(RAW_V2_EXAMPLE));
   });
 });
+
+describe("convert — per-hero damage (optional combat plugin)", () => {
+  const dmg = { damage: 4500, hits: 30, crits: 12, crit_damage: 2600 };
+
+  it("attaches hero damage with dps on the run's reference time (clear_time 90s)", () => {
+    const r = convert({ ...RAW_V2_EXAMPLE, hero_damage: { ok: true, value: { "1001": dmg } } });
+    expect(r.heroes[0].damage).toEqual({ total: 4500, hits: 30, crits: 12, critDamage: 2600, dps: 50 });
+    expect(r.issues ?? {}).not.toHaveProperty("hero_damage");
+  });
+
+  it("plugin not running (err) or an older raw (absent) → no damage AND no issue (never 'Bugged')", () => {
+    for (const hero_damage of [{ ok: false, error: "combat plugin not running" } as const, undefined]) {
+      const r = convert({ ...RAW_V2_EXAMPLE, hero_damage });
+      expect(r.heroes[0].damage).toBeUndefined();
+      expect(r.issues ?? {}).not.toHaveProperty("hero_damage");
+    }
+  });
+
+  it("ignores damage for a hero not in the run's party and sanitizes garbage numbers", () => {
+    const r = convert({
+      ...RAW_V2_EXAMPLE,
+      hero_damage: { ok: true, value: { "9999": dmg, "1001": { damage: -5, hits: "x", crits: 1, crit_damage: NaN } as never } },
+    });
+    expect(r.heroes[0].damage).toEqual({ total: 0, hits: 0, crits: 1, critDamage: 0, dps: 0 });
+  });
+});
+
+describe("convert — damage taken + breakdowns (combat plugin >= 0.4)", () => {
+  it("maps hero_taken to hero.taken (per-second on the run reference) and carries the breakdowns", () => {
+    const r = convert({
+      ...RAW_V2_EXAMPLE,
+      hero_damage: { ok: true, value: { "1001": { damage: 900, hits: 9, crits: 3, crit_damage: 400, base_attack_damage: 300, by_type: { "6": 600, "2": 300 }, by_attribute: { "0": 900 } } } },
+      hero_taken: { ok: true, value: { "1001": { damage: 180, hits: 12, crits: 1, crit_damage: 20, by_attribute: { "1": 120, "0": 60 } } } },
+    });
+    expect(r.heroes[0].damage).toMatchObject({ total: 900, dps: 10, baseAttackDamage: 300, byType: { 6: 600, 2: 300 } });
+    expect(r.heroes[0].taken).toMatchObject({ total: 180, dps: 2, hits: 12, crits: 1, byAttribute: { 1: 120, 0: 60 } });
+    expect(r.issues ?? {}).not.toHaveProperty("hero_taken");
+  });
+});

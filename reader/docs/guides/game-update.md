@@ -56,6 +56,17 @@ fix is to **re-seed**, not to touch `offsets.py`. This guide tells you how to be
    **Takeaway: a GREEN step 3 is necessary but NEVER sufficient — step 6 (`validate_live`, ALL metrics) is the
    only catcher for bucket 4.**
 
+**1.3.2 (the big recompile) — what the diff could NOT see.** Besides ~20 plainly reported shifts (save lists,
+`ItemInfoData.PARTS`, `MonsterSpawnManager`, the stage logs' act/stage → a `StageCache` pointer, the deleted
+`DeadMonsterUnit` → `StageManager.STAGE_KILLS`), six breaks were invisible or FALSE-OK in step 3: `Unit.CACHE`
+and `StageManager.HERO_LIST` (old offset landed on another obfuscated field → "OK"), `Monster.STAGE_KEY` (Monster
+body reordered, not a uniform shift), `UnitHealthController.HP_MAX` (obfuscated class; 0x4C became a
+read-and-reset accumulator → `[dps] withHpMax=0`), the `StageFailedLog` wave ints (same offsets, SWAPPED meaning)
+and `ItemEnchant.STRIDE` (struct grew; the diff now checks strides). Each was pinned by reading the field's
+writer/getter in the binary (Il2CppDumper gives each method's file offset; disassemble the init/ctor to see which
+parameter lands at which offset) and then confirmed live. For every obfuscated field the reader dereferences,
+re-derive it from the dump's class body — never trust a ✓ on an obfuscated-name field after a big recompile.
+
 ## Checklist (in order)
 
 1. **Fingerprint — recompile or content only?** Read the new `GameAssembly.dll`'s PE header

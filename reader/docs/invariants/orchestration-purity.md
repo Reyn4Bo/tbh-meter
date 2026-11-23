@@ -57,7 +57,7 @@ no one else's:
 - **Structural manager validation** (`_pick_list_singleton`/`_valid_list_size`): pick the live
   `LogManager`/`MonsterSpawnManager` instance out of the scan's false positives — see
   [[invariants/instance-selection]].
-- **Re-attach / stage-reload detection**: read `LOG_LIST`/`DeadMonsterUnit` to learn that the game
+- **Re-attach / stage-reload detection**: read `LOG_LIST`/`StageManager.STAGE_KILLS` (via `game/models.py::stage_kills`) to learn that the game
   closed (reads failing) or the stage reloaded.
 
 Note that even this scaffolding **does NOT invent an offset**: it uses `List.SIZE`/`List.ITEMS`/`Array.DATA`

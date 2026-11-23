@@ -24,6 +24,10 @@ const meter: MeterApi = {
   pickOutputDir: () => ipcRenderer.invoke("meter:pick-output-dir"),
   resolvedOutputDir: () => ipcRenderer.invoke("meter:resolved-output-dir"),
 
+  getCombatPluginStatus: () => ipcRenderer.invoke("meter:combat-status"),
+  setCombatPluginEnabled: (enabled) => ipcRenderer.invoke("meter:combat-set", enabled),
+  pickGameDir: () => ipcRenderer.invoke("meter:combat-pick-game-dir"),
+
   listRuns: () => ipcRenderer.invoke("meter:list-runs"),
   getRun: (id) => ipcRenderer.invoke("meter:get-run", id),
   clearRuns: () => ipcRenderer.invoke("meter:clear-runs"),

@@ -7,22 +7,22 @@ vi.mock("electron", () => ({ app: { getPath: () => "/tmp/userData" } }));
 import { migrateChestCooldowns, sanitizeRoute } from "../settings.js";
 
 // Real stage→box facts from the synced data:
-//   4309 (Torment 3-9) & 4109 (Torment 1-9) → BOTH box 920801 (the duplicate-Lv80 case)
+//   4208 (Torment 2-8) & 4109 (Torment 1-9) → BOTH box 920801 (the duplicate-Lv80 case)
 //   1101 (Normal 1-1) → box 920011
 //   1110 (Normal 1-10) → box 930101 (act-boss, NOT a blue box → dropped)
 describe("migrateChestCooldowns (legacy per-stage → box-keyed)", () => {
   it("derives boxKey from a legacy stageKey entry and keeps the stage as lastStageKey", () => {
     const out = migrateChestCooldowns(
-      [{ stageKey: 4309, stage: "X", mode: "Torment", dropAt: 100 }],
+      [{ stageKey: 4208, stage: "X", mode: "Torment", dropAt: 100 }],
       false,
     );
-    expect(out).toEqual([{ boxKey: 920801, dropAt: 100, lastStageKey: 4309, mode: "Torment" }]);
+    expect(out).toEqual([{ boxKey: 920801, dropAt: 100, lastStageKey: 4208, mode: "Torment" }]);
   });
 
   it("collapses the SAME box across stages to the most recent drop (active list)", () => {
     const out = migrateChestCooldowns(
       [
-        { stageKey: 4309, dropAt: 100 }, // box 920801
+        { stageKey: 4208, dropAt: 100 }, // box 920801
         { stageKey: 4109, dropAt: 200 }, // box 920801 too → same chest level
       ],
       true,
@@ -36,7 +36,7 @@ describe("migrateChestCooldowns (legacy per-stage → box-keyed)", () => {
   it("keeps every entry for the history log (collapse = false)", () => {
     const out = migrateChestCooldowns(
       [
-        { stageKey: 4309, dropAt: 100 },
+        { stageKey: 4208, dropAt: 100 },
         { stageKey: 4109, dropAt: 200 },
       ],
       false,

@@ -17,7 +17,9 @@ from config.offsets import (
     HeroDieLog,
     PlayerSaveData,
     ResurrectionLog,
+    StageCache,
     StageClearLog,
+    StageFailedLog,
 )
 
 
@@ -129,11 +131,20 @@ class TestEMonsterLogType:
 
 
 class TestStageClearLogOffsets:
-    def test_act_at_0x40(self):
-        assert StageClearLog.ACT == 0x40
+    """1.3.2 replaced the plain act/stage ints @0x40/0x44 with ONE StageCache pointer @0x40 (same 8 bytes,
+    so the fields after it did not move). act/stage are read via StageCache.INFO -> StageInfoData."""
 
-    def test_stage_at_0x44(self):
-        assert StageClearLog.STAGE == 0x44
+    def test_stage_cache_at_0x40(self):
+        assert StageClearLog.STAGE_CACHE == 0x40
+        assert StageFailedLog.STAGE_CACHE == 0x40
+
+    def test_plain_act_stage_gone(self):
+        # a stale ACT/STAGE would ri32 the low half of the StageCache POINTER = garbage act/stage.
+        for cls in (StageClearLog, StageFailedLog):
+            assert not hasattr(cls, "ACT") and not hasattr(cls, "STAGE")
+
+    def test_stage_cache_info_at_0x10(self):
+        assert StageCache.INFO == 0x10
 
     def test_clear_time_at_0x48(self):
         assert StageClearLog.CLEAR_TIME == 0x48
@@ -184,9 +195,13 @@ class TestAggregateManagerOffset:
 
 
 class TestPlayerSaveDataOffset:
-    def test_aggregates_at_0xb8(self):
+    def test_aggregates_at_0xd0(self):
         # PlayerSaveData save lists shift whenever the devs insert feature fields near the top:
         # 1.00.12 (BoxBucketUse/GetBoxList, +0x10), 1.00.19 (Alchemy*, +0x10), 1.00.23 (backendPostList, +0x08),
-        # 1.00.27 (+0x08 again: dump has pendingEnchantList@0x48 + backendPostList@0x50 above currenySaveDatas@0x58).
-        # AGGREGATES: 0x88 → 0x98 (1.00.12) → 0xA8 (1.00.19) → 0xB0 (1.00.23) → 0xB8 (1.00.27). See offsets.py.
-        assert PlayerSaveData.AGGREGATES == 0xB8
+        # 1.00.27 (+0x08 again: dump has pendingEnchantList@0x48 + backendPostList@0x50 above currenySaveDatas@0x58),
+        # 1.3.2 (pendingItemRestorationList@0x58 +0x08; relicEquipSaveData@0xC8 between ITEMS and AGGREGATES).
+        # AGGREGATES: 0x88 → 0x98 (1.00.12) → 0xA8 (1.00.19) → 0xB0 (1.00.23) → 0xB8 (1.00.27) → 0xD0 (1.3.2).
+        assert PlayerSaveData.AGGREGATES == 0xD0
+
+    def test_lists_1_3_2(self):
+        assert (PlayerSaveData.CURRENCIES, PlayerSaveData.HEROES, PlayerSaveData.ITEMS) == (0x60, 0x68, 0xC0)

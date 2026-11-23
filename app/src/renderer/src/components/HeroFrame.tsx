@@ -1,6 +1,9 @@
+import { Skull } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { heroName, levelCurve } from "~/lib/game-data";
 import { heroResistances, type HeroResistance, type ResElement } from "~/lib/hero-resistance";
+import { HERO_DPS_TEXT, sharePct, type HeroDpsRow } from "~/lib/hero-damage";
+import { Breakdown } from "~/components/Breakdown";
 import { OverlayTooltip } from "~/components/OverlayTooltip";
 import { useHoverTooltip } from "~/lib/use-hover-tooltip";
 import { useT } from "~/lib/i18n";
@@ -46,6 +49,10 @@ export function HeroFrame({
   src,
   stats,
   progress,
+  items,
+  dps,
+  taken,
+  dead = false,
   elapsedSec,
   mode,
 }: {
@@ -53,12 +60,20 @@ export function HeroFrame({
   src: string;
   stats: Record<number, number> | undefined;
   progress: HeroProgress | undefined;
+  /** Equipped item keys (live party_items) — applies item unique mods to the resistances. */
+  items?: readonly number[];
+  /** This hero's live DPS row (optional combat plugin) — DPS + share under the avatar, detail in the card. */
+  dps?: HeroDpsRow;
+  /** This hero's live damage-TAKEN row (plugin >= 0.4) — taken/s, share, crits taken, elements in the card. */
+  taken?: HeroDpsRow;
+  /** Dead right now (awaiting revive): greyed sprite + skull; level/stats shown are last-known. */
+  dead?: boolean;
   elapsedSec: number;
   mode: string;
 }) {
   const t = useT();
   const { open, anchorRef, hover } = useHoverTooltip<HTMLSpanElement>();
-  const info = heroResistances(stats, mode);
+  const info = heroResistances(stats, mode, items);
 
   // Leveling — all from the MEASURED live rate (no penalty model). need=null ⇒ at the cap.
   const need = progress ? expToNextLevel(progress.level, levelCurve) : null;
@@ -77,41 +92,69 @@ export function HeroFrame({
       className="flex flex-col items-center gap-0.5"
     >
       <span className="relative">
-        <span className="flex size-7 items-center justify-center overflow-hidden rounded bg-surface-900/80 ring-1 ring-surface-500/70">
+        <span
+          className={cn(
+            "flex size-7 items-center justify-center overflow-hidden rounded bg-surface-900/80 ring-1",
+            dead ? "ring-rose-500/60" : "ring-surface-500/70",
+          )}
+        >
           <img
             src={src}
             alt=""
             aria-hidden
-            className="size-6 max-w-none object-contain [image-rendering:pixelated]"
+            className={cn(
+              "size-6 max-w-none object-contain [image-rendering:pixelated]",
+              dead && "opacity-40 grayscale",
+            )}
           />
         </span>
+        {dead && (
+          // Dead (awaiting revive): skull over the greyed sprite; the badge/numbers below are last-known.
+          <Skull className="absolute inset-0 m-auto size-3.5 text-rose-300 drop-shadow" aria-hidden />
+        )}
         {progress && (
           <span className="absolute -right-1 -top-1 rounded bg-surface-700 px-0.5 text-[8px] font-bold leading-[1.45] tabular-nums text-zinc-300 ring-1 ring-surface-500/80">
             {progress.level}
           </span>
         )}
       </span>
-      {progress && (
-        <span
-          className={cn(
-            // normal-case: the footer is uppercase, but "36m" must not read as "36M" (millions).
-            "font-mono text-[8px] font-semibold normal-case leading-none tabular-nums",
-            capped ? "text-zinc-600" : hasEta ? "text-emerald-300" : "text-zinc-500",
-          )}
-        >
-          {capped ? t("live.maxed") : etaLabel}
+      {dead ? (
+        <span className="font-mono text-[8px] font-semibold leading-none text-rose-300">{t("live.dead")}</span>
+      ) : (
+        progress && (
+          <span
+            className={cn(
+              // normal-case: the footer is uppercase, but "36m" must not read as "36M" (millions).
+              "font-mono text-[8px] font-semibold normal-case leading-none tabular-nums",
+              capped ? "text-zinc-600" : hasEta ? "text-emerald-300" : "text-zinc-500",
+            )}
+          >
+            {capped ? t("live.maxed") : etaLabel}
+          </span>
+        )
+      )}
+      {dps && (
+        // normal-case for the same reason as the ETA: "38.6M" must keep its unit case in the uppercase footer.
+        <span className={cn("font-mono text-[8px] font-semibold normal-case leading-none tabular-nums", HERO_DPS_TEXT[dps.color])}>
+          {humanize(dps.dps)} · {sharePct(dps.share)}
         </span>
       )}
 
-      {(progress || info) && (
+      {(progress || info || dps || taken) && (
         // placement="top": this frame lives in the overlay's bottom footer, so the card opens the
         // tooltip UPWARD — a downward one would grow the window under the cursor and flicker (see
         // OverlayTooltip).
         <OverlayTooltip anchorRef={anchorRef} open={open} placement="top">
           <div className="flex min-w-[8.5rem] flex-col gap-2">
             <div className="flex items-center justify-between gap-3 border-b border-surface-600/70 pb-1">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-200">
+              <span className="flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-200">
                 {heroName(heroKey)}
+                {dead && (
+                  <span className="flex items-center gap-0.5 normal-case text-rose-300">
+                    <Skull className="size-3" aria-hidden />
+                    {t("live.dead")}
+                  </span>
+                )}
               </span>
               {progress && (
                 <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">
@@ -140,6 +183,33 @@ export function HeroFrame({
               </div>
             )}
 
+            {dps && (
+              <div className="flex flex-col gap-0.5 font-mono text-[10px]">
+                <span className="text-[9px] uppercase tracking-wider text-zinc-500">{t("live.damage")}</span>
+                <DmgLine label="DPS" value={humanize(dps.dps)} tone={HERO_DPS_TEXT[dps.color]} />
+                <DmgLine label={t("live.dmgShare")} value={sharePct(dps.share)} />
+                <DmgLine
+                  label={t("live.critRate")}
+                  value={dps.critRate == null ? "—" : `${Math.round(dps.critRate * 100)}%`}
+                />
+                <DmgLine label={t("live.hits")} value={String(dps.hits)} />
+                <Breakdown data={dps.byType} kind="type" className="mt-1" />
+              </div>
+            )}
+
+            {taken && taken.damage > 0 && (
+              <div className="flex flex-col gap-0.5 font-mono text-[10px]">
+                <span className="text-[9px] uppercase tracking-wider text-zinc-500">{t("live.taken")}</span>
+                <DmgLine label={`${t("live.taken")}/s`} value={humanize(taken.dps)} tone="text-rose-300" />
+                <DmgLine label={t("live.dmgShare")} value={sharePct(taken.share)} />
+                <DmgLine
+                  label={t("live.critTaken")}
+                  value={taken.critRate == null ? "—" : `${Math.round(taken.critRate * 100)}%`}
+                />
+                <Breakdown data={taken.byAttribute} kind="element" className="mt-1" />
+              </div>
+            )}
+
             {info && (
               <div className="flex flex-col gap-1">
                 <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-500">
@@ -155,6 +225,15 @@ export function HeroFrame({
           </div>
         </OverlayTooltip>
       )}
+    </span>
+  );
+}
+
+function DmgLine({ label, value, tone = "text-zinc-200" }: { label: string; value: string; tone?: string }) {
+  return (
+    <span className="flex items-center justify-between gap-3 leading-tight">
+      <span className="text-zinc-400">{label}</span>
+      <span className={cn("font-semibold tabular-nums", tone)}>{value}</span>
     </span>
   );
 }

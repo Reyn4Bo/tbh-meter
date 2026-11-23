@@ -33,6 +33,7 @@ import {
   type ClearTimeResult,
   type CandidateSource,
 } from "../../../shared/planner-model.js";
+import { PLAGUE_ACT_MIN, PLAGUE_CODE_PREFIX, parseStageCode } from "../../../shared/stage-code.js";
 import type { RunIndexEntry } from "../../../shared/ipc-types.js";
 import type { RunRecord } from "../../../shared/run-types.js";
 
@@ -102,6 +103,11 @@ const reverseStageIndex = new Map<string, number>();
 for (const s of RAW_STAGES) {
   if (s.difficulty == null) continue;
   reverseStageIndex.set(`${s.difficulty.toUpperCase()}|${s.act}|${s.stageNo}`, s.key);
+  // Plaguelands render as "P-<stageNo>" (shared/stage-code) — the act is implied by the difficulty, so
+  // a stored "P-20" code resolves through "DIFFICULTY|P|stageNo".
+  if (s.act >= PLAGUE_ACT_MIN) {
+    reverseStageIndex.set(`${s.difficulty.toUpperCase()}|${PLAGUE_CODE_PREFIX}|${s.stageNo}`, s.key);
+  }
 }
 const stageByKey = new Map<number, RawStage>(RAW_STAGES.map((s) => [s.key, s]));
 
@@ -139,11 +145,12 @@ export function resolveStageKeyFromIndex(entry: {
   stageNo: number | null;
   mode: string;
 }): number | null {
-  const parts = entry.stage.split("-");
-  const act = Number(parts[0]);
-  const stageNo = entry.stageNo ?? Number(parts[1]);
-  if (!Number.isFinite(act) || !Number.isFinite(stageNo)) return null;
-  const key = reverseStageIndex.get(`${modeToDifficulty(entry.mode)}|${act}|${stageNo}`);
+  const code = parseStageCode(entry.stage);
+  if (!code) return null;
+  const stageNo = entry.stageNo ?? code.stageNo;
+  if (!Number.isFinite(stageNo)) return null;
+  const actPart = code.plague ? PLAGUE_CODE_PREFIX : code.act;
+  const key = reverseStageIndex.get(`${modeToDifficulty(entry.mode)}|${actPart}|${stageNo}`);
   return key ?? null;
 }
 

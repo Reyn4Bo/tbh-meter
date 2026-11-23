@@ -97,7 +97,7 @@ class TestExpectedFieldName:
 
     def test_obfuscated_returns_none(self):
         # obfuscated name in the dump (the *Log) → None = not verifiable by name (the live-gate covers it).
-        assert D._expected_field_name("StageClearLog", "ACT", "bfge") is None
+        assert D._expected_field_name("StageClearLog", "STAGE_CACHE", "bjue") is None
 
 
 class TestInsertionReport:
@@ -147,7 +147,8 @@ def _synth_dump(player_save_lines):
     parts.append(_field("HeroLevel", "int", "HeroLevel", 0x14))
     parts.append(_field("HeroExp", "double", "HeroExp", 0x20))   # 1.00.27: 0x1C float -> 0x20 double
     parts.append(_field("equippedItemIds", "ulong[]", "equippedItemIds", 0x30))
-    parts.append(_field("equippedSKillKey", "int[]", "equippedSKillKey", 0x38))
+    parts.append(_field("equippedItemBlocked", "bool[]", "equippedItemBlocked", 0x38))  # 1.3.2 insert
+    parts.append(_field("equippedSKillKey", "int[]", "equippedSKillKey", 0x40))   # 1.3.2: 0x38 -> 0x40
     parts.append("}\n")
 
     parts.append("public class AggregateSaveData // TypeDefIndex: 3054\n{\n\t// Fields\n")
@@ -158,39 +159,41 @@ def _synth_dump(player_save_lines):
     return "".join(parts)
 
 
-# CORRECT PlayerSaveData body (1.00.27 offsets = the ones offsets.py has today).
+# CORRECT PlayerSaveData body (1.3.2 offsets = the ones offsets.py has today).
 _PSD_OK = "".join([
     _field("commonSaveData", "CommonSaveData", "commonSaveData", 0x10),
-    _field("pendingEnchantList", "List<PendingEnchantSaveData>", "pendingEnchantList", 0x48),
     _field("backendPostList", "List<BackendPostSaveData>", "backendPostList", 0x50),
-    _field("currenySaveDatas", "List<CurrencySaveData>", "currenySaveDatas", 0x58),
-    _field("heroSaveDatas", "List<HeroSaveData>", "heroSaveDatas", 0x60),
-    _field("attributeSaveDatas", "List<AttributeSaveData>", "attributeSaveDatas", 0x70),
-    _field("RuneSaveData", "List<RuneSaveData>", "RuneSaveData", 0x80),
-    _field("inventorySaveDatas", "List<InventorySaveData>", "inventorySaveDatas", 0x88),
-    _field("stashSaveDatas", "List<StashSaveData>", "stashSaveDatas", 0x90),
-    _field("itemSaveDatas", "List<ItemSaveData>", "itemSaveDatas", 0xB0),
-    _field("aggregateSaveDatas", "List<AggregateSaveData>", "aggregateSaveDatas", 0xB8),
+    _field("pendingItemRestorationList", "List<ItemRestorationPendingSaveData>", "pendingItemRestorationList", 0x58),
+    _field("currenySaveDatas", "List<CurrencySaveData>", "currenySaveDatas", 0x60),
+    _field("heroSaveDatas", "List<HeroSaveData>", "heroSaveDatas", 0x68),
+    _field("mailSaveDatas", "SerializedMailData", "mailSaveDatas", 0x70),
+    _field("attributeSaveDatas", "List<AttributeSaveData>", "attributeSaveDatas", 0x78),
+    _field("PetSaveData", "List<PetSaveData>", "PetSaveData", 0x80),
+    _field("RuneSaveData", "List<RuneSaveData>", "RuneSaveData", 0x88),
+    _field("inventorySaveDatas", "List<InventorySaveData>", "inventorySaveDatas", 0x90),
+    _field("stashSaveDatas", "List<StashSaveData>", "stashSaveDatas", 0x98),
+    _field("itemSaveDatas", "List<ItemSaveData>", "itemSaveDatas", 0xC0),
+    _field("relicEquipSaveData", "RelicEquipSaveData", "relicEquipSaveData", 0xC8),
+    _field("aggregateSaveDatas", "List<AggregateSaveData>", "aggregateSaveDatas", 0xD0),
 ])
 
 # Body of a build with an INSERTION NOT accommodated by offsets.py: at the offset offsets.py tracks as
-# CURRENCIES (0x58 since 1.00.27) the dump has the INTRUDING field `BoxBucketUseBoxList`, and the real
-# currency list shifted to 0x68 (untracked). It is the EXACT 1.00.12/…/1.00.27 class of bug — a field
+# CURRENCIES (0x60 since 1.3.2) the dump has the INTRUDING field `BoxBucketUseBoxList`, and the real
+# currency list shifted to 0x70 (untracked). It is the EXACT 1.00.12/…/1.3.2 class of bug — a field
 # present at the tracked offset let the presence-only check go green. The other tracked offsets still
 # hold the right field (only CURRENCIES trips → proves the name-check, not a wholesale shift).
 _PSD_SHIFTED = "".join([
     _field("commonSaveData", "CommonSaveData", "commonSaveData", 0x10),
-    _field("pendingEnchantList", "List<PendingEnchantSaveData>", "pendingEnchantList", 0x48),
     _field("backendPostList", "List<BackendPostSaveData>", "backendPostList", 0x50),
-    _field("BoxBucketUseBoxList", "List<int>", "BoxBucketUseBoxList", 0x58),  # intruder where CURRENCIES goes
-    _field("heroSaveDatas", "List<HeroSaveData>", "heroSaveDatas", 0x60),
-    _field("currenySaveDatas", "List<CurrencySaveData>", "currenySaveDatas", 0x68),  # real currency, shifted
-    _field("attributeSaveDatas", "List<AttributeSaveData>", "attributeSaveDatas", 0x70),
-    _field("RuneSaveData", "List<RuneSaveData>", "RuneSaveData", 0x80),
-    _field("inventorySaveDatas", "List<InventorySaveData>", "inventorySaveDatas", 0x88),
-    _field("stashSaveDatas", "List<StashSaveData>", "stashSaveDatas", 0x90),
-    _field("itemSaveDatas", "List<ItemSaveData>", "itemSaveDatas", 0xB0),
-    _field("aggregateSaveDatas", "List<AggregateSaveData>", "aggregateSaveDatas", 0xB8),
+    _field("BoxBucketUseBoxList", "List<int>", "BoxBucketUseBoxList", 0x60),  # intruder where CURRENCIES goes
+    _field("heroSaveDatas", "List<HeroSaveData>", "heroSaveDatas", 0x68),
+    _field("currenySaveDatas", "List<CurrencySaveData>", "currenySaveDatas", 0x70),  # real currency, shifted
+    _field("attributeSaveDatas", "List<AttributeSaveData>", "attributeSaveDatas", 0x78),
+    _field("RuneSaveData", "List<RuneSaveData>", "RuneSaveData", 0x88),
+    _field("inventorySaveDatas", "List<InventorySaveData>", "inventorySaveDatas", 0x90),
+    _field("stashSaveDatas", "List<StashSaveData>", "stashSaveDatas", 0x98),
+    _field("itemSaveDatas", "List<ItemSaveData>", "itemSaveDatas", 0xC0),
+    _field("aggregateSaveDatas", "List<AggregateSaveData>", "aggregateSaveDatas", 0xD0),
 ])
 
 
@@ -235,6 +238,27 @@ class TestEndToEndSyntheticDump:
         # The insertion report must name the bucket-box intruding field.
         assert "INSERTION" in out
         assert "BoxBucketUseBoxList" in out
+
+    def test_nested_class_resolved_by_suffix(self, tmp_path):
+        # `xo.StageCache` (nested under an OBFUSCATED outer type that drifts per build) must be found as
+        # StageCache — the old `\w+` decl regex cut it to `xo` and it was unreachable.
+        body = _PSD_OK + ("\n}\npublic class xo.StageCache // TypeDefIndex: 1037\n{\n\t// Fields\n"
+                          "\tprivate readonly StageInfoData bizw; // 0x10\n")
+        rc, out = _run_main(tmp_path, body)
+        assert rc == 0, out
+        assert "StageCache" in out and "not found by name" not in out.split("StageCache")[1].split("\n")[0]
+
+    def test_struct_grew_past_stride_exits_nonzero(self, tmp_path):
+        # 1.3.2: ItemEnchantSaveData gained `string EnchantVersion @0x20`. With STRIDE left at 0x1C every
+        # element after [0] reads misaligned while every field OFFSET still checks green → must FAIL.
+        from config import offsets as O
+        body = _PSD_OK + ("\n}\npublic struct ItemEnchantSaveData // TypeDefIndex: 1445\n{\n\t// Fields\n"
+                          "\tpublic int Tier; // 0x4\n\tpublic int Value; // 0x8\n"
+                          "\tpublic int RecipeType; // 0xC\n\tpublic int StatType; // 0x18\n"
+                          f"\tpublic string EnchantVersion; // 0x{O.ItemEnchant.STRIDE:X}\n")
+        rc, out = _run_main(tmp_path, body)
+        assert rc == 1, out
+        assert "STRIDE" in out and "EnchantVersion" in out
 
     def test_seed_idx_ut_must_hold_gold_dict(self, tmp_path):
         # In the synthetic dump NO class has Dictionary<EAggregateType,…> → idx_ut does not prove gold

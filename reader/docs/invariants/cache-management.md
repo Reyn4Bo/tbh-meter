@@ -30,7 +30,7 @@ code_anchors:
   - il2cpp/resolver.py::resolve_via_rva
   - config/calib_seed.json
 asserts:
-  - meter_windows.CACHE_FMT == 9
+  - meter_windows.CACHE_FMT == 10
 guarded_by:
   - tests/test_calib.py::TestTolerateOldJson::test_old_fmt_returns_none
   - tests/test_calib.py::TestSeedFallback::test_seed_fp_miss_returns_none
@@ -56,9 +56,10 @@ skip the ~70s scan (it becomes ~ms).
 
 **The hard rule.** `CACHE_FMT` (the only live definition lives in `meter_windows.py`) bumps
 **whenever the SHAPE of the calib block changes** — a new key, a different shape for a catalog, new
-semantics for a field. The current `9`, for instance, started including the ACTBOSS stages (x-10)
-in `stage_info`; calibs written under the previous shape lack those keys, and since the fast path
-would reuse them forever, the bump forces ONE re-scan. **But bumping `CACHE_FMT` ALONE is a
+semantics for a field. The current `10` added a 5th value to every `stage_info` row (`wave_mobs`, needed to subtract the
+WaveCountReduction runes from the stage total — `metrics/progress.py::stage_total_mobs`); `9` started
+including the ACTBOSS stages (x-10). Calibs written under a previous shape lack the new data, and since
+the fast path would reuse them forever, the bump forces ONE re-scan. **But bumping `CACHE_FMT` ALONE is a
 half-bump that breaks the seed:** the committed `calib_seed.json` still carries the old `fmt`, on
 TWO fronts:
 
@@ -73,7 +74,7 @@ TWO fronts:
 **The recipe when bumping `CACHE_FMT`:** run the capturer (`scripts/seed_calib_capture.py` —
 zero-arg, does a live scan and stamps the current `fmt`) to **recapture**
 `config/calib_seed.json` in the new format, and update this note + the `assert`
-(`meter_windows.CACHE_FMT == 9`). The shared `reader/` may be on an old fmt → sync HEAD before
+(`meter_windows.CACHE_FMT == 10`). The shared `reader/` may be on an old fmt → sync HEAD before
 capturing, or the seed comes out stamped wrong.
 
 **Why this is SAFE even if the seed is old/from another build.** The calib is **build-keyed by
@@ -128,6 +129,14 @@ never value comparison**: a local extra key always passes and the local value wi
 (protects against a hypothetically stale seed under the same fp); with no seed covering the `fp`
 there's no reference → everything behaves as before. Accepted cost: `load_calib` parses the seed
 even on a cache-hit (~ms).
+
+**The CURRENT session is healed too (`_fill_catalogs_from_seed`).** The two gates protect the NEXT
+launch; the session that ran the holey scan would still use it. Seen live: the app re-spawns the reader
+while the game is closed, so it attached ~1s after launch — the fast path's round-trip failed (type
+table not populated yet) and the scan read half-loaded catalogs (stages 59/192) → stage/mode `"?"` all
+session. Two fixes in `resolve_all`: the fast path is retried `FAST_RETRY_TRIES` × `FAST_RETRY_SEC`
+before the scan (a failing try is cheap — it fails before the backref), and a scan whose catalogs miss
+seed keys is filled from the same-fp seed (presence-only: a key the scan read keeps its value).
 
 ## Related
 - [[invariants/rva-index-resolution]] — the fast path that consumes the calib's indices; the seed only speeds things up, never trusted without the live round-trip.

@@ -35,6 +35,10 @@ describe("resolveStage — act-stageNo trivial formatting", () => {
   it("formats a 0 act (real value, not missing)", () => {
     expect(resolveStage(0, 1)).toBe("0-1");
   });
+
+  it('labels a Plaguelands run "P-<stageNo>" (game act 23 = Torment Plaguelands)', () => {
+    expect(resolveStage(23, 20)).toBe("P-20");
+  });
 });
 
 describe("computeDps — totalDamage / reference seconds", () => {

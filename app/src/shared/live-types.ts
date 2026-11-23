@@ -15,6 +15,8 @@
 // at close, in the per-run raw). The envelope's job — telling "couldn't read" from "real 0" so garbage
 // never becomes permanent — does not apply to a value that is gone on the next tick.
 
+import type { RawHeroDamage } from "./raw-types.js";
+
 /** The RAW live snapshot the reader writes to `live.json` (overwritten ~1×/s), schema-tagged with the
  *  same `raw_schema_version` as the per-run raw (the two flows share the reader's output version). */
 export interface RawLive {
@@ -61,4 +63,18 @@ export interface RawLive {
    *  rides alongside so a consumer can place by EXACT position (gaps included). ADDITIVE (no schema
    *  bump): an older reader omits it. Empty `{}` = no live party. */
   party_slots?: Record<string, number>;
+  /** Equipped item keys per deployed hero — `{heroKey: [itemKey]}` (heroKey is a JSON string), from the
+   *  reader's run-start build snapshot. Lets the overlay apply item UNIQUE mods that FINAL_STATS does not
+   *  carry (game 1.3.2: Eternal Armor unifies the elemental resistances to the highest). ADDITIVE (no
+   *  schema bump): an older reader omits it → no unique mods applied. Empty `{}` = no live party. */
+  party_items?: Record<string, number[]>;
+  /** Per-hero damage accumulated in the current run — `{heroKey: {damage, hits, crits, crit_damage}}`
+   *  (JSON-string keys) — from the OPTIONAL in-game combat plugin. `null`/absent when the plugin isn't
+   *  running (or an older reader): the overlay then shows team DPS only. */
+  party_damage?: Record<string, RawHeroDamage> | null;
+  /** Per-hero damage TAKEN in the current run (same shape; plugin >= 0.4). `null`/absent = not available. */
+  party_taken?: Record<string, RawHeroDamage> | null;
+  /** Heroes of the run currently DEAD (out of the live HeroList, awaiting revive). Their party_progress /
+   *  party_stats are the last-known values of this run. Absent on an older reader. */
+  party_dead?: number[];
 }

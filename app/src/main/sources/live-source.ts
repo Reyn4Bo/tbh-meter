@@ -1,9 +1,9 @@
 import { EventEmitter } from "node:events";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import type { LiveSnapshot } from "../../shared/run-types.js";
+import type { LiveHeroDamage, LiveSnapshot } from "../../shared/run-types.js";
 import type { RawLive } from "../../shared/live-types.js";
-import { computeDps, modeName, resolveStage, round } from "../converter/helpers.js";
+import { computeDps, cookBreakdown, modeName, resolveStage, round } from "../converter/helpers.js";
 
 const POLL_INTERVAL_MS = 700;
 // The reader rewrites live.json every ~1s while a run is active. If it has not been touched in this
@@ -32,6 +32,12 @@ export function cookLive(raw: RawLive): LiveSnapshot {
   // (older reader, no field) → null, so the resistance tooltip degrades cleanly.
   const partyStats = cookPartyStats(raw.party_stats);
   const partyProgress = cookPartyProgress(raw.party_progress);
+  const partyItems = cookPartyItems(raw.party_items);
+  const partyDamage = cookPartyDamage(raw.party_damage);
+  const partyTaken = cookPartyDamage(raw.party_taken);
+  const partyDead = Array.isArray(raw.party_dead)
+    ? raw.party_dead.filter((n): n is number => typeof n === "number" && Number.isFinite(n))
+    : null;
   return {
     runNumber: typeof raw.run === "number" && Number.isFinite(raw.run) ? raw.run : null,
     // SAME derivation the run record uses (converter/helpers): label from act-stageNo, localized
@@ -54,8 +60,53 @@ export function cookLive(raw: RawLive): LiveSnapshot {
     drops,
     partyStats,
     partyProgress,
+    partyItems,
+    partyDamage,
+    partyTaken,
+    partyDead,
     approx: true,
   };
+}
+
+/** Re-key the reader's `{ "601": {damage, hits, crits, crit_damage} }` to numeric
+ *  `{601: {damage, hits, crits, critDamage}}`, keeping only all-finite entries. Null for a missing/null map
+ *  (combat plugin not running / older reader) — the overlay then shows team DPS only. An EMPTY map is kept
+ *  as `{}` (plugin running, nobody has hit anything yet this run). Pure, never throws. */
+function cookPartyDamage(raw: RawLive["party_damage"]): Record<number, LiveHeroDamage> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const out: Record<number, LiveHeroDamage> = {};
+  for (const [heroKey, d] of Object.entries(raw)) {
+    const hk = Number(heroKey);
+    if (!Number.isFinite(hk) || !d || typeof d !== "object") continue;
+    const { damage, hits, crits, crit_damage, by_type, by_attribute } = d as unknown as Record<string, unknown>;
+    if ([damage, hits, crits, crit_damage].every((n) => typeof n === "number" && Number.isFinite(n))) {
+      out[hk] = {
+        damage: damage as number,
+        hits: hits as number,
+        crits: crits as number,
+        critDamage: crit_damage as number,
+        byType: cookBreakdown(by_type),
+        byAttribute: cookBreakdown(by_attribute),
+      };
+    }
+  }
+  return out;
+}
+
+
+/** Re-key the reader's `{ "601": [516193, ...] }` (JSON-string keys) to numeric `{601: [516193]}`,
+ *  keeping only finite numeric item keys. Null for a missing/invalid map (older reader / no live party)
+ *  — the resistance tooltip then applies no item unique mods. A hero with an EMPTY list is kept (known:
+ *  nothing equipped). Pure, never throws. */
+function cookPartyItems(raw: RawLive["party_items"]): Record<number, number[]> | null {
+  if (!raw || typeof raw !== "object") return null;
+  const out: Record<number, number[]> = {};
+  for (const [heroKey, items] of Object.entries(raw)) {
+    const hk = Number(heroKey);
+    if (!Number.isFinite(hk) || !Array.isArray(items)) continue;
+    out[hk] = items.filter((n): n is number => typeof n === "number" && Number.isFinite(n));
+  }
+  return Object.keys(out).length > 0 ? out : null;
 }
 
 /** Re-key the reader's `{ "201": { "52": 27 } }` (JSON-string keys) to numeric `{201:{52:27}}`,

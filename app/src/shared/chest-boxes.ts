@@ -20,8 +20,11 @@ interface StageRecord {
 const itemNameMap = itemsMinData as Record<string, string>;
 
 // A blue (stage-boss) box is a 920xxx STAGEBOX. 910xxx = common (gray), 930xxx = act-boss.
+// Game 1.3.2 added 925xxx "Contaminated Stage Box (<difficulty>) - N" (one per PLAGUE stage, its own
+// 360s cooldown and a "- N" suffix that is NOT a chest level): a different tier, so it stays OUT of the
+// blue range — otherwise boxLevel() reads N as the level and the route picker gains 60 bogus chips.
 const BLUE_BOX_MIN = 920000;
-const BLUE_BOX_MAX = 930000;
+const BLUE_BOX_MAX = 925000;
 
 /** True when `boxKey` is a blue (stage-boss) box — the only kind this tracker follows. */
 export function isBlueBox(boxKey: number | null | undefined): boolean {

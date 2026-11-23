@@ -109,11 +109,14 @@ ACTK_FAKE = 0xC                        # fakeValue offset for the 32-bit Obscure
 class Unit:                            # base of Hero/Monster (dump.cs ~319277)
     HEALTH_CONTROLLER = 0xB0           # -> UnitHealthController
     IS_HERO = 0x100                    # bool b_isHero
-    CACHE = 0x3B0                      # Hero.cache -> uf (progression wrapper). Unit's LAST field
+    CACHE = 0x3D8                      # Hero.cache -> HeroRuntime (progression wrapper). Unit's LAST field
                                        # `Action OnCrowdControlAppliedAction` grows the base on some
                                        # recompiles: 1.00.14 put it @0x3A0 (Hero.cache 0x3A0->0x3A8), and
                                        # 1.00.27 grew it again @0x3A0->0x3A8 (base +0x8) -> Hero.cache
-                                       # 0x3A8->0x3B0. EVERY Unit subclass field shifts with it (Monster below).
+                                       # 0x3A8->0x3B0. 1.3.2 grew the base +0x28 (OnCrowdControlAppliedAction
+                                       # @0x3D0) -> Hero.cache 0x3B0->0x3D8 (type `xs`). ⚠ diff_offsets gives a
+                                       # FALSE-OK here (the old offset lands on another obfuscated Unit field).
+                                       # EVERY Unit subclass field shifts with it (Monster below).
     CORE_STATS_OBSCURED = 0x104        # 12 core stats: ObscuredFloat (XOR) — DO NOT READ (garbage); use
                                        # xd.FINAL_STATS (Dict<StatType,float> PLAIN). Marker for
                                        # docs/invariants/obscured-data-offlimits (test_obscured_markers).
@@ -121,30 +124,43 @@ class Unit:                            # base of Hero/Monster (dump.cs ~319277)
 
 class UnitHealthController:            # HP in PURE float (dump.cs ~319894)
     HP_CURRENT = 0x40                  # VALIDATED (drops when taking damage); damage = Σ drops
-    HP_MAX = 0x4C
+    HP_MAX = 0x50                      # 1.3.2: 0x4C->0x50. 0x4C became a read-and-reset accumulator (getters
+                                       # hik/fko/isd zero it after reading: reads 0 live). Pinned from the binary:
+                                       # init `hbt` does [0x40] = [0x50] (spawn at full HP) and the HP-bar ratio
+                                       # is [0x40]/[0x50]; getter `hif` returns [0x50]. Obfuscated class (`pp`):
+                                       # diff_offsets can't see it — caught by validate_live [dps] withHpMax=0.
 
 
 class Monster:                         # extends Unit -> inherits the Unit-base +0x8 growth (see Unit.CACHE)
-    STAGE_KEY = 0x3DC                  # LIVE stageKey (the save's freezes on a stage change).
+    STAGE_KEY = 0x410                  # LIVE stageKey (the save's freezes on a stage change).
                                        # 1.00.14: 0x3CC->0x3D4; 1.00.27: 0x3D4->0x3DC (uniform Unit +0x8).
-                                       # ⚠ diff_offsets gives a FALSE-OK here (obfuscated-name field: the old
-                                       # offset lands on ANOTHER obfuscated field, so a uniform +0x8 passes
-                                       # silently — the documented blind spot). This shift is DERIVED from the
-                                       # confirmed Unit +0x8 (cache 0x3B8->0x3C0) and confirmed live by
-                                       # validate_live (stage); it must be applied by hand.
-    CACHE_OBSCURED = 0x3C0             # Obscured cache — DO NOT READ; use the Monster PLAIN fields.
-                                       # 1.00.14: 0x3B0->0x3B8; 1.00.27: 0x3B8->0x3C0 (uniform Unit +0x8). Marker
-                                       # for docs/invariants/obscured-data-offlimits (also a diff FALSE-OK field).
+                                       # 1.3.2: 0x3DC->0x410 — NOT a uniform shift (Unit base +0x28 AND the Monster
+                                       # body was reordered). Pinned from the binary: the init `hco(EStageType a,
+                                       # int stageKey, int monsterKey, ...)` stores a->0x40C, stageKey->0x410,
+                                       # monsterKey->0x404, and the getter `int hcj()` returns [this+0x410];
+                                       # confirmed live (0x410 == StageCache.INFO.StageKey == the save's key).
+                                       # ⚠ obfuscated-name field: diff_offsets can only check it by presence.
+    CACHE_OBSCURED = 0x3E8             # -> xo.wd (the monster's runtime cache: MonsterInfoData + ObscuredInt/
+                                       # Float stats) — DO NOT READ the Obscured values; use the Monster PLAIN
+                                       # fields. 1.00.27: 0x3C0; 1.3.2: 0x3E8. Marker for
+                                       # docs/invariants/obscured-data-offlimits.
 
 
-class StageManager:                    # singleton (dump.cs ~327247)
-    HERO_LIST = 0x30                   # Hero[] = the live deployed party
+class StageManager:                    # singleton (1.3.2 dump: TypeDefIndex 866)
+    HERO_LIST = 0x68                   # Hero[] = the live deployed party. 1.3.2: 0x30->0x68 (StageCache/
+                                       # string/int/2 longs/bool/dict/2 refs inserted above it). ⚠ diff_offsets
+                                       # gives a FALSE-OK (obfuscated-name class: 0x30 is now `int bgwg`).
+    STAGE_KILLS = 0x30                 # int `bgwg` (1.3.2): monsters killed in the CURRENT stage attempt —
+                                       # grows +1 per kill and drops to 0 when the stage (re)loads: on a manual
+                                       # restart AND on a clear/fail (unlike the deleted DeadMonsterUnit, which
+                                       # did not reset on a clear). Replaces DeadMonsterUnit as the reload signal
+                                       # (meter_windows.StageReloadDetector debounces the clear case). Live-mapped.
 
 
-class MonsterSpawnManager:             # singleton (dump.cs ~343052)
+class MonsterSpawnManager:             # singleton (1.3.2 dump: TypeDefIndex 1512)
     MONSTER_LIST = 0x28               # List<Unit> alive
-    DEAD_MONSTER_LIST = 0x30          # List<Unit> dead (clears on a reload of the same stage)
-    SUMMONED_LIST = 0x38
+    SUMMONED_LIST = 0x30              # 1.3.2: 0x38->0x30 — the game DELETED `DeadMonsterUnit` (was @0x30,
+                                       # the old stage-reload signal) — replaced by StageManager.STAGE_KILLS.
 
 
 class LogManager:                      # singleton (dump.cs ~339652)
@@ -152,18 +168,29 @@ class LogManager:                      # singleton (dump.cs ~339652)
     LOG_BY_TYPE = 0x28                 # Dictionary<ELogType, List<LogData>>
 
 
+class StageCache:                      # `xo.StageCache` (1.3.2 dump: TypeDefIndex 1037) — the per-stage runtime
+                                       # wrapper. Its scalars are ALL Obscured (off-limits); only the readonly
+                                       # catalog pointer is PLAIN.
+    INFO = 0x10                        # -> StageInfoData (StageKey/Act/StageNo — read via StageInfoData.*)
+
+
 class StageClearLog:                   # success
-    ACT = 0x40
-    STAGE = 0x44
+    # 1.3.2 replaced the two PLAIN ints `int act @0x40, int stage @0x44` with ONE pointer to the stage's
+    # StageCache @0x40 (same 8 bytes, so the fields below did NOT move). act/stage are now read
+    # log -> STAGE_CACHE -> StageCache.INFO -> StageInfoData.ACT/STAGE_NO (game/models.log_stage_info).
+    STAGE_CACHE = 0x40                 # -> StageCache
     CLEAR_TIME = 0x48                  # int (official seconds)
     IS_BOSS = 0x4C
 
 
-class StageFailedLog:                  # failure
-    ACT = 0x40
-    STAGE = 0x44
-    NOW_WAVE = 0x48
-    TOTAL_WAVE = 0x4C
+class StageFailedLog:                  # failure (same 1.3.2 change as StageClearLog)
+    STAGE_CACHE = 0x40                 # -> StageCache
+    # 1.3.2 SWAPPED the two wave ints (same offsets, crossed meaning). Pinned from the binary: the ctor
+    # `.ctor(StageCache, int nowWaveNumber, int totalWaveNumber, bool isActBoss)` stores now->0x4C and
+    # total->0x48. Confirmed live: a 3-9 Torment fail read @0x48=30 (total) / @0x4C=25 (reached). Obfuscated
+    # field names → diff_offsets cannot see a swap; it showed as `wave 30/25` (now > total) in a live run.
+    TOTAL_WAVE = 0x48
+    NOW_WAVE = 0x4C
     IS_ACT_BOSS = 0x50
 
 
@@ -189,8 +216,9 @@ class ResurrectionLog:                 # hero revive (ELogType=5). LIVE-CRACKED:
 
 class CommonSaveData:
     PLAYTIME = 0x20                    # float
-    CURRENT_STAGE_KEY = 0x58          # STALE/snapshot (prefer Monster.STAGE_KEY)
-    CURRENT_STAGE_WAVE = 0x5C
+    # 1.3.2 inserted firstUnlockHeroKey/maxCompletedStage/lastClearedStageKey above these: +0xC.
+    CURRENT_STAGE_KEY = 0x64          # STALE/snapshot (prefer Monster.STAGE_KEY)
+    CURRENT_STAGE_WAVE = 0x68
 
 
 class PlayerSaveData:                  # plaintext save, snapshot (NOT live)
@@ -207,14 +235,17 @@ class PlayerSaveData:                  # plaintext save, snapshot (NOT live)
     # pendingEnchantList@0x48 and backendPostList@0x50 directly ABOVE currenySaveDatas@0x58 (vs
     # backendPostList@0x48 / currenySaveDatas@0x50 in 1.00.23-1.00.25) → ALL save lists below shifted
     # +0x08 once more (CURRENCIES 0x50→0x58 … AGGREGATES 0xB0→0xB8).
-    CURRENCIES = 0x58                  # List<CurrencySaveData>   (currenySaveDatas)
-    HEROES = 0x60                      # List<HeroSaveData>       (heroSaveDatas)
-    ATTRIBUTES = 0x70                  # List<AttributeSaveData> (invested skill/passive tree)
-    RUNES = 0x80                       # List<RuneSaveData> — account-wide runes (LIVE-CRACKED 2026-06-09)
-    INVENTORY_SLOTS = 0x88             # List<InventorySaveData> — inventory slot -> item uniqueId
-    STASH = 0x90                       # List<StashSaveData> — stash slot -> item uniqueId (separate from the inv)
-    ITEMS = 0xB0                       # List<ItemSaveData> (item data; the slots above reference by uniqueId)
-    AGGREGATES = 0xB8                  # List<AggregateSaveData> (gold/xp oracle, stale)
+    # 1.3.2 did it a FIFTH time: pendingItemRestorationList@0x58 inserted above currenySaveDatas (+0x08 for
+    # CURRENCIES…STASH), PLUS relicEquipSaveData@0xC8 between itemSaveDatas and aggregateSaveDatas, and the
+    # cube block grew (cubeRecipeSaveDatas@0xB0/cubeSaveLevelData@0xB8) → ITEMS 0xB0→0xC0, AGGREGATES 0xB8→0xD0.
+    CURRENCIES = 0x60                  # List<CurrencySaveData>   (currenySaveDatas)
+    HEROES = 0x68                      # List<HeroSaveData>       (heroSaveDatas)
+    ATTRIBUTES = 0x78                  # List<AttributeSaveData> (invested skill/passive tree)
+    RUNES = 0x88                       # List<RuneSaveData> — account-wide runes (LIVE-CRACKED 2026-06-09)
+    INVENTORY_SLOTS = 0x90             # List<InventorySaveData> — inventory slot -> item uniqueId
+    STASH = 0x98                       # List<StashSaveData> — stash slot -> item uniqueId (separate from the inv)
+    ITEMS = 0xC0                       # List<ItemSaveData> (item data; the slots above reference by uniqueId)
+    AGGREGATES = 0xD0                  # List<AggregateSaveData> (gold/xp oracle, stale)
 
 
 class RuneSaveData:                    # invested rune node (account-wide). NAME-readable class in the save.
@@ -255,18 +286,22 @@ class HeroSaveData:
     # values, which would drop a lvl-1 hero via read_heroes' `lvl>1 or exp>0` gate). The equipped arrays
     # then shift +0x8 (EQUIPPED_ITEMS 0x28→0x30, EQUIPPED_SKILLS 0x30→0x38).
     EXP = 0x20                         # DOUBLE within-level exp (stale save snapshot) — read via reader.rf64
+    # 1.3.2 inserted AbilityPoint/AllocatedHeroAbilityPoint (0x28/0x2C — EQUIPPED_ITEMS unchanged) and
+    # `bool[] equippedItemBlocked` @0x38 → EQUIPPED_SKILLS 0x38→0x40.
     EQUIPPED_ITEMS = 0x30             # ulong[] of UniqueIds
-    EQUIPPED_SKILLS = 0x38           # int[] of SkillKeys
+    EQUIPPED_SKILLS = 0x40           # int[] of SkillKeys
 
 
 class ItemSaveData:
     ITEM_KEY = 0x10
     UNIQUE_ID = 0x18
-    ENCHANT_DATA = 0x30              # ItemEnchantSaveData[] (struct, see ItemEnchant)
+    # 1.3.2 inserted PrevUniqueId@0x20, IsChaotic/IsBlocked@0x28 and int[] EnchantCount@0x38: 0x30→0x40.
+    ENCHANT_DATA = 0x40              # ItemEnchantSaveData[] (struct, see ItemEnchant)
 
 
 class ItemEnchant:                     # struct inside ItemSaveData.ENCHANT_DATA
-    STRIDE = 0x1C
+    STRIDE = 0x28                      # 1.3.2: 0x1C→0x28 — `string EnchantVersion` appended @0x20 (8-aligned).
+                                       # ⚠ diff_offsets checks the field offsets but NOT the stride.
     TIER = 0x4
     VALUE = 0x8
     RECIPE = 0xC                       # ERecipeType
@@ -277,7 +312,7 @@ class ItemInfoData:                    # catalog
     ITEM_KEY = 0x30
     ITEM_TYPE = 0x34
     GRADE = 0x38                       # EGradeType
-    PARTS = 0x3C                       # EItemParts (slot)
+    PARTS = 0x40                       # EItemParts (slot). 1.3.2: 0x3C→0x40 (EContentType CONTENTTYPE inserted @0x3C)
     LEVEL = 0x6C
 
 
@@ -297,8 +332,9 @@ class StageInfoData:                   # catalog (currentStageKey encodes the mo
 
 
 # ----- hero progression runtime (reached via Unit.CACHE) -----
-class HeroRuntime:                     # hero progression runtime (1.00.27 dump: class `uy`,
-                                       # TypeDefIndex 2800; 1.00.20 was `vc`/2797), reached via Unit.CACHE.
+class HeroRuntime:                     # hero progression runtime (1.3.2 dump: class `xs : xz`, TypeDefIndex
+                                       # 1064; 1.00.27 was `uy`/2800), reached via Unit.CACHE. 1.3.2 layout
+                                       # re-checked against the dump: every offset below is UNCHANGED.
     INFO = 0x30                        # -> HeroInfoData (HeroKey/class) — LIVE party IDENTITY. (bfbm @0x30)
     STATS_HOLDER = 0x10                # -> xd (holder of the 64 stats) — LIVE.
     # LIVE level/exp. 1.00.20 moved them behind the ACTk cipher (the PLAIN `fakeValue` decoy was
@@ -426,7 +462,7 @@ class EStageDifficulty(IntEnum):       # currentStageKey: 1xxx/2xxx/3xxx/4xxx
 
 
 class EStageType(IntEnum):             # StageInfoData.STAGE_TYPE (run-data-map.md:119)
-    NORMAL = 0; ACTBOSS = 1
+    NORMAL = 0; ACTBOSS = 1; PLAGUE = 2; CONTAMINACTBOSS = 3; EVENT = 4   # 2..4 new in 1.3.2
 
 
 class MODTYPE(IntEnum):                # dump.cs:336237 — how the modifier enters the fold

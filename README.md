@@ -16,6 +16,28 @@ _Unaffiliated, open-source fan project — not made by or endorsed by the game's
 
 </div>
 
+> [!NOTE]
+> **This is a modified fork of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/tbh-meter)** (MIT,
+> © Mad Labs — see [LICENSE](./LICENSE)). It is **not** an official release. Changes in this fork:
+>
+> - Ported to **Task Bar Hero 1.3.2** (shifted offsets, stage-log reading, regenerated item/stage data, re-seeded calibration).
+> - Fixed the stage showing `?` when the meter attaches while the game is still starting.
+> - Resistance display, wave-reduction rune kill totals, plague stage labels (`P-20`), dead heroes kept greyed out.
+> - **Optional per-hero DPS / damage-taken / damage-type breakdown** (off by default — see below).
+> - Options to hide the meter's and the game's taskbar icons (Settings, or the overlay title bar).
+>
+> **Download:** the installer (`tbh-meter-rc-Setup-*.exe`) is on this fork's [Releases](../../releases) page. It
+> installs as **tbh-meter-rc** alongside any official install, and **auto-update is off** (it would otherwise pull
+> the upstream release and drop these changes).
+>
+> **About per-hero DPS:** the default meter only *reads* game memory and never touches the game folder. Turning
+> on *Per-hero DPS* in Settings installs [BepInEx 6](https://github.com/BepInEx/BepInEx) (LGPL-2.1) plus a small
+> observer plugin into the game folder (game must be closed); turning it off removes them. That is a game
+> modification — check the game's terms before enabling it.
+>
+> 本仓库是 mad-labs-org/tbh-meter 的修改版（非官方），适配游戏 1.3.2。安装包在 Releases 页面；"单英雄 DPS"
+> 默认关闭，开启后会在游戏目录安装 BepInEx 插件，属于对游戏的修改，请自行斟酌。
+
 ---
 
 ## What it does

@@ -10,6 +10,7 @@ import {
   Swords,
   Crosshair,
   Star,
+  ShieldAlert,
 } from "lucide-react";
 import type { RunRecord, RunStatus, RunQuality, RunHero } from "../../../shared/run-types.js";
 import type { Translate } from "../../../shared/i18n/index.js";
@@ -27,6 +28,8 @@ import { useI18n } from "~/lib/i18n";
 import { cn } from "~/lib/utils";
 import { ChestDrops } from "~/components/ChestDrops";
 import { HeroPortrait } from "~/components/HeroPortrait";
+import { Breakdown } from "~/components/Breakdown";
+import { sharePct } from "~/lib/hero-damage";
 
 interface RunDetailViewProps {
   runId: string;
@@ -203,6 +206,10 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
             Hidden on older runs that carry no per-hero xpGained. */}
         <XpByHero heroes={run.heroes} />
 
+        {/* Per-hero damage (optional in-game combat plugin). Hidden when no hero carries `damage`. */}
+        <DamageByHero heroes={run.heroes} />
+        <TakenByHero heroes={run.heroes} />
+
         {/* Drops — chests that dropped this run, by type (v10+). Hidden on older runs. */}
         {run.drops && run.drops.length > 0 && (
           <div className="mt-3 rounded-lg border border-surface-600 bg-surface-800/60 px-3 py-2.5">
@@ -258,6 +265,118 @@ function XpByHero({ heroes }: { heroes: RunHero[] }) {
         {rows.map((h, i) => (
           <XpHeroRow key={`${h.heroKey}-${i}`} hero={h} total={total} t={t} />
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Per-hero damage breakdown from the OPTIONAL in-game combat plugin. Renders only when at least one hero
+ *  carries `damage`; highest DPS first. Share = the hero's damage over the panel's sum; each row shows its
+ *  DPS (on the run's own reference time, so the rows sum to the run DPS), share, crit rate and a bar. */
+function DamageByHero({ heroes }: { heroes: RunHero[] }) {
+  const { t } = useI18n();
+  const withDmg = heroes.filter((h) => h.damage);
+  if (withDmg.length === 0) return null;
+  const total = withDmg.reduce((acc, h) => acc + (h.damage?.total ?? 0), 0);
+  const rows = [...withDmg].sort((a, b) => (b.damage?.dps ?? 0) - (a.damage?.dps ?? 0));
+  return (
+    <div className="mt-3 rounded-lg border border-surface-600 bg-surface-800/60 px-3 py-2.5">
+      <div className="mb-2 flex items-center gap-1.5">
+        <Swords className="size-3.5 text-brand-300" />
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+          {t("detail.damageByHero")}
+        </p>
+      </div>
+      <div className="space-y-1.5">
+        {rows.map((h, i) => {
+          const d = h.damage!;
+          const share = total > 0 ? d.total / total : 0;
+          const pct = share * 100;
+          const crit = d.hits > 0 ? Math.round((d.crits / d.hits) * 100) : null;
+          return (
+            <div key={`${h.heroKey}-${i}`} className="flex items-center gap-2.5">
+              <HeroPortrait heroKey={h.heroKey} heroClass={h.class} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <span className="truncate text-xs font-medium text-zinc-200">{heroName(h.heroKey)}</span>
+                    {crit != null && (
+                      <span className="shrink-0 text-[10px] tabular-nums text-zinc-500">
+                        {t("detail.critPct", { pct: crit })}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-baseline gap-1.5">
+                    <span className="text-xs font-bold tabular-nums text-white">{humanize(d.dps)}/s</span>
+                    <span className="text-[10px] tabular-nums text-zinc-500">{humanize(d.total)}</span>
+                    <span className="text-[10px] tabular-nums text-zinc-500">
+                      {d.total === 0 ? "0%" : pct < 1 ? "<1%" : `${Math.round(pct)}%`}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-1 h-1 overflow-hidden rounded-full bg-surface-700">
+                  <div
+                    className="h-full rounded-full bg-brand-400/80"
+                    style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
+                  />
+                </div>
+                {/* This hero's damage by TYPE (plugin >= 0.4; hidden on older runs). */}
+                <Breakdown data={d.byType} kind="type" max={6} className="mt-1" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Per-hero damage TAKEN (combat plugin >= 0.4) — who tanked: taken/s, total, share, crits taken and the
+ *  element mix per hero. Renders only when at least one hero carries `taken`. */
+function TakenByHero({ heroes }: { heroes: RunHero[] }) {
+  const { t } = useI18n();
+  const withTaken = heroes.filter((h) => h.taken);
+  if (withTaken.length === 0) return null;
+  const total = withTaken.reduce((acc, h) => acc + (h.taken?.total ?? 0), 0);
+  const rows = [...withTaken].sort((a, b) => (b.taken?.total ?? 0) - (a.taken?.total ?? 0));
+  return (
+    <div className="mt-3 rounded-lg border border-surface-600 bg-surface-800/60 px-3 py-2.5">
+      <div className="mb-2 flex items-center gap-1.5">
+        <ShieldAlert className="size-3.5 text-rose-400" />
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{t("detail.takenByHero")}</p>
+      </div>
+      <div className="space-y-2">
+        {rows.map((h, i) => {
+          const d = h.taken!;
+          const share = total > 0 ? d.total / total : 0;
+          const crit = d.hits > 0 ? Math.round((d.crits / d.hits) * 100) : null;
+          return (
+            <div key={`${h.heroKey}-${i}`} className="flex items-center gap-2.5">
+              <HeroPortrait heroKey={h.heroKey} heroClass={h.class} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <span className="truncate text-xs font-medium text-zinc-200">{heroName(h.heroKey)}</span>
+                    {crit != null && (
+                      <span className="shrink-0 text-[10px] tabular-nums text-zinc-500">
+                        {t("detail.critPct", { pct: crit })}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-baseline gap-1.5">
+                    <span className="text-xs font-bold tabular-nums text-rose-300">{humanize(d.dps)}/s</span>
+                    <span className="text-[10px] tabular-nums text-zinc-500">{humanize(d.total)}</span>
+                    <span className="text-[10px] tabular-nums text-zinc-500">{sharePct(share)}</span>
+                  </div>
+                </div>
+                <div className="mt-1 h-1 overflow-hidden rounded-full bg-surface-700">
+                  <div className="h-full rounded-full bg-rose-400/70" style={{ width: `${share * 100}%` }} />
+                </div>
+                <Breakdown data={d.byAttribute} kind="element" max={6} className="mt-1" />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

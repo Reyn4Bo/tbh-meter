@@ -79,6 +79,13 @@ describe("resolveStageKeyFromIndex — same resolution off the compact 'act-stag
   it("falls back to parsing stageNo from the code when the field is null", () => {
     expect(resolveStageKeyFromIndex(entry("1-6", "Torment", null))).toBe(4106);
   });
+  it("resolves a Plaguelands 'P-20' code through the difficulty (Torment → 201420, Hell → 201320)", () => {
+    expect(resolveStageKeyFromIndex(entry("P-20", "Torment", 20))).toBe(201420);
+    expect(resolveStageKeyFromIndex(entry("P-20", "Hell", null))).toBe(201320);
+  });
+  it("still resolves a pre-relabel stored '23-20' code (logs not yet re-converted)", () => {
+    expect(resolveStageKeyFromIndex(entry("23-20", "Torment", 20))).toBe(201420);
+  });
 });
 
 // ── calibration off the index ────────────────────────────────────────────────────────────────

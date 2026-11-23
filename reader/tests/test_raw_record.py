@@ -178,6 +178,18 @@ def test_account_snapshot_unread_is_err_not_empty():
     assert r["stash"] == {"ok": False, "error": "stash unread (save/list unreadable)"}
 
 
+def test_hero_damage_envelope():
+    # per-hero damage from the OPTIONAL combat plugin: ok with string hero keys when present (an empty {}
+    # is a real "nobody hit anything"), err — never a fake {} — when the plugin isn't running.
+    dmg = {601: {"damage": 250.0, "hits": 10, "crits": 4, "crit_damage": 120.0}}
+    assert _rec(hero_damage=dmg)["hero_damage"] == {"ok": True, "value": {"601": dmg[601]}}
+    assert _rec(hero_damage={})["hero_damage"] == {"ok": True, "value": {}}
+    assert _rec()["hero_damage"] == {"ok": False, "error": "combat plugin not running"}
+    taken = {101: {"damage": 40.0, "hits": 7, "crits": 2, "crit_damage": 15.0}}
+    assert _rec(hero_taken=taken)["hero_taken"] == {"ok": True, "value": {"101": taken[101]}}
+    assert _rec()["hero_taken"] == {"ok": False, "error": "combat plugin not running"}
+
+
 def test_absorbed_boss_box_lands_inside_drops_envelope_without_shape_change():
     # Pending-close (the box-in-the-next-run bug): the boss box the game logs ~0.6s AFTER the
     # clear is absorbed into the ALREADY-BUILT record via _absorb_drop. The contract: it shows up INSIDE
@@ -206,7 +218,7 @@ def test_raw_record_keys_are_the_documented_contract():
         "raw_schema_version", "id", "ts", "run_outcome", "game_version",
         "duration", "stageKey", "act", "stageNo", "difficulty", "total_mobs", "mobs",
         "total_damage", "clear_time", "gold_gained", "gold_source", "xp_gained", "xp_source",
-        "drops", "heroes", "runes", "inventory", "stash",
+        "drops", "heroes", "runes", "inventory", "stash", "hero_damage", "hero_taken",
     }
     assert set(_rec().keys()) == expected
 

@@ -28,6 +28,8 @@ import {
 import { requestSessionReset } from "./session-stats.js";
 import { DISCORD_INVITE_URL, GITHUB_ORG_URL } from "./config.js";
 import { broadcast } from "./broadcast.js";
+import { registerCombatPluginIpc, syncCombatPluginOnStartup } from "./combat-plugin-ipc.js";
+import { applyGameTaskbarSetting } from "./game-taskbar.js";
 
 interface IpcDeps {
   /** Apply opacity/always-on-top/font-scale from settings to the live window. */
@@ -65,6 +67,11 @@ function repointSources(): void {
 }
 
 export function registerIpcHandlers(deps: IpcDeps): void {
+  // Optional per-hero DPS plugin (Settings toggle) + keep an installed plugin current with this build.
+  registerCombatPluginIpc();
+  syncCombatPluginOnStartup();
+  // Optional: keep the game's taskbar button hidden (re-applied when the game restarts).
+  applyGameTaskbarSetting();
   // Single source of truth: app.getVersion() reads package.json's version, the same
   // field CI writes the computed release version into (see scripts/compute-version.mjs).
   ipcMain.handle("meter:get-app-version", () => app.getVersion());
@@ -85,6 +92,7 @@ export function registerIpcHandlers(deps: IpcDeps): void {
     // Per-key side effects (#232): the login item touches the registry and the tray
     // menu rebuild is visible, so only run them when their key was actually sent.
     if (changed.launchOnStartup !== undefined) applyLaunchOnStartup();
+    if (changed.hideGameTaskbarIcon !== undefined) applyGameTaskbarSetting();
     if (changed.language !== undefined) deps.refreshTrayMenu();
     if (resolveOutputDir() !== prevDir) repointSources();
     // Lowering (or enabling) the max-runs cap should take effect immediately — prune the surplus

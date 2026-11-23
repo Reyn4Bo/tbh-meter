@@ -6,6 +6,7 @@ code_anchors:
   - metrics/xp.py
   - game/build.py
   - metrics/dps.py
+  - metrics/combat.py
   - game/save.py
 guarded_by:
   - tests/test_gold.py::TestCombatGoldSave::test_ignores_total_subkey_zero
@@ -35,9 +36,10 @@ Three layers, in order of preference:
 | **Live XP / hero** | `game/build.py::read_live_party` · `metrics/xp.py::PartyXpAccumulator` | HeroRuntime of the deployed hero (`EXP_FAKE`, within-level), ACCUMULATED tick-by-tick per heroKey (first sighting seeds the baseline); the curve (`metrics/xp.py::curve`) fills the level-up. |
 | **Live level / hero** | `game/build.py::read_live_party` | HeroRuntime `LEVEL_FAKE`. |
 | **XP of who DIED / joined late** | `metrics/xp.py::PartyXpAccumulator` | the accumulated total is **banked** when the hero disappears from the HeroList (dead adds 0 while dead); a late deploy is credited from first sighting. (Replaced the re-read of the `uf` captured at the start.) |
-| **Damage / DPS** | `metrics/dps.py::DpsTracker` | Σ of monster HP drop per tick + the final blow of whoever vanished from the list. It is TEAM total (there is no per-hero — see [[reference/damage-model]]). |
+| **Damage / DPS** | `metrics/dps.py::DpsTracker` | Σ of monster HP drop per tick + the final blow of whoever vanished from the list. It is TEAM total — per-hero attribution is NOT readable from memory (see [[reference/damage-model]]). |
+| **Per-hero damage** (optional) | `metrics/combat.py::read_combat` · `run_damage` | NOT a memory read: the OPTIONAL in-game combat plugin (`mod/TbhMeterCombat`, BepInEx) observes each hit's attacker and writes cumulative per-hero counters to `~/tbh-meter-mod/combat.json`; the reader diffs two snapshots per run (live `party_damage`, raw `hero_damage`). Absent/stale/other-pid/restarted plugin → None (degrades to team DPS only). Validated: plugin total = reader team damage at ratio 1.000 (1.3.2). |
 | **64 FINAL stats / hero** | `game/build.py::read_live_stats_by_hero` | HeroRuntime → StatsHolder `FINAL_STATS` (DictFloat). id-only `{statId: value}`. |
-| **Mobs alive / dead** | `metrics/progress.py::ProgressTracker` | MonsterSpawnManager `MONSTER_LIST` / `DEAD_MONSTER_LIST` (kills/min; resets on stage reload). |
+| **Mobs alive / dead** | `metrics/progress.py::ProgressTracker` | MonsterSpawnManager `MONSTER_LIST` / StageManager `STAGE_KILLS` (kills/min; resets on stage reload — 1.3.2 deleted `DeadMonsterUnit`). |
 | **Event count** | `metrics/events.py::EventFeed` | delta of the LogManager's `LOG_LIST` (today it only COUNTS new entries — the type of each event is TODO; see table below). |
 
 > Note on live gold: `combat_gold_live` reads the **`COMBAT_SUBKEY`** (combat) — NOT the

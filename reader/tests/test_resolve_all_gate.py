@@ -51,11 +51,32 @@ class TestFastPath:
     def test_fast_sanity_fail_falls_back_to_scan(self, monkeypatch, tmp_path):
         _patch_ga(monkeypatch)
         monkeypatch.setattr(mw, "load_calib", lambda path, fp: CALIB)
-        monkeypatch.setattr(mw, "_resolve_fast", lambda reader, ga, calib: None)  # sanity-fail
+        tries = {"n": 0}
+        def _fail(reader, ga, calib):
+            tries["n"] += 1
+            return None                        # sanity-fail every time
+        monkeypatch.setattr(mw, "_resolve_fast", _fail)
+        sleeps = []
+        monkeypatch.setattr(mw.time, "sleep", sleeps.append)
         monkeypatch.setattr(mw, "_resolve_scan", lambda reader: (SCAN_TUP, {}))
         monkeypatch.setattr(mw, "_calibrate", lambda *a, **k: None)
         out = mw.resolve_all(None, 123, FP, str(tmp_path / "c.json"))
         assert out == SCAN_TUP                 # degraded to scan, did NOT use bad calib
+        assert tries["n"] == mw.FAST_RETRY_TRIES   # bounded retries first (game may still be booting)
+        assert sleeps == [mw.FAST_RETRY_SEC] * (mw.FAST_RETRY_TRIES - 1)
+
+    def test_fast_path_retried_while_game_boots(self, monkeypatch, tmp_path):
+        """Attached ~1s after the game launched: the type table isn't ready, the round-trip fails, then
+        passes a few seconds later — the fast path must win, NOT a scan of half-loaded catalogs."""
+        _patch_ga(monkeypatch)
+        monkeypatch.setattr(mw, "load_calib", lambda path, fp: CALIB)
+        results = iter([None, None, FAST_TUP])
+        monkeypatch.setattr(mw, "_resolve_fast", lambda reader, ga, calib: next(results))
+        monkeypatch.setattr(mw.time, "sleep", lambda s: None)
+        def _no_scan(reader):
+            raise AssertionError("must not scan when a retry succeeds")
+        monkeypatch.setattr(mw, "_resolve_scan", _no_scan)
+        assert mw.resolve_all(None, 123, FP, str(tmp_path / "c.json")) == FAST_TUP
 
     def test_no_ga_base_skips_fast_path(self, monkeypatch, tmp_path):
         monkeypatch.setattr(mw.typeinfo, "ga_module", lambda pid: (None, None))
@@ -103,6 +124,38 @@ class TestSlowPathCalibration:
         out = mw.resolve_all(None, 123, FP, str(tmp_path / "c.json"))
         assert out == bad
         assert calibrated["hit"] is False
+
+
+class TestFillCatalogsFromSeed:
+    """A scan on a still-booting game reads HOLEY catalogs (seen live: stages 59/192). With a seed for the
+    same fp, the session must run on complete catalogs — seed fills the holes, scan values win when read."""
+
+    SEED = {"stage_info": {1001: (1, 1, 50, 0, 5), 1002: (1, 2, 50, 0, 5)},
+            "item_cat": {30001: (3, 2, 5), 30002: (1, 1, 1)},
+            "hero_cat": {601: 1, 101: 2}}
+
+    def _tup(self, si, ic, hc):
+        return ("sc", "sf", "msm", "lm", [], [], si, ic, hc, [], "gold", "gb", "die", "res")
+
+    def test_holes_filled_scan_values_kept(self, monkeypatch):
+        monkeypatch.setattr(mw, "_read_calib", lambda path, fp: self.SEED)
+        scan_row = (1, 1, 40, 0, 4)            # differs from the seed's → the scan's read must win
+        out = mw._fill_catalogs_from_seed(self._tup({1001: scan_row}, {30001: (3, 2, 5)}, {601: 1}), FP)
+        assert out[6] == {1001: scan_row, 1002: (1, 2, 50, 0, 5)}
+        assert out[7] == self.SEED["item_cat"] and out[8] == self.SEED["hero_cat"]
+        assert out[:6] == self._tup({}, {}, {})[:6] and out[9:] == self._tup({}, {}, {})[9:]
+        assert len(out) == 14
+
+    def test_complete_scan_unchanged(self, monkeypatch):
+        monkeypatch.setattr(mw, "_read_calib", lambda path, fp: self.SEED)
+        tup = self._tup(dict(self.SEED["stage_info"]), dict(self.SEED["item_cat"]), dict(self.SEED["hero_cat"]))
+        assert mw._fill_catalogs_from_seed(tup, FP) is tup
+
+    def test_no_seed_for_fp_unchanged(self, monkeypatch):
+        monkeypatch.setattr(mw, "_read_calib", lambda path, fp: None)
+        tup = self._tup({}, {}, {})
+        assert mw._fill_catalogs_from_seed(tup, FP) is tup
+        assert mw._fill_catalogs_from_seed(tup, None) is tup
 
 
 class TestCalibrateObservability:

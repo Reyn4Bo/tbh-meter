@@ -5,6 +5,7 @@ import itemsMinData from "../../../shared/data/items-min.json";
 import chestsMinData from "../../../shared/data/chests-min.json";
 import levelCurveData from "../../../shared/data/level_curve.json";
 import { boxLevel } from "../../../shared/chest-boxes";
+import { formatStageCode } from "../../../shared/stage-code";
 // Stage→box + the route's box list live in shared/ (the main process keys cooldowns by box too);
 // re-exported here so renderer code keeps importing chest facts from one place (game-data).
 export { bossBoxForStage, blueBoxes } from "../../../shared/chest-boxes";
@@ -179,10 +180,11 @@ export function stageDifficulty(key: number): string | null {
   return d.charAt(0) + d.slice(1).toLowerCase();
 }
 
-/** Compact stage code "act-stageNo" (e.g. "2-1"), the in-game shorthand. Null if unknown. */
+/** Compact stage code "act-stageNo" (e.g. "2-1"; "P-20" for a Plaguelands stage) — the SAME shared
+ *  formatter as the run record / overlay label. Null if unknown. */
 export function stageCode(key: number): string | null {
   const s = stageMap.get(key);
-  return s ? `${s.act}-${s.stageNo}` : null;
+  return s ? formatStageCode(s.act, s.stageNo) : null;
 }
 
 /** The blue-chest BASE drop rate for a stage (game per-mille `bossDrop.rate`), or null if

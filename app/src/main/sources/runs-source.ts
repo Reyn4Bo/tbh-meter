@@ -2,6 +2,7 @@ import { EventEmitter } from "node:events";
 import { existsSync, readFileSync, readdirSync, rmSync, statSync, watch, type FSWatcher } from "node:fs";
 import { join } from "node:path";
 import type {
+  HeroDamage,
   RunRecord,
   RunHero,
   RunItem,
@@ -13,6 +14,7 @@ import type {
 } from "../../shared/run-types.js";
 import type { RunIndexEntry } from "../../shared/ipc-types.js";
 import { STRUCTURED_SCHEMA_VERSION } from "../converter/convert.js";
+import { cookBreakdown } from "../converter/helpers.js";
 import { deriveSessions } from "../sessions.js";
 import { readSessionCuts } from "../session-stats.js";
 
@@ -117,6 +119,25 @@ function normalizeItem(raw: Record<string, unknown>): RunItem {
   };
 }
 
+/** A stored HeroDamage block (combat plugin). Kept only when the core numbers are all finite — a malformed
+ *  block is dropped whole rather than rendering a half-made row. Breakdowns are optional (plugin >= 0.4). */
+function normalizeHeroDamage(raw: unknown): HeroDamage | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const d = raw as Record<string, unknown>;
+  const nums = [d.total, d.dps, d.hits, d.crits, d.critDamage];
+  if (!nums.every((n) => typeof n === "number" && Number.isFinite(n))) return undefined;
+  const [total, dps, hits, crits, critDamage] = nums as number[];
+  const out: HeroDamage = { total, dps, hits, crits, critDamage };
+  if (typeof d.baseAttackDamage === "number" && Number.isFinite(d.baseAttackDamage)) {
+    out.baseAttackDamage = d.baseAttackDamage;
+  }
+  const byType = cookBreakdown(d.byType);
+  if (Object.keys(byType).length > 0) out.byType = byType;
+  const byAttribute = cookBreakdown(d.byAttribute);
+  if (Object.keys(byAttribute).length > 0) out.byAttribute = byAttribute;
+  return out;
+}
+
 function normalizeHero(raw: Record<string, unknown>): RunHero {
   const items = Array.isArray(raw.items)
     ? raw.items.map((i) => normalizeItem((i ?? {}) as Record<string, unknown>))
@@ -181,6 +202,11 @@ function normalizeHero(raw: Record<string, unknown>): RunHero {
   if (heroDeaths !== undefined) hero.deaths = heroDeaths;
   const heroRevives = firstDefinedNum(raw.revives);
   if (heroRevives !== undefined) hero.revives = heroRevives;
+  // Per-hero damage dealt / taken (combat plugin; converter writes them camelCase).
+  const dealt = normalizeHeroDamage(raw.damage);
+  if (dealt) hero.damage = dealt;
+  const taken = normalizeHeroDamage(raw.taken);
+  if (taken) hero.taken = taken;
   const rawKilledBy = Array.isArray(raw.killedBy)
     ? raw.killedBy
     : Array.isArray(raw.killed_by)

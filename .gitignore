@@ -29,3 +29,14 @@ __pycache__/
 # Claude Code: skills/agents/hooks/settings ARE tracked; these are per-machine artifacts.
 .claude/agent-memory/
 .claude/worktrees/
+
+# Local-only maintainer tooling: the Python venv, Il2CppDumper output (dump.cs is derived from the
+# game binary — never publish it) and offset-diff results. Machine-specific and private.
+.tools/
+
+# Build output that embeds absolute local paths (PyInstaller work dir, .NET obj/bin).
+reader/build/
+reader/dist/
+reader/*.spec
+mod/**/bin/
+mod/**/obj/
