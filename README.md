@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078d4)](https://github.com/Reyn4Bo/tbh-meter/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
-<img src=".github/assets/fork/overlay.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP and the party">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip.png" width="261" alt="Per-hero tooltip: time to level, DPS, share, crit rate, hits, damage types, damage taken by element">
+<img src=".github/assets/fork/overlay-1.3.2.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP and the party">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip-1.3.2.png" width="261" alt="Per-hero tooltip: time to level, DPS, share, crit rate, hits, damage types, damage taken by element">
 
 _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/tbh-meter) — not made by or endorsed by the game's developer or the original authors._
 
@@ -42,7 +42,7 @@ The original meter only knows team DPS: memory alone cannot tell which hero land
 | **Run detail** | _Damage by hero_ (DPS, total, share, crit, type breakdown) and _Damage taken by hero_ (by element / type) |
 
 <div align="center">
-<img src=".github/assets/fork/run-detail.png" width="820" alt="Run detail: XP by hero, damage by hero with type breakdown, damage taken by hero by element">
+<img src=".github/assets/fork/run-detail-1.3.2.png" width="820" alt="Run detail: XP by hero, damage by hero with type breakdown, damage taken by hero by element">
 </div>
 
 The numbers reconcile exactly with the meter's own team damage (ratio **1.000** across multiple runs and party compositions, summons included). It costs essentially nothing: the plugin only adds counters per hit and writes a small file once a second.
@@ -121,18 +121,6 @@ ruff check . && python -m pytest
 # Optional plugin + installer packaging: see mod/README.md
 ```
 
-## Credits & original project
-
-This edition is built on **[TBH Meter](https://github.com/mad-labs-org/tbh-meter)** by **[Mad Labs](https://github.com/mad-labs-org)**. The overlay, the run tracker, the memory reader and its calibration system are their work; this edition updates it for game 1.3.2 and adds the features above. Please don't report issues with this edition to the original project.
-
-If the meter helps your runs, consider supporting the original authors:
-
-<div align="center">
-
-[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee — support the original TBH Meter authors" height="45">](https://buymeacoffee.com/viniarruda)
-
-</div>
-
 ## Support this edition
 
 **⭐ The easiest way to help: star this repo!** It's free, it keeps the 1.3.2 edition easy to find for other players, and it tells me the work is worth keeping up with future game updates.
@@ -147,6 +135,18 @@ If you'd like to buy me a coffee for the 1.3.2 port and the per-hero DPS work, t
 
 <img src=".github/assets/fork/wechat-tip.png" width="200" alt="WeChat tip code (微信赞赏码)"><br>
 <sub>微信赞赏码 · WeChat tip code</sub>
+
+</div>
+
+## Credits & original project
+
+This edition is built on **[TBH Meter](https://github.com/mad-labs-org/tbh-meter)** by **[Mad Labs](https://github.com/mad-labs-org)**. The overlay, the run tracker, the memory reader and its calibration system are their work; this edition updates it for game 1.3.2 and adds the features above. Please don't report issues with this edition to the original project.
+
+If the meter helps your runs, consider supporting the original authors:
+
+<div align="center">
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee — support the original TBH Meter authors" height="45">](https://buymeacoffee.com/viniarruda)
 
 </div>
 
