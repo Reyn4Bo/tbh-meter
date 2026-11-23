@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078d4)](https://github.com/Reyn4Bo/tbh-meter/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
-<img src=".github/assets/fork/overlay.png" width="420" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP and the party">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip.png" width="228" alt="Per-hero tooltip: time to level, DPS, share, crit rate, hits, damage types and resistances">
+<img src=".github/assets/fork/overlay.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP and the party">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip.png" width="261" alt="Per-hero tooltip: time to level, DPS, share, crit rate, hits, damage types, damage taken by element">
 
 _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/tbh-meter) — not made by or endorsed by the game's developer or the original authors._
 
@@ -17,7 +17,7 @@ _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/
 
 ---
 
-**中文简介：** 这是 TBH Meter 的非官方修改版，适配 Task Bar Hero **1.3.2**，新增**每个英雄的 DPS / 承伤 / 伤害类型统计**（可选功能，默认关闭）、修正了抗性、击杀数、关卡名等显示问题，并支持隐藏 meter 和游戏本体的任务栏图标。安装包在 [Releases](https://github.com/Reyn4Bo/tbh-meter/releases) 页面下载，Windows 10 以上，无需管理员权限。
+**中文简介：** 这是 TBH Meter 的非官方修改版，适配 Task Bar Hero **1.3.2**，新增**每个英雄的 DPS / 承伤 / 伤害类型统计**（可选功能，默认关闭）、修正了抗性、击杀数等显示问题，并支持隐藏 meter 和游戏本体的任务栏图标。安装包在 [Releases](https://github.com/Reyn4Bo/tbh-meter/releases) 页面下载，Windows 10 以上，无需管理员权限。
 
 ## What's new in this edition
 
@@ -38,7 +38,7 @@ The original meter only knows team DPS: memory alone cannot tell which hero land
 | Where | What you get |
 | ----- | ------------ |
 | **Overlay** | Per-hero DPS and share bar; damage-taken share (who is tanking); per-hero DPS under each portrait |
-| **Hero tooltip** | DPS, share of team damage, crit rate, hit count, damage type / element breakdown, resistances |
+| **Hero tooltip** | DPS, share of team damage, crit rate, hit count, damage type breakdown; damage taken per second, share and element breakdown |
 | **Run detail** | _Damage by hero_ (DPS, total, share, crit, type breakdown) and _Damage taken by hero_ (by element / type) |
 
 <div align="center">
@@ -56,7 +56,6 @@ The numbers reconcile exactly with the meter's own team damage (ratio **1.000** 
 
 - **Resistances** — affixes that change several resistances at once (and "decrease" stats) are now applied, so the shown values match the in-game stat sheet.
 - **Kill totals** — the stage total now subtracts the _wave-reduction_ runes from the talent tree (e.g. 553 instead of the raw wave count).
-- **Plague stages** — labelled `P-20` instead of a meaningless `23-20`.
 - **Dead heroes** — keep their last-known stats, greyed out with a skull, instead of disappearing from the party.
 - **Layout** — the DPS, damage-taken and mobs bars line up edge to edge.
 
@@ -131,6 +130,23 @@ If the meter helps your runs, consider supporting the original authors:
 <div align="center">
 
 [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee — support the original TBH Meter authors" height="45">](https://buymeacoffee.com/viniarruda)
+
+</div>
+
+## Support this edition
+
+**⭐ The easiest way to help: star this repo!** It's free, it keeps the 1.3.2 edition easy to find for other players, and it tells me the work is worth keeping up with future game updates.
+
+If you'd like to buy me a coffee for the 1.3.2 port and the per-hero DPS work, that's hugely appreciated too — every bit goes into keeping this edition updated.
+
+**如果觉得好用，请先点个 ⭐ Star！** 这是最简单的支持方式，也能让更多玩家找到这个版本。想请我喝杯咖啡的话，也非常感谢 —— 会用来持续跟进游戏更新。
+
+<div align="center">
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee — support the 1.3.2 edition" height="45">](https://buymeacoffee.com/milanory)
+
+<img src=".github/assets/fork/wechat-tip.png" width="200" alt="WeChat tip code (微信赞赏码)"><br>
+<sub>微信赞赏码 · WeChat tip code</sub>
 
 </div>
 
