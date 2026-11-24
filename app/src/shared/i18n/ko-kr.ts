@@ -122,6 +122,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "설치",
   "settings.perHeroDpsInstalled": "설치됨 — 게임을 다시 시작하면 활성화됩니다.",
   "settings.perHeroDpsRemoved": "게임 폴더에서 제거되었습니다.",
+  "settings.perHeroDpsRemovedKeptBepInEx": "이 플러그인을 제거했습니다. 다른 모드가 BepInEx를 사용 중이라 BepInEx는 남겨 두었습니다.",
   "settings.perHeroDpsGameRunning": "먼저 게임을 종료한 뒤 다시 시도하세요.",
   "settings.perHeroDpsNoGameDir": "게임 폴더를 찾을 수 없습니다 — 직접 선택하세요.",
   "settings.perHeroDpsUnsupported": "이 빌드에는 플러그인이 포함되어 있지 않습니다.",

@@ -122,6 +122,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "Установить",
   "settings.perHeroDpsInstalled": "Установлено — перезапустите игру для активации.",
   "settings.perHeroDpsRemoved": "Удалено из папки игры.",
+  "settings.perHeroDpsRemovedKeptBepInEx": "Наш плагин удалён. BepInEx оставлен, так как его используют другие моды.",
   "settings.perHeroDpsGameRunning": "Сначала закройте игру, затем повторите.",
   "settings.perHeroDpsNoGameDir": "Папка игры не найдена — выберите её вручную.",
   "settings.perHeroDpsUnsupported": "Эта сборка не включает плагин.",

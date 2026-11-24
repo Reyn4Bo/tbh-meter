@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   combatPluginStatus,
+  foreignMods,
   installCombatPlugin,
   isNewerVersion,
   parseLibraryFolders,
@@ -70,6 +71,43 @@ describe("installCombatPlugin / uninstallCombatPlugin", () => {
     expect(existsSync(join(game, "BepInEx", "plugins", "OtherMod", "Other.dll"))).toBe(true);
     expect(existsSync(join(game, "winhttp.dll"))).toBe(true);
     expect(readManifest(game)).toBeNull();
+  });
+
+  it("we installed BepInEx, then the user added another mod: turning OFF keeps BepInEx and their mod", () => {
+    expect(installCombatPlugin(res, game, false)).toEqual({ ok: true });
+    touch(join(game, "BepInEx", "plugins", "OtherMod", "Other.dll"), "theirs");
+
+    expect(uninstallCombatPlugin(game, false)).toEqual({ ok: true, keptBepInEx: true });
+    expect(existsSync(join(game, PLUGIN_DIR_REL))).toBe(false); // ours gone
+    expect(readFileSync(join(game, "BepInEx", "plugins", "OtherMod", "Other.dll"), "utf-8")).toBe("theirs");
+    for (const p of ["winhttp.dll", "doorstop_config.ini", join("BepInEx", "core"), "dotnet"]) {
+      expect(existsSync(join(game, p))).toBe(true); // their mod still loads
+    }
+    expect(readManifest(game)).toBeNull(); // BepInEx is now theirs
+
+    // Turning ON again treats BepInEx as the user's: only our plugin comes and goes.
+    expect(installCombatPlugin(res, game, false)).toEqual({ ok: true });
+    expect(readManifest(game)!.ownsBepInEx).toBe(false);
+    expect(uninstallCombatPlugin(game, false)).toEqual({ ok: true });
+    expect(existsSync(join(game, PLUGIN_DIR_REL))).toBe(false);
+    expect(existsSync(join(game, "BepInEx", "plugins", "OtherMod", "Other.dll"))).toBe(true);
+    expect(existsSync(join(game, "winhttp.dll"))).toBe(true);
+  });
+
+  it("a patcher added on our BepInEx also keeps it", () => {
+    installCombatPlugin(res, game, false);
+    touch(join(game, "BepInEx", "patchers", "SomePatcher.dll"));
+    expect(uninstallCombatPlugin(game, false)).toEqual({ ok: true, keptBepInEx: true });
+    expect(existsSync(join(game, "BepInEx", "patchers", "SomePatcher.dll"))).toBe(true);
+  });
+
+  it("foreignMods ignores our own plugin folder and empty/absent folders", () => {
+    expect(foreignMods(game)).toEqual([]);
+    installCombatPlugin(res, game, false);
+    mkdirSync(join(game, "BepInEx", "patchers"), { recursive: true });
+    expect(foreignMods(game)).toEqual([]);
+    touch(join(game, "BepInEx", "plugins", "OtherMod", "Other.dll"));
+    expect(foreignMods(game)).toEqual([join("BepInEx", "plugins", "OtherMod")]);
   });
 
   it("refuses while the game runs, without a game folder, or without bundled resources", () => {

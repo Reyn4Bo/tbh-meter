@@ -121,6 +121,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "安装",
   "settings.perHeroDpsInstalled": "已安装 — 重启游戏后生效。",
   "settings.perHeroDpsRemoved": "已从游戏目录移除。",
+  "settings.perHeroDpsRemovedKeptBepInEx": "已移除本插件。检测到其他模组在使用 BepInEx，已保留 BepInEx。",
   "settings.perHeroDpsGameRunning": "请先关闭游戏，再试一次。",
   "settings.perHeroDpsNoGameDir": "找不到游戏目录，请手动选择。",
   "settings.perHeroDpsUnsupported": "此版本不包含该插件。",

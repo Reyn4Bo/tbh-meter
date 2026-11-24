@@ -123,6 +123,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "Kur",
   "settings.perHeroDpsInstalled": "Kuruldu — etkinleştirmek için oyunu yeniden başlatın.",
   "settings.perHeroDpsRemoved": "Oyun klasöründen kaldırıldı.",
+  "settings.perHeroDpsRemovedKeptBepInEx": "Eklentimiz kaldırıldı. Diğer modlar kullandığı için BepInEx bırakıldı.",
   "settings.perHeroDpsGameRunning": "Önce oyunu kapatın, sonra tekrar deneyin.",
   "settings.perHeroDpsNoGameDir": "Oyun klasörü bulunamadı — elle seçin.",
   "settings.perHeroDpsUnsupported": "Bu sürüm eklentiyi içermiyor.",

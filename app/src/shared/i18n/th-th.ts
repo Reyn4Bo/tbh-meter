@@ -122,6 +122,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "ติดตั้ง",
   "settings.perHeroDpsInstalled": "ติดตั้งแล้ว — รีสตาร์ทเกมเพื่อเปิดใช้งาน",
   "settings.perHeroDpsRemoved": "ลบออกจากโฟลเดอร์เกมแล้ว",
+  "settings.perHeroDpsRemovedKeptBepInEx": "ลบปลั๊กอินของเราแล้ว คง BepInEx ไว้เพราะม็อดอื่นใช้งานอยู่",
   "settings.perHeroDpsGameRunning": "โปรดปิดเกมก่อน แล้วลองอีกครั้ง",
   "settings.perHeroDpsNoGameDir": "ไม่พบโฟลเดอร์เกม — โปรดเลือกเอง",
   "settings.perHeroDpsUnsupported": "เวอร์ชันนี้ไม่มีปลั๊กอิน",

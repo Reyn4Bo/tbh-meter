@@ -123,6 +123,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "Cài đặt",
   "settings.perHeroDpsInstalled": "Đã cài — khởi động lại game để kích hoạt.",
   "settings.perHeroDpsRemoved": "Đã gỡ khỏi thư mục game.",
+  "settings.perHeroDpsRemovedKeptBepInEx": "Đã gỡ plugin của chúng tôi. Giữ lại BepInEx vì các mod khác đang dùng.",
   "settings.perHeroDpsGameRunning": "Hãy đóng game trước rồi thử lại.",
   "settings.perHeroDpsNoGameDir": "Không tìm thấy thư mục game — hãy chọn thủ công.",
   "settings.perHeroDpsUnsupported": "Bản này không kèm plugin.",

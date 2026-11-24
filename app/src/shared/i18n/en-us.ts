@@ -127,6 +127,7 @@ export const DICT = {
   "settings.perHeroDpsInstall": "Install",
   "settings.perHeroDpsInstalled": "Installed — restart the game to activate.",
   "settings.perHeroDpsRemoved": "Removed from the game folder.",
+  "settings.perHeroDpsRemovedKeptBepInEx": "Removed our plugin. BepInEx was kept because other mods use it.",
   "settings.perHeroDpsGameRunning": "Close the game first, then try again.",
   "settings.perHeroDpsNoGameDir": "Game folder not found — choose it manually.",
   "settings.perHeroDpsUnsupported": "This build doesn't include the plugin.",

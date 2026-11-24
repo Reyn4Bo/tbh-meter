@@ -122,6 +122,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "インストール",
   "settings.perHeroDpsInstalled": "インストール完了 — ゲームを再起動すると有効になります。",
   "settings.perHeroDpsRemoved": "ゲームフォルダから削除しました。",
+  "settings.perHeroDpsRemovedKeptBepInEx": "このプラグインを削除しました。他のMODがBepInExを使っているため、BepInExは残しました。",
   "settings.perHeroDpsGameRunning": "先にゲームを終了してから、もう一度お試しください。",
   "settings.perHeroDpsNoGameDir": "ゲームフォルダが見つかりません — 手動で選択してください。",
   "settings.perHeroDpsUnsupported": "このビルドにはプラグインが含まれていません。",

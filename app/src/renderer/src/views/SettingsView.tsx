@@ -451,7 +451,16 @@ function PerHeroDpsRow({ settings }: { settings: AppSettings }) {
       setStatus(r.status);
       setMessage(
         r.ok
-          ? { tone: "ok", text: t(enabled ? "settings.perHeroDpsInstalled" : "settings.perHeroDpsRemoved") }
+          ? {
+              tone: "ok",
+              text: t(
+                enabled
+                  ? "settings.perHeroDpsInstalled"
+                  : r.keptBepInEx
+                    ? "settings.perHeroDpsRemovedKeptBepInEx"
+                    : "settings.perHeroDpsRemoved",
+              ),
+            }
           : { tone: "err", text: errorText(r) },
       );
       if (r.ok) setConfirming(false);

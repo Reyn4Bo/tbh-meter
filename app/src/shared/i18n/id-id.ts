@@ -122,6 +122,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "settings.perHeroDpsInstall": "Pasang",
   "settings.perHeroDpsInstalled": "Terpasang — mulai ulang game untuk mengaktifkan.",
   "settings.perHeroDpsRemoved": "Dihapus dari folder game.",
+  "settings.perHeroDpsRemovedKeptBepInEx": "Plugin kami dihapus. BepInEx dipertahankan karena dipakai mod lain.",
   "settings.perHeroDpsGameRunning": "Tutup game terlebih dahulu, lalu coba lagi.",
   "settings.perHeroDpsNoGameDir": "Folder game tidak ditemukan — pilih secara manual.",
   "settings.perHeroDpsUnsupported": "Versi ini tidak menyertakan plugin.",

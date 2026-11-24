@@ -15,6 +15,7 @@ import {
   isNewerVersion,
   isGameRunning,
   uninstallCombatPlugin,
+  type CombatPluginResult,
 } from "./combat-plugin.js";
 import { getSettings, updateSettings } from "./settings.js";
 
@@ -49,8 +50,8 @@ export function registerCombatPluginIpc(): void {
     // Already installed at this build's version → turning ON is just the setting (works with the game open).
     const alreadyCurrent =
       enabled && current.installed && !isNewerVersion(current.bundledVersion, current.installedVersion);
-    const res = alreadyCurrent
-      ? ({ ok: true } as const)
+    const res: CombatPluginResult = alreadyCurrent
+      ? { ok: true }
       : enabled
         ? installCombatPlugin(resourcesDir(), gameDir(), running)
         : uninstallCombatPlugin(gameDir(), running);
@@ -68,7 +69,7 @@ export function registerCombatPluginIpc(): void {
       broadcast("meter:settings-changed", settings);
     }
     return res.ok
-      ? { ok: true, status: status(), settings }
+      ? { ok: true, keptBepInEx: res.keptBepInEx, status: status(), settings }
       : { ok: false, error: res.error, detail: res.detail, status: status(), settings };
   });
 

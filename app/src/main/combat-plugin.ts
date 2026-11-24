@@ -23,6 +23,11 @@ export const PLUGIN_DLL = "TbhMeterCombat.dll";
 const MANIFEST_REL = join("BepInEx", "tbh-meter-install.json");
 const BEPINEX_MARKER_REL = join("BepInEx", "core", "BepInEx.Unity.IL2CPP.dll");
 const BEPINEX_CFG_REL = join("BepInEx", "config", "BepInEx.cfg");
+// Where OTHER mods live. Our bundled pack ships both folders EMPTY, so any entry here (besides our own
+// plugin folder) was added by someone else after we installed BepInEx.
+const BEPINEX_PLUGINS_REL = join("BepInEx", "plugins");
+const BEPINEX_PATCHERS_REL = join("BepInEx", "patchers");
+const OUR_PLUGIN_FOLDER = "TbhMeterCombat";
 
 export interface InstallManifest {
   tool: "tbh-meter";
@@ -38,7 +43,11 @@ export interface InstallManifest {
 // game folder manually · "game-running" = close the game first · "io" = a copy/delete failed (perms, AV…).
 export type { CombatPluginError, CombatPluginStatus };
 
-export type CombatPluginResult = { ok: true } | { ok: false; error: CombatPluginError; detail?: string };
+/** `keptBepInEx`: an uninstall found OTHER mods on the BepInEx we had installed, so it removed only our
+ *  plugin and left BepInEx for them (see uninstallCombatPlugin). */
+export type CombatPluginResult =
+  | { ok: true; keptBepInEx?: boolean }
+  | { ok: false; error: CombatPluginError; detail?: string };
 
 /** Bundled version string (resources/combat-plugin/version.txt), null when absent. */
 export function bundledVersion(resDir: string): string | null {
@@ -146,12 +155,38 @@ export function installCombatPlugin(resDir: string, gameDir: string | null, game
   }
 }
 
-/** Remove what we installed (per the manifest); without a manifest, just our plugin folder. */
+/** Other mods present on BepInEx: entries in BepInEx/plugins (except ours) and BepInEx/patchers, as
+ *  game-relative paths. Empty when there are none (or the folders don't exist). */
+export function foreignMods(gameDir: string): string[] {
+  const out: string[] = [];
+  for (const rel of [BEPINEX_PLUGINS_REL, BEPINEX_PATCHERS_REL]) {
+    let entries: string[] = [];
+    try {
+      entries = readdirSync(join(gameDir, rel));
+    } catch {
+      continue; // folder absent
+    }
+    for (const e of entries) {
+      if (rel === BEPINEX_PLUGINS_REL && e.toLowerCase() === OUR_PLUGIN_FOLDER.toLowerCase()) continue;
+      out.push(join(rel, e));
+    }
+  }
+  return out;
+}
+
+/** Remove what we installed (per the manifest); without a manifest, just our plugin folder. If we installed
+ *  BepInEx but OTHER mods now live on it, BepInEx stays (deleting it would delete and break their mods): only
+ *  our plugin and the manifest go, and BepInEx becomes the user's — a later install treats it as theirs. */
 export function uninstallCombatPlugin(gameDir: string | null, gameRunning: boolean): CombatPluginResult {
   if (!isGameDir(gameDir)) return { ok: false, error: "no-game-dir" };
   if (gameRunning) return { ok: false, error: "game-running" };
   try {
     const manifest = readManifest(gameDir);
+    if (manifest?.ownsBepInEx && foreignMods(gameDir).length > 0) {
+      rmSync(join(gameDir, PLUGIN_DIR_REL), { recursive: true, force: true });
+      rmSync(join(gameDir, MANIFEST_REL), { force: true });
+      return { ok: true, keptBepInEx: true };
+    }
     const targets = manifest ? [...manifest.created] : [PLUGIN_DIR_REL];
     if (manifest && !manifest.ownsBepInEx && !targets.includes(PLUGIN_DIR_REL)) targets.push(PLUGIN_DIR_REL);
     for (const rel of targets) {
