@@ -6,7 +6,6 @@ import electronUpdater from "electron-updater";
 import type { UpdateStatus } from "../shared/ipc-types.js";
 import { httpFetch } from "./net-fetch.js";
 import { resolveOutputDir } from "./settings.js";
-import { isRcBuild } from "./variant.js";
 
 // electron-updater is CommonJS; under ESM (electron-vite emits the main process as
 // ESM) the singleton has to be pulled off the default export — a named import
@@ -40,9 +39,9 @@ const ERROR_RETRIGGER_COOLDOWN_MS = 30_000;
 // gate KNOWS the pointer is stale and re-checks until it converges, instead of trusting a
 // single read. Anonymous REST quota is 60 req/h per IP and players can sit behind CGNAT,
 // so any failure degrades to null = "no signal" and the gate behaves as before.
-// owner/repo must match electron-builder.yml `publish`.
+// owner/repo must match electron-builder.yml `publish` (this fork's own Releases, not upstream).
 const RELEASES_LATEST_API_URL =
-  "https://api.github.com/repos/mad-labs-org/tbh-meter/releases/latest";
+  "https://api.github.com/repos/Reyn4Bo/tbh-meter/releases/latest";
 const AUTHORITY_TIMEOUT_MS = 3_000;
 // Convergence budget once staleness is KNOWN: 8 × (3s + one check round-trip) ≈ 45s of
 // splash typically. Not a hard wall-clock cap — each re-check is awaited in full so its
@@ -151,12 +150,12 @@ export function onUpdateStatus(cb: (status: UpdateStatus) => void): () => void {
 }
 
 /** Only the packaged Windows NSIS install can self-update. Dev (not packaged) and macOS
- *  have no update feed, so the updater stays dormant ("idle") there. The RC variant is a
- *  throwaway side-by-side test build — it must NOT self-update (its feed would otherwise
- *  drag it toward the promoted stable release), so it stays dormant too. Exported so the
- *  renderer can gate its manual "Check for updates" button on installs that can update. */
+ *  have no update feed, so the updater stays dormant ("idle") there. FORK: the RC variant
+ *  (`tbh-meter-rc`) is the identity this fork ships to players, so it self-updates too — from
+ *  this fork's Releases only (electron-builder.yml `publish`), never from upstream. Exported so
+ *  the renderer can gate its manual "Check for updates" button on installs that can update. */
 export function updaterSupported(): boolean {
-  return app.isPackaged && process.platform === "win32" && !isRcBuild();
+  return app.isPackaged && process.platform === "win32";
 }
 
 /**

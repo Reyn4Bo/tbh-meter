@@ -1,10 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // auto-update.ts destructures `autoUpdater` off electron-updater's default export and
-// imports electron + variant at load — stub them so importing the module is side-effect free.
+// imports electron at load — stub them so importing the module is side-effect free.
 vi.mock("electron", () => ({ app: { isPackaged: true } }));
 vi.mock("electron-updater", () => ({ default: { autoUpdater: {} } }));
-vi.mock("../variant.js", () => ({ isRcBuild: () => false }));
 vi.mock("../settings.js", () => ({ resolveOutputDir: () => "/tmp/tbh-meter-test" }));
 // fetchLatestShippedVersion now rides Electron's net stack (httpFetch -> net.fetch).
 // Delegate the helper to whatever global fetch the test currently stubs, so the
@@ -82,6 +81,13 @@ describe("fetchLatestShippedVersion", () => {
   it("returns the version for a well-formed shipped tag", async () => {
     vi.stubGlobal("fetch", vi.fn(() => okJson({ tag_name: "tbh-meter-v0.31.0" })));
     await expect(fetchLatestShippedVersion()).resolves.toBe("0.31.0");
+  });
+
+  it("asks THIS fork's Releases, never upstream mad-labs-org", async () => {
+    const fetchMock = vi.fn((_url: string) => okJson({ tag_name: "tbh-meter-v0.45.0" }));
+    vi.stubGlobal("fetch", fetchMock);
+    await fetchLatestShippedVersion();
+    expect(fetchMock.mock.calls[0][0]).toBe("https://api.github.com/repos/Reyn4Bo/tbh-meter/releases/latest");
   });
 
   it("returns null when the network fails (offline / DNS / abort-timeout)", async () => {

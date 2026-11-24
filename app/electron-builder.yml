@@ -41,9 +41,14 @@ files:
 # rename redirect (301 -> tbh-meter); they self-heal to the new name on their first update.
 # !! NEVER create a new repo named `mad-labs-org/tbh-meter-releases` — that kills the redirect
 # and strands every not-yet-updated install. See meter-3-ship.yml.
+#
+# FORK (Reyn4Bo/tbh-meter): the update feed points at THIS fork's Releases, never at upstream
+# mad-labs-org — an install of this build must only ever update to a build published here. Both
+# variants read this (it becomes resources/app-update.yml), and auto-update.ts's
+# RELEASES_LATEST_API_URL must name the same owner/repo.
 publish:
   provider: github
-  owner: mad-labs-org
+  owner: Reyn4Bo
   repo: tbh-meter
 
 win:
