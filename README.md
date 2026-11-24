@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078d4)](https://github.com/Reyn4Bo/tbh-meter/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
-<img src=".github/assets/fork/overlay-1.3.2.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP and the party">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip-1.3.2.png" width="261" alt="Per-hero tooltip: time to level, DPS, share, crit rate, hits, damage types, damage taken by element">
+<img src=".github/assets/fork/overlay-0.45.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP, Plaguelands pollution gauge, the party and a chest cooldown card">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip-0.45.png" width="261" alt="Per-hero tooltip: DPS, share, crit rate, hits, damage type, resistances">
 
 _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/tbh-meter) — not made by or endorsed by the game's developer or the original authors._
 
@@ -17,7 +17,7 @@ _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/
 
 ---
 
-**中文简介：** 这是 TBH Meter 的非官方修改版，适配 Task Bar Hero **1.3.2**，新增**每个英雄的 DPS / 承伤 / 伤害类型统计**（可选功能，默认关闭）、修正了抗性、击杀数等显示问题，并支持隐藏 meter 和游戏本体的任务栏图标。安装包在 [Releases](https://github.com/Reyn4Bo/tbh-meter/releases) 页面下载，Windows 10 以上，无需管理员权限。
+**中文简介：** 这是 TBH Meter 的非官方修改版，适配 Task Bar Hero **1.3.2**，新增**每个英雄的 DPS / 承伤 / 伤害类型统计**（可选功能，默认关闭）、**瘟疫之地污染度显示与满值提醒**、**污染宝箱冷却追踪**（蓝箱冷却按 1.3.2 实测改为约 3 分钟），修正了抗性、击杀数等显示问题，并支持隐藏 meter 和游戏本体的任务栏图标。安装包在 [Releases](https://github.com/Reyn4Bo/tbh-meter/releases) 页面下载，Windows 10 以上，无需管理员权限；从 0.45.0 起会自动更新（只更新到本仓库发布的版本）。
 
 ## What's new in this edition
 
@@ -42,12 +42,12 @@ The original meter only knows team DPS: memory alone cannot tell which hero land
 | **Run detail** | _Damage by hero_ (DPS, total, share, crit, type breakdown) and _Damage taken by hero_ (by element / type) |
 
 <div align="center">
-<img src=".github/assets/fork/run-detail-1.3.2.png" width="820" alt="Run detail: XP by hero, damage by hero with type breakdown, damage taken by hero by element">
+<img src=".github/assets/fork/run-detail-0.45.png" width="820" alt="Run detail: XP by hero, damage by hero with type breakdown, damage taken by hero by element">
 </div>
 
 The numbers reconcile exactly with the meter's own team damage (ratio **1.000** across multiple runs and party compositions, summons included). It costs essentially nothing: the plugin only adds counters per hit and writes a small file once a second.
 
-**How it works — and what it changes.** It is **off by default**; without it the meter remains a pure read-only memory reader that never touches the game folder. Turning on **Settings → Per-hero DPS** (with the game closed) installs [BepInEx 6](https://github.com/BepInEx/BepInEx) (LGPL-2.1) plus a small plugin into the game folder. The plugin hooks the game's "take damage" calls, **only observes them** (it never changes a game value and does not touch the anti-cheat) and writes cumulative counters to `%USERPROFILE%\tbh-meter-mod\combat.json`, which the meter reads. Turning the option off removes exactly what was installed.
+**How it works — and what it changes.** It is **off by default**; without it the meter remains a pure read-only memory reader that never touches the game folder. Turning on **Settings → Per-hero DPS** (with the game closed) installs [BepInEx 6](https://github.com/BepInEx/BepInEx) (LGPL-2.1) plus a small plugin into the game folder. The plugin hooks the game's "take damage" calls, **only observes them** (it never changes a game value and does not touch the anti-cheat) and writes cumulative counters to `%USERPROFILE%\tbh-meter-mod\combat.json`, which the meter reads. Turning the option off removes exactly what was installed — except that if you have since added other BepInEx mods, BepInEx itself is kept for them and only this plugin is removed.
 
 > [!WARNING]
 > Loading a plugin into the game **is a game modification**. The game has online features (trading, Steam market) and an anti-cheat library; a flag/ban risk cannot be ruled out. Check the game's terms and decide for yourself before enabling it. Source and details: [`mod/`](./mod).
@@ -59,7 +59,15 @@ The numbers reconcile exactly with the meter's own team damage (ratio **1.000** 
 - **Dead heroes** — keep their last-known stats, greyed out with a skull, instead of disappearing from the party.
 - **Layout** — the DPS, damage-taken and mobs bars line up edge to edge.
 
-### 4. Hide taskbar icons
+### 4. Plaguelands pollution and chest cooldowns
+
+- **Pollution gauge** — the overlay shows the account's Plaguelands pollution (e.g. `33/500`) and the time until it is full. When it reaches the max, a card appears under the overlay and Windows sends a notification (can be turned off in Settings → Notifications).
+- **Contaminated stage box** — the Plaguelands boss chest gets its own cooldown card, countdown and "ready" notification (it used to be counted as a blue chest), plus its own drop notification.
+- **Re-measured cooldowns** — on 1.3.2 the blue chest can drop again after about **3 minutes** (measured over 186 clears), not 13; the contaminated box defaults to **3.6 minutes** (the game's own 360/300 ratio). Both are adjustable in Settings.
+- **Exact chest in run history** — each drop shows the real box of that stage (contaminated, Halloween…).
+- **Overlay** — drag the bottom-right corner to change width and scale together; new installs are no longer always on top (toggle it with the pin button).
+
+### 5. Hide taskbar icons
 
 Both the meter and the game are idle-in-the-background apps. You can hide **the meter's** taskbar icon (the tray icon stays) and **the game's** taskbar icon — from Settings or with the two buttons in the overlay title bar. Hiding the game's icon is a plain Windows-shell call (`ITaskbarList`); it does not touch the game's memory or files, and the icon comes back when you turn it off or quit the meter.
 
@@ -71,7 +79,7 @@ Both the meter and the game are idle-in-the-background apps. You can hide **the 
 2. Run it — **no admin rights needed** (installs per-user as **tbh-meter-rc**, side by side with any official install).
 3. Start Task Bar Hero and the meter in any order; live stats appear after the first attach.
 
-**Auto-update is off** in this edition — an update from the original project would replace it and drop these changes. New versions are published on this repo's Releases page.
+**Auto-update is on — from this repository only.** Since 0.45.0 the meter updates itself to new releases published here, never to the original project. Coming from rc.7 / rc.8 (auto-update off), install the latest release manually once.
 
 <details>
 <summary><b>"Windows protected your PC" warning</b></summary>
