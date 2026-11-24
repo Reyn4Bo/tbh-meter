@@ -64,6 +64,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.openLogs": "Buka log",
   "live.dragResize": "Seret untuk mengubah ukuran",
   "live.dragScale": "Seret untuk menskalakan meter",
+  "live.dragResizeScale": "Seret untuk mengubah lebar dan skala",
 
   // ── Startup splash ──
   "splash.searching": "Mencari Task Bar Hero…",

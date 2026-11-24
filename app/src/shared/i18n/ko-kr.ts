@@ -64,6 +64,7 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.openLogs": "로그 열기",
   "live.dragResize": "드래그로 크기 조절",
   "live.dragScale": "드래그로 미터 크기 조절",
+  "live.dragResizeScale": "드래그로 너비와 크기를 함께 조절",
 
   // ── Startup splash ──
   "splash.searching": "Task Bar Hero 찾는 중…",

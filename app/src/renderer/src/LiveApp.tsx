@@ -9,6 +9,7 @@ import { useT } from "~/lib/i18n";
 // content-driven (measured here, pinned by main), width is user-resizable via a JS
 // edge-handle, the whole strip is scalable via a JS bottom-handle (#232 "vertical
 // resize" — height is content-pinned, so scaling the content IS the vertical resize),
+// the bottom-right corner does both at once (diagonal: X = width, Y = scale),
 // and the window is dragged from the title bar (JS-driven via Pointer Events + pointer
 // capture, not -webkit-app-region, so the CSS cursor sticks). All content lives in LiveView.
 export default function LiveApp() {
@@ -113,20 +114,20 @@ export default function LiveApp() {
       onEnd: () => window.meter.endWindowDrag(),
     });
 
-  // "Vertical resize" (#232): dragging the BOTTOM edge scales the whole strip. Height is
+  // "Vertical resize" (#232): dragging DOWN/UP scales the whole strip. Height is
   // content-pinned, so the only meaningful vertical resize is a content scale — the drag
   // adjusts liveFontScale proportionally (clamped main-side too) and the window height
   // follows via the content re-pin. Grows AND shrinks; persisted like any setting, and
   // the Settings slider moves live since both write the same key. Stays renderer-side: it
   // is a unit-free RATIO of screenY distances, so it is immune to the DPI coordinate-space
-  // mismatch that the move/resize had.
-  const onScalePointerDown = (e: React.PointerEvent): void => {
+  // mismatch that the move/resize had. Shared by the bottom edge and the corner.
+  const scaleDrag = (e: React.PointerEvent): { update: (ev: PointerEvent) => void; cancel: () => void } => {
     const winTop = window.screenY;
     const startSpan = Math.max(24, e.screenY - winTop); // window-top → grab-point distance
     const startScale = fontScaleRef.current;
     let raf = 0;
-    beginWindowDrag(e, {
-      onMove: (ev) => {
+    return {
+      update: (ev) => {
         if (raf) return; // coalesce to one settings write per frame
         raf = requestAnimationFrame(() => {
           raf = 0;
@@ -139,8 +140,32 @@ export default function LiveApp() {
           }
         });
       },
-      onEnd: () => {
+      cancel: () => {
         if (raf) cancelAnimationFrame(raf);
+      },
+    };
+  };
+
+  // Bottom edge: scale only.
+  const onScalePointerDown = (e: React.PointerEvent): void => {
+    const scale = scaleDrag(e);
+    beginWindowDrag(e, { onMove: scale.update, onEnd: scale.cancel });
+  };
+
+  // Bottom-right corner: the diagonal drag — the right-edge width resize (main, DIP) and the
+  // bottom-edge scale (renderer, ratio) in ONE gesture. Each axis keeps its own proven path,
+  // so X behaves exactly like the right edge and Y exactly like the bottom edge.
+  const onCornerPointerDown = (e: React.PointerEvent): void => {
+    const scale = scaleDrag(e);
+    beginWindowDrag(e, {
+      onStart: () => window.meter.startWindowDrag("resize"),
+      onMove: (ev) => {
+        window.meter.moveWindowDrag();
+        scale.update(ev);
+      },
+      onEnd: () => {
+        scale.cancel();
+        window.meter.endWindowDrag();
       },
     });
   };
@@ -152,8 +177,8 @@ export default function LiveApp() {
     >
       <LiveView onStartDrag={onTitlePointerDown} onOpenLogs={() => window.meter.openListWindow()} />
 
-      {/* Active blue-chest cooldowns — below the meter, ALWAYS rendered (even while the meter
-          is offline/between runs, since a 14-min chest keeps cooling). Self-fetching; renders
+      {/* Active chest cooldowns — below the meter, ALWAYS rendered (even while the meter
+          is offline/between runs, since a chest keeps cooling). Self-fetching; renders
           nothing when there are none. The window height is content-pinned, so it grows to fit. */}
       <OverlayCooldowns />
 
@@ -173,6 +198,19 @@ export default function LiveApp() {
         className="absolute inset-x-0 bottom-0 z-10 flex h-1.5 cursor-ns-resize items-center justify-center hover:bg-surface-700/50"
       >
         <div className="h-px w-3.5 bg-surface-600" />
+      </div>
+
+      {/* Bottom-right corner: drag diagonally — width (X) and scale (Y) together. Above both
+          edge handles (z-20) so the corner always wins where they overlap. */}
+      <div
+        onPointerDown={onCornerPointerDown}
+        title={t("live.dragResizeScale")}
+        className="absolute right-0 bottom-0 z-20 size-4 cursor-nwse-resize rounded-br-lg text-zinc-500 hover:bg-surface-700/50 hover:text-zinc-300"
+      >
+        {/* Grip lines kept inside the window's rounded-lg (8px) corner curve, or it clips them. */}
+        <svg viewBox="0 0 16 16" className="size-full" aria-hidden>
+          <path d="M12 6 6 12M12 9.5 9.5 12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
       </div>
     </div>
   );

@@ -68,6 +68,7 @@ export const DICT = {
   "live.openLogs": "Open logs",
   "live.dragResize": "Drag to resize",
   "live.dragScale": "Drag to scale the meter",
+  "live.dragResizeScale": "Drag to resize and scale",
 
   // ── Startup splash ──
   "splash.searching": "Looking for Task Bar Hero…",
