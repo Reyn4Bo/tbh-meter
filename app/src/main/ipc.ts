@@ -5,6 +5,7 @@ import type { LiveSnapshot } from "../shared/run-types.js";
 import type { ReaderStatus, AppSettings } from "../shared/ipc-types.js";
 import { getSettings, updateSettings, resolveOutputDir, applyLaunchOnStartup, sanitizeRoute } from "./settings.js";
 import { clampCooldownMin } from "../shared/ipc-types.js";
+import { DEFAULT_CONTAM_COOLDOWN_MIN } from "../shared/cooldown-types.js";
 import { listRuns, getRun, clearAllRuns, pruneToMaxRuns } from "./runs-store.js";
 import { getRunsSource, setFavoritePredicate } from "./sources/runs-source.js";
 import { isFavorite, toggleFavorite, invalidateFavoritesCache } from "./favorites-store.js";
@@ -86,6 +87,8 @@ export function registerIpcHandlers(deps: IpcDeps): void {
     // chestRoute or out-of-range timer from the renderer would otherwise sit raw in settings.json
     // until the next relaunch (everything reads them clamped, but the stored value should be sane).
     if (changed.chestCooldownMin !== undefined) changed.chestCooldownMin = clampCooldownMin(changed.chestCooldownMin as number);
+    if (changed.contamCooldownMin !== undefined)
+      changed.contamCooldownMin = clampCooldownMin(changed.contamCooldownMin as number, DEFAULT_CONTAM_COOLDOWN_MIN);
     if (changed.chestRoute !== undefined) changed.chestRoute = sanitizeRoute(changed.chestRoute);
     const settings = updateSettings(changed as Partial<AppSettings>);
     deps.applyLiveSettings();
