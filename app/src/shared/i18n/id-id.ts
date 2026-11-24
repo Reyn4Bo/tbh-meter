@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Bos stage",
   "live.chestActBoss": "Bos act",
   "live.chestContaminated": "Peti stage terkontaminasi",
+  "live.pollution": "Polusi",
+  "live.pollutionFull": "Polusi penuh",
+  "live.pollutionEta": "penuh dalam {eta}",
   "live.minimizeTitle": "Minimalkan (tetap jalan di latar belakang)",
   "live.collapseTitle": "Ringkas (2 baris)",
   "live.expandTitle": "Perluas",
@@ -333,6 +336,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Peti bos stage Plaguelands, dengan cooldown sendiri.",
   "notifications.contaminatedTitle": "Peti terkontaminasi jatuh",
   "notifications.contaminatedBody": "{where}: peti stage terkontaminasi baru saja jatuh.",
+  "notifications.pollutionFull": "Polusi Plaguelands penuh",
+  "notifications.pollutionFullDesc": "Saat gauge polusi Plaguelands mencapai maksimum.",
+  "notifications.pollutionFullTitle": "Polusi penuh",
+  "notifications.pollutionFullBody": "{value}/{max} — Plaguelands sudah terisi penuh.",
 
   // ── Tray menu ──
   "tray.showLive": "Tampilkan live meter",

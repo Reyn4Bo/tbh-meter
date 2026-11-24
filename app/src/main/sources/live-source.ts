@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { LiveHeroDamage, LiveSnapshot } from "../../shared/run-types.js";
 import type { RawLive } from "../../shared/live-types.js";
 import { computeDps, cookBreakdown, modeName, resolveStage, round } from "../converter/helpers.js";
+import { cookPollution } from "../../shared/pollution.js";
 
 const POLL_INTERVAL_MS = 700;
 // The reader rewrites live.json every ~1s while a run is active. If it has not been touched in this
@@ -64,6 +65,7 @@ export function cookLive(raw: RawLive): LiveSnapshot {
     partyDamage,
     partyTaken,
     partyDead,
+    pollution: cookPollution(raw.pollution),
     approx: true,
   };
 }

@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Bölüm bossu",
   "live.chestActBoss": "Perde bossu",
   "live.chestContaminated": "Kirlenmiş bölüm sandığı",
+  "live.pollution": "Kirlilik",
+  "live.pollutionFull": "Kirlilik dolu",
+  "live.pollutionEta": "{eta} içinde dolar",
   "live.minimizeTitle": "Küçült (arka planda çalışmaya devam eder)",
   "live.collapseTitle": "Daralt (2 satır)",
   "live.expandTitle": "Genişlet",
@@ -334,6 +337,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Veba Toprakları'nın bölüm patronu sandığı, kendi bekleme süresiyle.",
   "notifications.contaminatedTitle": "Kirlenmiş sandık düştü",
   "notifications.contaminatedBody": "{where}: az önce bir kirlenmiş bölüm sandığı düştü.",
+  "notifications.pollutionFull": "Veba Toprakları kirliliği dolu",
+  "notifications.pollutionFullDesc": "Kirlilik göstergesi maksimuma ulaştığında.",
+  "notifications.pollutionFullTitle": "Kirlilik dolu",
+  "notifications.pollutionFullBody": "{value}/{max} — Veba Toprakları tamamen dolu.",
 
   // ── Tray menu ──
   "tray.showLive": "Canlı meter'i göster",

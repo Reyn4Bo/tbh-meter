@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Boss etapu",
   "live.chestActBoss": "Boss aktu",
   "live.chestContaminated": "Skażona skrzynia etapu",
+  "live.pollution": "Skażenie",
+  "live.pollutionFull": "Skażenie pełne",
+  "live.pollutionEta": "pełne za {eta}",
   "live.minimizeTitle": "Minimalizuj (działa dalej w tle)",
   "live.collapseTitle": "Zwiń (2 linie)",
   "live.expandTitle": "Rozwiń",
@@ -334,6 +337,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Skrzynia bossa etapu z Ziem Zarazy, z własnym cooldownem.",
   "notifications.contaminatedTitle": "Wypadła skażona skrzynia",
   "notifications.contaminatedBody": "{where}: właśnie wypadła skażona skrzynia etapu.",
+  "notifications.pollutionFull": "Skażenie Ziem Zarazy pełne",
+  "notifications.pollutionFullDesc": "Gdy wskaźnik skażenia osiągnie maksimum.",
+  "notifications.pollutionFullTitle": "Skażenie pełne",
+  "notifications.pollutionFullBody": "{value}/{max} — Ziemie Zarazy są w pełni naładowane.",
 
   // ── Tray menu ──
   "tray.showLive": "Pokaż live meter",

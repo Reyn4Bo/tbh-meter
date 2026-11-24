@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Boss de niveau",
   "live.chestActBoss": "Boss d'acte",
   "live.chestContaminated": "Coffre d'étape contaminé",
+  "live.pollution": "Pollution",
+  "live.pollutionFull": "Pollution pleine",
+  "live.pollutionEta": "pleine dans {eta}",
   "live.minimizeTitle": "Réduire (continue en arrière-plan)",
   "live.collapseTitle": "Compacter (2 lignes)",
   "live.expandTitle": "Agrandir",
@@ -333,6 +336,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Le coffre du boss d'étape des Terres pestiférées, avec son propre cooldown.",
   "notifications.contaminatedTitle": "Coffre contaminé tombé",
   "notifications.contaminatedBody": "{where} : un coffre d'étape contaminé vient de tomber.",
+  "notifications.pollutionFull": "Pollution des Terres pestiférées pleine",
+  "notifications.pollutionFullDesc": "Quand la jauge de pollution atteint son maximum.",
+  "notifications.pollutionFullTitle": "Pollution pleine",
+  "notifications.pollutionFullBody": "{value}/{max} — les Terres pestiférées sont chargées.",
 
   // ── Tray menu ──
   "tray.showLive": "Afficher le live meter",

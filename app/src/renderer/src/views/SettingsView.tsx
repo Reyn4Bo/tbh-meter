@@ -10,6 +10,7 @@ import {
   Minus,
   Plus,
   FileText,
+  Biohazard,
 } from "lucide-react";
 import type {
   AppSettings,
@@ -833,6 +834,20 @@ function NotificationsRow({
           </label>
         );
       })}
+      {/* Plaguelands pollution reaching its max — not a chest, its own setting. */}
+      <label className="mt-2 flex cursor-pointer items-start gap-2 text-xs text-zinc-400">
+        <input
+          type="checkbox"
+          checked={settings.pollutionFullNotify}
+          onChange={(e) => onSettingsChange({ pollutionFullNotify: e.target.checked })}
+          className="mt-0.5 size-3.5 shrink-0 cursor-pointer accent-brand-500"
+        />
+        <Biohazard className="mt-0.5 size-4 shrink-0 text-lime-400" aria-hidden />
+        <span>
+          {t("notifications.pollutionFull")}
+          <span className="block text-[11px] text-zinc-500">{t("notifications.pollutionFullDesc")}</span>
+        </span>
+      </label>
     </div>
   );
 }

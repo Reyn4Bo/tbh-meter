@@ -19,6 +19,7 @@ import {
   rearmNotifications,
 } from "./cooldown-tracker.js";
 import { initDropNotifier } from "./drop-notifier.js";
+import { initPollutionNotifier } from "./pollution-notifier.js";
 import {
   getUpdateStatus,
   onUpdateStatus,
@@ -241,6 +242,7 @@ export function registerIpcHandlers(deps: IpcDeps): void {
   // Per-chest-type drop notifier: watches the same live stream and fires an OS
   // notification when an enabled chest type drops. Independent of the tracker above.
   initDropNotifier();
+  initPollutionNotifier();
   // Auto-update status -> every open window (same fan-out as the sources above).
   onUpdateStatus((status) => broadcast("meter:update-status", status));
   // Reader bring-up phase -> the startup splash (own channel, distinct from the

@@ -16,6 +16,7 @@
 // never becomes permanent — does not apply to a value that is gone on the next tick.
 
 import type { RawHeroDamage } from "./raw-types.js";
+import type { RawPollution } from "./pollution.js";
 
 /** The RAW live snapshot the reader writes to `live.json` (overwritten ~1×/s), schema-tagged with the
  *  same `raw_schema_version` as the per-run raw (the two flows share the reader's output version). */
@@ -77,4 +78,7 @@ export interface RawLive {
   /** Heroes of the run currently DEAD (out of the live HeroList, awaiting revive). Their party_progress /
    *  party_stats are the last-known values of this run. Absent on an older reader. */
   party_dead?: number[];
+  /** Plaguelands pollution gauge (account state, not per run) — `{value, max, charge_sec}`, decoded live by
+   *  reader/metrics/pollution.py. `null` when unreadable; absent on an older reader. ADDITIVE. */
+  pollution?: RawPollution | null;
 }

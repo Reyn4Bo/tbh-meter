@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Jefe de fase",
   "live.chestActBoss": "Jefe de acto",
   "live.chestContaminated": "Cofre de fase contaminado",
+  "live.pollution": "Contaminación",
+  "live.pollutionFull": "Contaminación llena",
+  "live.pollutionEta": "llena en {eta}",
   "live.minimizeTitle": "Minimizar (sigue en segundo plano)",
   "live.collapseTitle": "Compactar (2 líneas)",
   "live.expandTitle": "Expandir",
@@ -334,6 +337,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "El cofre del jefe de fase de las Tierras de la Plaga, con su propio cooldown.",
   "notifications.contaminatedTitle": "Cayó un cofre contaminado",
   "notifications.contaminatedBody": "{where}: acaba de caer un cofre de fase contaminado.",
+  "notifications.pollutionFull": "Contaminación de las Tierras de la Plaga llena",
+  "notifications.pollutionFullDesc": "Cuando el indicador de contaminación llega al máximo.",
+  "notifications.pollutionFullTitle": "Contaminación llena",
+  "notifications.pollutionFullBody": "{value}/{max} — las Tierras de la Plaga están listas.",
 
   // ── Tray menu ──
   "tray.showLive": "Mostrar live meter",

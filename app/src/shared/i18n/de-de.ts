@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Etappen-Boss",
   "live.chestActBoss": "Akt-Boss",
   "live.chestContaminated": "Verseuchte Etappentruhe",
+  "live.pollution": "Verseuchung",
+  "live.pollutionFull": "Verseuchung voll",
+  "live.pollutionEta": "voll in {eta}",
   "live.minimizeTitle": "Minimieren (läuft im Hintergrund weiter)",
   "live.collapseTitle": "Kompakt (2 Zeilen)",
   "live.expandTitle": "Erweitern",
@@ -334,6 +337,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Die Stage-Boss-Truhe der Pestlande, mit eigenem Cooldown.",
   "notifications.contaminatedTitle": "Verseuchte Truhe gedroppt",
   "notifications.contaminatedBody": "{where}: gerade ist eine verseuchte Etappentruhe gedroppt.",
+  "notifications.pollutionFull": "Pestlande-Verseuchung voll",
+  "notifications.pollutionFullDesc": "Wenn die Verseuchungsanzeige der Pestlande ihr Maximum erreicht.",
+  "notifications.pollutionFullTitle": "Verseuchung voll",
+  "notifications.pollutionFullBody": "{value}/{max} — die Pestlande sind voll aufgeladen.",
 
   // ── Tray menu ──
   "tray.showLive": "Live-Meter zeigen",

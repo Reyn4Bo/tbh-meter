@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Boss da fase",
   "live.chestActBoss": "Boss do ato",
   "live.chestContaminated": "Baú de fase contaminado",
+  "live.pollution": "Poluição",
+  "live.pollutionFull": "Poluição cheia",
+  "live.pollutionEta": "cheia em {eta}",
   "live.minimizeTitle": "Minimizar (continua em segundo plano)",
   "live.collapseTitle": "Compactar (2 linhas)",
   "live.expandTitle": "Expandir",
@@ -331,6 +334,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "O baú do chefe de fase das Terras da Praga, com cooldown próprio.",
   "notifications.contaminatedTitle": "Baú contaminado dropou",
   "notifications.contaminatedBody": "{where}: um baú de fase contaminado acabou de dropar.",
+  "notifications.pollutionFull": "Poluição das Terras da Praga cheia",
+  "notifications.pollutionFullDesc": "Quando a barra de poluição chega ao máximo.",
+  "notifications.pollutionFullTitle": "Poluição cheia",
+  "notifications.pollutionFullBody": "{value}/{max} — as Terras da Praga estão carregadas.",
 
   // ── Tray menu ──
   "tray.showLive": "Mostrar live meter",

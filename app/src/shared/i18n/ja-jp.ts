@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "ステージボス",
   "live.chestActBoss": "アクトボス",
   "live.chestContaminated": "汚染ステージ宝箱",
+  "live.pollution": "汚染度",
+  "live.pollutionFull": "汚染度MAX",
+  "live.pollutionEta": "満タンまで約 {eta}",
   "live.minimizeTitle": "最小化（バックグラウンドで動作し続けます）",
   "live.collapseTitle": "コンパクト表示（2行）",
   "live.expandTitle": "展開",
@@ -333,6 +336,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "疫病の地のステージボス宝箱。独自のクールダウンつき。",
   "notifications.contaminatedTitle": "汚染宝箱がドロップ",
   "notifications.contaminatedBody": "{where}：汚染ステージ宝箱がドロップしました。",
+  "notifications.pollutionFull": "疫病の地の汚染度MAX",
+  "notifications.pollutionFullDesc": "疫病の地の汚染度が上限に達したとき。",
+  "notifications.pollutionFullTitle": "汚染度MAX",
+  "notifications.pollutionFullBody": "{value}/{max} — 疫病の地が満タンです。",
 
   // ── Tray menu ──
   "tray.showLive": "ライブメーターを表示",

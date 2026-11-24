@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "스테이지 보스",
   "live.chestActBoss": "액트 보스",
   "live.chestContaminated": "오염된 스테이지 상자",
+  "live.pollution": "오염도",
+  "live.pollutionFull": "오염도 가득",
+  "live.pollutionEta": "가득까지 약 {eta}",
   "live.minimizeTitle": "최소화 (백그라운드에서 계속 실행)",
   "live.collapseTitle": "축소 (2줄)",
   "live.expandTitle": "확장",
@@ -333,6 +336,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "역병의 땅 스테이지 보스 상자, 별도 쿨다운.",
   "notifications.contaminatedTitle": "오염 상자 드롭",
   "notifications.contaminatedBody": "{where}: 방금 오염된 스테이지 상자가 드롭됐습니다.",
+  "notifications.pollutionFull": "역병의 땅 오염도 가득",
+  "notifications.pollutionFullDesc": "역병의 땅 오염도가 최대치에 도달하면 알림.",
+  "notifications.pollutionFullTitle": "오염도 가득",
+  "notifications.pollutionFullBody": "{value}/{max} — 역병의 땅이 가득 찼습니다.",
 
   // ── Tray menu ──
   "tray.showLive": "라이브 미터 표시",

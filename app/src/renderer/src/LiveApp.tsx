@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LiveView } from "~/views/LiveView";
 import { OverlayCooldowns } from "~/components/CooldownCard";
+import { OverlayPollutionFull } from "~/components/Pollution";
 import { getOverlayExtent, onOverlayExtent } from "~/lib/overlay-extent";
 import { clampFontScale } from "../../shared/ipc-types.js";
 import { useT } from "~/lib/i18n";
@@ -180,6 +181,9 @@ export default function LiveApp() {
       {/* Active chest cooldowns — below the meter, ALWAYS rendered (even while the meter
           is offline/between runs, since a chest keeps cooling). Self-fetching; renders
           nothing when there are none. The window height is content-pinned, so it grows to fit. */}
+      {/* Plaguelands pollution FULL nudge (a ready-style card), above the chest cooldowns. */}
+      <OverlayPollutionFull />
+
       <OverlayCooldowns />
 
       {/* Right-edge handle: drag to resize the window width (height stays content-pinned). */}

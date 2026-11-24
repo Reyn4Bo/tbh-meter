@@ -79,6 +79,16 @@ describe("cookLive — derives the overlay snapshot from the reader's raw live",
     expect(cookLive(rawLive({ party: undefined as unknown as number[] })).party).toBeNull();
   });
 
+  it("carries the Plaguelands pollution gauge, null when absent (older reader) or malformed", () => {
+    expect(cookLive(rawLive({ pollution: { value: 28, max: 500, charge_sec: 360 } })).pollution).toEqual({
+      value: 28,
+      max: 500,
+      chargeSec: 360,
+    });
+    expect(cookLive(rawLive()).pollution).toBeNull();
+    expect(cookLive(rawLive({ pollution: { value: 900, max: 500, charge_sec: 360 } })).pollution).toBeNull();
+  });
+
   it("guards drops the same way as party: non-array -> null, non-finite element -> 0", () => {
     // Symmetric with the party guard above — a malformed drops never throws or leaks NaN.
     expect(cookLive(rawLive({ drops: undefined as unknown as number[] })).drops).toBeNull();

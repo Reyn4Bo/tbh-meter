@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "บอสด่าน",
   "live.chestActBoss": "บอสองก์",
   "live.chestContaminated": "กล่องด่านปนเปื้อน",
+  "live.pollution": "ความปนเปื้อน",
+  "live.pollutionFull": "ความปนเปื้อนเต็ม",
+  "live.pollutionEta": "เต็มในอีก {eta}",
   "live.minimizeTitle": "ย่อ (ยังทำงานอยู่เบื้องหลัง)",
   "live.collapseTitle": "ย่อ (2 บรรทัด)",
   "live.expandTitle": "ขยาย",
@@ -333,6 +336,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "กล่องบอสด่านของดินแดนโรคระบาด มีคูลดาวน์ของตัวเอง",
   "notifications.contaminatedTitle": "กล่องปนเปื้อนดรอป",
   "notifications.contaminatedBody": "{where}: เพิ่งมีกล่องด่านปนเปื้อนดรอป",
+  "notifications.pollutionFull": "ความปนเปื้อนดินแดนโรคระบาดเต็ม",
+  "notifications.pollutionFullDesc": "เมื่อเกจความปนเปื้อนถึงค่าสูงสุด",
+  "notifications.pollutionFullTitle": "ความปนเปื้อนเต็ม",
+  "notifications.pollutionFullBody": "{value}/{max} — ดินแดนโรคระบาดพร้อมแล้ว",
 
   // ── Tray menu ──
   "tray.showLive": "แสดง live meter",

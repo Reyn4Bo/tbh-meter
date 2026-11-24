@@ -56,6 +56,9 @@ export const DICT = {
   "live.chestStageBoss": "Stage boss",
   "live.chestActBoss": "Act boss",
   "live.chestContaminated": "Contaminated stage box",
+  "live.pollution": "Pollution",
+  "live.pollutionFull": "Pollution full",
+  "live.pollutionEta": "full in {eta}",
   "live.minimizeTitle": "Minimize (keeps running in the background)",
   "live.collapseTitle": "Collapse (2 lines)",
   "live.expandTitle": "Expand",
@@ -342,6 +345,10 @@ export const DICT = {
   "notifications.contaminatedDesc": "The Plaguelands stage-boss chest, on its own cooldown.",
   "notifications.contaminatedTitle": "Contaminated box dropped",
   "notifications.contaminatedBody": "{where}: a contaminated stage box just dropped.",
+  "notifications.pollutionFull": "Plaguelands pollution full",
+  "notifications.pollutionFullDesc": "When the Plaguelands pollution gauge reaches its max.",
+  "notifications.pollutionFullTitle": "Pollution full",
+  "notifications.pollutionFullBody": "{value}/{max} — the Plaguelands are fully charged.",
 
   // ── Tray menu ──
   "tray.showLive": "Show live meter",

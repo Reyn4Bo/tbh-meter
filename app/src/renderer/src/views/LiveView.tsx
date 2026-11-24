@@ -16,6 +16,7 @@ import type { LiveSnapshot } from "../../../shared/run-types.js";
 import type { ReaderState } from "../../../shared/ipc-types.js";
 import { humanize, formatDuration, modeBadgeClass, modeTextClass, modeLabel } from "~/lib/format";
 import { heroName, heroSprite, bossBoxForStage, isContaminatedBox } from "~/lib/game-data";
+import { PollutionRow } from "~/components/Pollution";
 import { HERO_DPS_BG, HERO_DPS_TEXT, heroDpsRows, sharePct, type HeroDpsRow } from "~/lib/hero-damage";
 import { stageThreat, hasThreat } from "~/lib/stage-threat";
 import { StageThreatBadges } from "~/components/StageThreat";
@@ -299,6 +300,7 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
           />
           <LootBox drops={snap.drops} stageKey={snap.stageKey} />
         </div>
+        <PollutionRow pollution={snap.pollution} stageKey={snap.stageKey} />
       </div>
 
       {/* Footer (last line): the live party frame + elapsed time — mirrors the mock. */}

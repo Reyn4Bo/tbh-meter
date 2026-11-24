@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Boss màn",
   "live.chestActBoss": "Boss chương",
   "live.chestContaminated": "Rương màn nhiễm độc",
+  "live.pollution": "Ô nhiễm",
+  "live.pollutionFull": "Ô nhiễm đầy",
+  "live.pollutionEta": "đầy sau {eta}",
   "live.minimizeTitle": "Thu nhỏ (vẫn chạy nền)",
   "live.collapseTitle": "Thu gọn (2 dòng)",
   "live.expandTitle": "Mở rộng",
@@ -334,6 +337,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Rương trùm màn của Vùng Đất Dịch Bệnh, có thời gian hồi riêng.",
   "notifications.contaminatedTitle": "Rơi rương nhiễm độc",
   "notifications.contaminatedBody": "{where}: vừa rơi một rương màn nhiễm độc.",
+  "notifications.pollutionFull": "Ô nhiễm Vùng Đất Dịch Bệnh đầy",
+  "notifications.pollutionFullDesc": "Khi thanh ô nhiễm đạt mức tối đa.",
+  "notifications.pollutionFullTitle": "Ô nhiễm đầy",
+  "notifications.pollutionFullBody": "{value}/{max} — Vùng Đất Dịch Bệnh đã nạp đầy.",
 
   // ── Tray menu ──
   "tray.showLive": "Hiện live meter",

@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "关卡Boss",
   "live.chestActBoss": "章节Boss",
   "live.chestContaminated": "污染关卡宝箱",
+  "live.pollution": "污染度",
+  "live.pollutionFull": "污染度已满",
+  "live.pollutionEta": "满约需 {eta}",
   "live.minimizeTitle": "最小化（后台继续运行）",
   "live.collapseTitle": "紧凑模式（2 行）",
   "live.expandTitle": "展开",
@@ -329,6 +332,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "瘟疫之地的关卡首领宝箱，有独立冷却。",
   "notifications.contaminatedTitle": "掉落了污染宝箱",
   "notifications.contaminatedBody": "{where}：刚刚掉落了一个污染关卡宝箱。",
+  "notifications.pollutionFull": "瘟疫之地污染度已满",
+  "notifications.pollutionFullDesc": "瘟疫之地污染度达到上限时提醒。",
+  "notifications.pollutionFullTitle": "污染度已满",
+  "notifications.pollutionFullBody": "{value}/{max} — 瘟疫之地已充满。",
 
   // ── Tray menu ──
   "tray.showLive": "显示实时悬浮窗",

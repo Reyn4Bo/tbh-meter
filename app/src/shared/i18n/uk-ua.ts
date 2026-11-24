@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Бос етапу",
   "live.chestActBoss": "Бос акту",
   "live.chestContaminated": "Заражена скриня етапу",
+  "live.pollution": "Забруднення",
+  "live.pollutionFull": "Забруднення повне",
+  "live.pollutionEta": "заповниться за {eta}",
   "live.minimizeTitle": "Згорнути (працює далі у фоні)",
   "live.collapseTitle": "Згорнути (2 рядки)",
   "live.expandTitle": "Розгорнути",
@@ -334,6 +337,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Скриня боса етапу Чумних земель, зі своїм кулдауном.",
   "notifications.contaminatedTitle": "Випала заражена скриня",
   "notifications.contaminatedBody": "{where}: щойно випала заражена скриня етапу.",
+  "notifications.pollutionFull": "Забруднення Чумних земель повне",
+  "notifications.pollutionFullDesc": "Коли шкала забруднення досягає максимуму.",
+  "notifications.pollutionFullTitle": "Забруднення повне",
+  "notifications.pollutionFullBody": "{value}/{max} — Чумні землі заряджені.",
 
   // ── Tray menu ──
   "tray.showLive": "Показати live-метер",

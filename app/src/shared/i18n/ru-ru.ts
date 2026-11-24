@@ -52,6 +52,9 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "live.chestStageBoss": "Босс этапа",
   "live.chestActBoss": "Босс акта",
   "live.chestContaminated": "Заражённый сундук этапа",
+  "live.pollution": "Загрязнение",
+  "live.pollutionFull": "Загрязнение заполнено",
+  "live.pollutionEta": "заполнится через {eta}",
   "live.minimizeTitle": "Свернуть (продолжит работать в фоне)",
   "live.collapseTitle": "Свернуть (2 строки)",
   "live.expandTitle": "Развернуть",
@@ -333,6 +336,10 @@ export const DICT: Partial<Record<DictKey, string>> = {
   "notifications.contaminatedDesc": "Сундук босса этапа Чумных земель, со своим кулдауном.",
   "notifications.contaminatedTitle": "Выпал заражённый сундук",
   "notifications.contaminatedBody": "{where}: только что выпал заражённый сундук этапа.",
+  "notifications.pollutionFull": "Загрязнение Чумных земель заполнено",
+  "notifications.pollutionFullDesc": "Когда шкала загрязнения достигает максимума.",
+  "notifications.pollutionFullTitle": "Загрязнение заполнено",
+  "notifications.pollutionFullBody": "{value}/{max} — Чумные земли заряжены.",
 
   // ── Tray menu ──
   "tray.showLive": "Показать live-метер",
