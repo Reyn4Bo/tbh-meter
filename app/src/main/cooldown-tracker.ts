@@ -9,9 +9,9 @@
 import { Notification } from "electron";
 import type { LiveSnapshot } from "../shared/run-types.js";
 import type { ChestCooldown, CooldownState } from "../shared/cooldown-types.js";
-import { remainingMs } from "../shared/cooldown-types.js";
-import { clampCooldownMin } from "../shared/ipc-types.js";
-import { boxLevel } from "../shared/chest-boxes.js";
+import { remainingMs, cooldownMsForBox } from "../shared/cooldown-types.js";
+import { cooldownDurations } from "../shared/ipc-types.js";
+import { boxLevel, isBlueBox, isContaminatedBox, stageCodeForKey } from "../shared/chest-boxes.js";
 import { getSettings, updateSettings } from "./settings.js";
 import { getLiveSource } from "./sources/live-source.js";
 import { tMain } from "./i18n.js";
@@ -26,10 +26,10 @@ const seen: SeenCounts = new Map();
 // dismiss so we never fire a stale or duplicate nudge).
 const notifyTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-/** The configured cooldown length in ms (user setting, clamped), shared by the notification
- *  scheduler. The renderer reads the same setting for its countdowns. */
-function cooldownMs(): number {
-  return clampCooldownMin(getSettings().chestCooldownMin) * 60 * 1000;
+/** The configured cooldown length (ms) of one box — blue and contaminated boxes have separate
+ *  user settings. The renderer derives the same durations for its countdowns. */
+function cooldownMs(boxKey: number): number {
+  return cooldownMsForBox(boxKey, cooldownDurations(getSettings()));
 }
 
 /** Wire the tracker once (from registerIpcHandlers): subscribe to the live stream and
@@ -43,7 +43,7 @@ export function initCooldownTracker(bcast: Broadcast): void {
 }
 
 /** Re-arm every pending "ready" notification against the CURRENT cooldown length. Call this when
- *  `chestCooldownMin` changes: the renderer countdowns re-derive from `dropAt` each tick, but the
+ *  `chestCooldownMin` or `contamCooldownMin` changes: the renderer countdowns re-derive from `dropAt` each tick, but the
  *  main-process setTimeout was armed with the OLD delay (cooldownMs is read once, at schedule
  *  time) — without this it would fire early (timer raised) or late (timer lowered). scheduleNotify
  *  cancels-then-reschedules per box, so re-running it over the active list is idempotent. */
@@ -93,10 +93,11 @@ function onLive(snap: LiveSnapshot | null): void {
   if (!getSettings().cooldownTrackerEnabled) return;
   const result = observeDrop(seen, snap);
   if (!result || !result.dropped) return;
-  // Route filter: when "track outside route" is off, a drop of a box NOT pinned to the route
-  // is ignored here (no card/log). The independent drop notifier (drop-notifier.ts) still fires.
+  // Route filter: when "track outside route" is off, a drop of a blue box NOT pinned to the route
+  // is ignored here (no card/log). Contaminated boxes can't be pinned (one per plague stage), so
+  // the filter doesn't apply to them. The independent drop notifier (drop-notifier.ts) still fires.
   const s = getSettings();
-  if (!s.trackOutsideRoute && !s.chestRoute.includes(result.boxKey)) return;
+  if (!s.trackOutsideRoute && isBlueBox(result.boxKey) && !s.chestRoute.includes(result.boxKey)) return;
   const event: ChestCooldown = {
     boxKey: result.boxKey,
     dropAt: Date.now(),
@@ -115,7 +116,7 @@ function onLive(snap: LiveSnapshot | null): void {
  *  box. No-op once already ready (delay <= 0) so a relaunch never fires stale nudges. */
 function scheduleNotify(cd: ChestCooldown): void {
   cancelNotify(cd.boxKey);
-  const delay = remainingMs(cd, Date.now(), cooldownMs());
+  const delay = remainingMs(cd, Date.now(), cooldownMs(cd.boxKey));
   if (delay <= 0) return;
   const timer = setTimeout(() => {
     notifyTimers.delete(cd.boxKey);
@@ -136,6 +137,17 @@ function cancelNotify(boxKey: number): void {
 
 function notifyReady(cd: ChestCooldown): void {
   if (!Notification.isSupported()) return;
+  if (isContaminatedBox(cd.boxKey)) {
+    // One contaminated box per plague stage, so the stage ("P-20") names it; its "- N" suffix
+    // is the stage number, not a chest level.
+    const code = cd.lastStageKey != null ? stageCodeForKey(cd.lastStageKey) : null;
+    const where = [code, cd.mode].filter(Boolean).join(" · ") || "?";
+    new Notification({
+      title: tMain("cooldowns.contamNotifTitle"),
+      body: tMain("cooldowns.contamNotifBody", { where }),
+    }).show();
+    return;
+  }
   const lvl = boxLevel(cd.boxKey);
   const where = [lvl != null ? `Lv${lvl}` : null, cd.mode].filter(Boolean).join(" · ") || `Lv?`;
   new Notification({

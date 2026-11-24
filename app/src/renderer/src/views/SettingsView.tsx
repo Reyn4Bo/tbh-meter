@@ -27,7 +27,9 @@ import {
   clampCooldownMin,
   COOLDOWN_MIN_MINUTES,
   COOLDOWN_MAX_MINUTES,
+  COOLDOWN_STEP_MINUTES,
 } from "../../../shared/ipc-types.js";
+import { DEFAULT_CONTAM_COOLDOWN_MIN } from "../../../shared/cooldown-types.js";
 import { chestSprite } from "~/lib/game-data";
 import { DiscordIcon } from "~/components/DiscordIcon";
 import { Modal } from "~/components/Modal";
@@ -730,7 +732,7 @@ function MaxRunsRow({
  * Notifications section: per-chest-type OS drop alerts. Each chest type the reader counts
  * gets its own switch (common defaults off — it drops near-constantly; stage-boss/blue and
  * act-boss default on). Independent of the blue-chest cooldown tracker. The chest sprite
- * sits next to each label, derived from a representative box key per tier (910x/920x/930x).
+ * sits next to each label, derived from a representative box key per tier (910x/920x/925x/930x).
  */
 function NotificationsRow({
   settings,
@@ -755,6 +757,12 @@ function NotificationsRow({
       boxKey: 920001,
       label: t("notifications.stageBoss"),
       desc: t("notifications.stageBossDesc"),
+    },
+    {
+      key: "contaminated",
+      boxKey: 925001,
+      label: t("notifications.contaminated"),
+      desc: t("notifications.contaminatedDesc"),
     },
     {
       key: "actBoss",
@@ -809,8 +817,50 @@ function NotificationsRow({
   );
 }
 
+/** A cooldown-length (minutes) −/+ stepper, kept next to its label. Moves by
+ *  COOLDOWN_STEP_MINUTES; the clamp holds the value in bounds at 0.1-min grain. */
+function CooldownStepper({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (minutes: number) => void;
+}) {
+  const step = (delta: number): void => onChange(clampCooldownMin(value + delta));
+  const btn =
+    "grid size-5 cursor-pointer place-items-center rounded bg-surface-700 text-zinc-300 hover:bg-surface-600 disabled:cursor-not-allowed disabled:opacity-40";
+  return (
+    <div className="mt-2 flex items-center gap-3">
+      <span className="text-xs text-zinc-400">{label}</span>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          aria-label={label}
+          disabled={value <= COOLDOWN_MIN_MINUTES}
+          onClick={() => step(-COOLDOWN_STEP_MINUTES)}
+          className={btn}
+        >
+          <Minus className="size-3" />
+        </button>
+        <span className="w-8 text-center font-mono text-xs tabular-nums text-zinc-200">{value}</span>
+        <button
+          type="button"
+          aria-label={label}
+          disabled={value >= COOLDOWN_MAX_MINUTES}
+          onClick={() => step(COOLDOWN_STEP_MINUTES)}
+          className={btn}
+        >
+          <Plus className="size-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /**
- * Blue-chest tracker config (#3 follow-up): the cooldown length, the track-outside-route toggle,
+ * Blue-chest tracker config (#3 follow-up): the cooldown lengths (blue + contaminated), the track-outside-route toggle,
  * and Clear all. The live cards, the master on/off toggle and the chest-level "route" pin chips
  * live in the Tracker tab; this is the rest of the config. Reuses the cooldowns.* i18n.
  */
@@ -822,8 +872,8 @@ function BlueChestTrackerRow({
   onSettingsChange: (partial: Partial<AppSettings>) => void;
 }) {
   const t = useT();
-  const min = clampCooldownMin(settings.chestCooldownMin);
-  const step = (delta: number): void => onSettingsChange({ chestCooldownMin: clampCooldownMin(min + delta) });
+  const blueMin = clampCooldownMin(settings.chestCooldownMin);
+  const contamMin = clampCooldownMin(settings.contamCooldownMin, DEFAULT_CONTAM_COOLDOWN_MIN);
 
   // "Clear all" with a 2-click inline confirm (the app avoids native dialogs for minor actions).
   const [armed, setArmed] = useState(false);
@@ -845,31 +895,17 @@ function BlueChestTrackerRow({
       <p className="text-xs font-medium text-zinc-300">{t("cooldowns.title")}</p>
       <p className="mt-0.5 text-xs text-zinc-500">{t("cooldowns.desc")}</p>
 
-      {/* Cooldown length stepper — kept next to its label, not pushed to the edge. */}
-      <div className="mt-2 flex items-center gap-3">
-        <span className="text-xs text-zinc-400">{t("cooldowns.timerLabel")}</span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label={t("cooldowns.timerLabel")}
-            disabled={min <= COOLDOWN_MIN_MINUTES}
-            onClick={() => step(-1)}
-            className="grid size-5 cursor-pointer place-items-center rounded bg-surface-700 text-zinc-300 hover:bg-surface-600 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Minus className="size-3" />
-          </button>
-          <span className="w-8 text-center font-mono text-xs tabular-nums text-zinc-200">{min}</span>
-          <button
-            type="button"
-            aria-label={t("cooldowns.timerLabel")}
-            disabled={min >= COOLDOWN_MAX_MINUTES}
-            onClick={() => step(1)}
-            className="grid size-5 cursor-pointer place-items-center rounded bg-surface-700 text-zinc-300 hover:bg-surface-600 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Plus className="size-3" />
-          </button>
-        </div>
-      </div>
+      {/* Cooldown length steppers — blue boxes, then contaminated (Plaguelands) boxes. */}
+      <CooldownStepper
+        label={t("cooldowns.timerLabel")}
+        value={blueMin}
+        onChange={(v) => onSettingsChange({ chestCooldownMin: v })}
+      />
+      <CooldownStepper
+        label={t("cooldowns.timerContamLabel")}
+        value={contamMin}
+        onChange={(v) => onSettingsChange({ contamCooldownMin: v })}
+      />
 
       {/* Track outside route. */}
       <label className="mt-3 flex cursor-pointer items-start gap-2 text-xs text-zinc-400">

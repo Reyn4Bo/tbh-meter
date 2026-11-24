@@ -100,7 +100,7 @@ export function registerIpcHandlers(deps: IpcDeps): void {
     if (changed.maxRuns !== undefined) pruneToMaxRuns();
     // The "ready" notification timers are armed with the cooldown length at schedule time; when
     // the user changes it, re-derive every pending timer (the renderer countdowns already do).
-    if (changed.chestCooldownMin !== undefined) rearmNotifications();
+    if (changed.chestCooldownMin !== undefined || changed.contamCooldownMin !== undefined) rearmNotifications();
     // Keep every OTHER window's settings copy in sync (language/font-scale changes in
     // the runs window must reach the live overlay + splash live). The sender already
     // has the value optimistically; receiving the echo is harmless.

@@ -5,12 +5,18 @@ import type { BrowserWindow } from "electron";
 import type { AppSettings, Bounds } from "../shared/ipc-types.js";
 import { DEFAULT_SETTINGS, clampFontScale, clampCooldownMin } from "../shared/ipc-types.js";
 import type { ChestCooldown } from "../shared/cooldown-types.js";
-import { bossBoxForStage, isBlueBox } from "../shared/chest-boxes.js";
+import {
+  COOLDOWN_DEFAULTS_REV,
+  DEFAULT_COOLDOWN_MIN,
+  DEFAULT_CONTAM_COOLDOWN_MIN,
+  LEGACY_DEFAULT_COOLDOWN_MIN,
+} from "../shared/cooldown-types.js";
+import { bossBoxForStage, isBlueBox, isTrackedBox } from "../shared/chest-boxes.js";
 import { isRcBuild } from "./variant.js";
 
 /**
  * Convert persisted cooldown entries to the box-keyed shape, dropping any that don't resolve to
- * a blue box. Legacy entries (shipped before the #3 fix) were keyed by `stageKey` and carried a
+ * a tracked box (blue 920xxx or contaminated 925xxx). Legacy entries (shipped before the #3 fix) were keyed by `stageKey` and carried a
  * `stage` string; here we derive the box from the stage and keep the stage as `lastStageKey`.
  * When `collapse` is true (the ACTIVE list), duplicate boxes — the old per-stage lines that are
  * really one chest level — collapse to the most recent drop per box. The history log keeps every
@@ -27,7 +33,7 @@ export function migrateChestCooldowns(list: unknown, collapse: boolean): ChestCo
       boxKey = bossBoxForStage(raw.stageKey); // legacy: derive box from the stage
       lastStageKey = raw.stageKey;
     }
-    if (boxKey == null || !isBlueBox(boxKey)) continue;
+    if (boxKey == null || !isTrackedBox(boxKey)) continue;
     const cd: ChestCooldown = { boxKey, dropAt: raw.dropAt };
     if (lastStageKey != null) cd.lastStageKey = lastStageKey;
     if (typeof raw.mode === "string") cd.mode = raw.mode;
@@ -41,6 +47,20 @@ export function migrateChestCooldowns(list: unknown, collapse: boolean): ChestCo
     if (!prev || cd.dropAt > prev.dropAt) byBox.set(cd.boxKey, cd);
   }
   return [...byBox.values()].sort((a, b) => b.dropAt - a.dropAt);
+}
+
+/**
+ * The blue cooldown length to load, applying the one-time defaults change of rev 2 (13 → 3 min,
+ * re-measured on game 1.3.2). Settings persist every field, so a stored 13 from BEFORE rev 2 can't
+ * be told apart from a deliberate 13 — it is treated as the untouched old default and moved. Once
+ * the file is at rev 2, whatever the user sets (13 included) is kept.
+ */
+export function migrateBlueCooldownMin(value: unknown, rev: unknown): number {
+  const atRev = typeof rev === "number" ? rev : 1;
+  if (atRev < COOLDOWN_DEFAULTS_REV && (value == null || value === LEGACY_DEFAULT_COOLDOWN_MIN)) {
+    return DEFAULT_COOLDOWN_MIN;
+  }
+  return clampCooldownMin(typeof value === "number" ? value : null);
 }
 
 /** Sanitize a persisted route: keep only finite blue-box keys, de-duplicated, order preserved. */
@@ -94,7 +114,9 @@ export function loadSettings(): AppSettings {
       chestCooldowns: migrateChestCooldowns(parsed.chestCooldowns, true),
       chestDropLog: migrateChestCooldowns(parsed.chestDropLog, false),
       chestRoute: sanitizeRoute(parsed.chestRoute),
-      chestCooldownMin: clampCooldownMin(parsed.chestCooldownMin),
+      chestCooldownMin: migrateBlueCooldownMin(parsed.chestCooldownMin, parsed.cooldownDefaultsRev),
+      contamCooldownMin: clampCooldownMin(parsed.contamCooldownMin, DEFAULT_CONTAM_COOLDOWN_MIN),
+      cooldownDefaultsRev: COOLDOWN_DEFAULTS_REV,
     };
   } catch {
     cache = { ...DEFAULT_SETTINGS };

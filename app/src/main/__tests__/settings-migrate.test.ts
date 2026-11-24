@@ -4,13 +4,41 @@ import { describe, expect, it, vi } from "vitest";
 // pure migration/sanitize helpers without the Electron runtime.
 vi.mock("electron", () => ({ app: { getPath: () => "/tmp/userData" } }));
 
-import { migrateChestCooldowns, sanitizeRoute } from "../settings.js";
+import { migrateChestCooldowns, migrateBlueCooldownMin, sanitizeRoute } from "../settings.js";
 
 // Real stage→box facts from the synced data:
 //   4208 (Torment 2-8) & 4109 (Torment 1-9) → BOTH box 920801 (the duplicate-Lv80 case)
 //   1101 (Normal 1-1) → box 920011
 //   1110 (Normal 1-10) → box 930101 (act-boss, NOT a blue box → dropped)
+describe("migrateBlueCooldownMin (rev 2: blue default 13 → 3 min)", () => {
+  it("moves the untouched old default (13, pre-rev-2 file) to the new default", () => {
+    expect(migrateBlueCooldownMin(13, undefined)).toBe(3);
+    expect(migrateBlueCooldownMin(13, 1)).toBe(3);
+    expect(migrateBlueCooldownMin(undefined, undefined)).toBe(3);
+  });
+
+  it("keeps a value the user changed before rev 2", () => {
+    expect(migrateBlueCooldownMin(8, undefined)).toBe(8);
+  });
+
+  it("keeps everything once the file is at rev 2 — a deliberate 13 included", () => {
+    expect(migrateBlueCooldownMin(13, 2)).toBe(13);
+    expect(migrateBlueCooldownMin(4.5, 2)).toBe(4.5);
+  });
+
+  it("clamps garbage like any other load", () => {
+    expect(migrateBlueCooldownMin("x", 2)).toBe(3);
+    expect(migrateBlueCooldownMin(500, 2)).toBe(60);
+  });
+});
+
 describe("migrateChestCooldowns (legacy per-stage → box-keyed)", () => {
+  it("keeps contaminated (925xxx) cooldowns across a restart", () => {
+    expect(migrateChestCooldowns([{ boxKey: 925220, dropAt: 7, lastStageKey: 201420 }], true)).toEqual([
+      { boxKey: 925220, dropAt: 7, lastStageKey: 201420 },
+    ]);
+  });
+
   it("derives boxKey from a legacy stageKey entry and keeps the stage as lastStageKey", () => {
     const out = migrateChestCooldowns(
       [{ stageKey: 4208, stage: "X", mode: "Torment", dropAt: 100 }],

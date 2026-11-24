@@ -404,6 +404,19 @@ describe("convert — heroes & drops", () => {
     );
     expect(r.drops).toEqual([{ boxKey: 920011, monsterType: 1 }]);
   });
+
+  it("resolves each drop's exact box from the stage (a Plaguelands boss drop is contaminated)", () => {
+    // 201420 = Torment Plaguelands 20: boss box 925220, mob box 915xxx. The reader emits only the
+    // per-tier canonical keys (920001 / 910011).
+    const r = convert(
+      rawRun({
+        stageKey: { ok: true, value: 201420 },
+        drops: { ok: true, value: [{ box_key: 920001, monster_type: 1 }, { box_key: 910011, monster_type: 0 }] },
+      }),
+    );
+    expect(r.drops![0]).toEqual({ boxKey: 925220, monsterType: 1 });
+    expect(Math.floor(r.drops![1].boxKey / 1000)).toBe(915);
+  });
 });
 
 describe("convert — dispatch by raw_schema_version", () => {

@@ -3,9 +3,11 @@
 // the main process (notification scheduling) need the cooldown duration and the remaining-time
 // math, and the renderer cannot import main-process code (same reason COUNT_FLOOR_SEC is here).
 
+import { isContaminatedBox } from "./chest-boxes.js";
+
 /**
- * A tracked blue-chest cooldown, keyed by `boxKey` — the in-game "Stage Boss Box LvNN" (a 920xxx
- * STAGEBOX). The box IS the chest level, so there is ONE cooldown per level, shared across every
+ * A tracked chest cooldown, keyed by `boxKey` — the in-game "Stage Boss Box LvNN" (a 920xxx
+ * STAGEBOX) or a Plaguelands "Contaminated Stage Box" (925xxx, one per plague stage). The box IS the chest level, so there is ONE cooldown per level, shared across every
  * stage AND difficulty that drops it (Lv65 dropping in Hell and Torment is a single cooldown).
  * Captured the moment the reader's stage-boss (blue) chest count rose for the current stage.
  * `dropAt` is epoch ms; the chest is ready again at `dropAt + cooldownMs`. The chest level,
@@ -28,14 +30,47 @@ export interface ChestCooldown {
 }
 
 /**
- * Default blue-chest cooldown, in minutes — the observed respawn interval between a stage-boss
- * (blue) box dropping and being farmable again. Now exposed as a user setting
- * (AppSettings.chestCooldownMin, configurable 1–60 via clampCooldownMin); this is only the
- * fallback default. Timestamp-anchored math (below) means changing the duration re-derives every
- * countdown without migration (persisted `dropAt` keeps working — only remaining time shifts).
+ * Default blue-chest cooldown, in minutes — the measured respawn interval between a stage-boss
+ * (blue) box dropping and being able to drop again. Game 1.3.2, 186 clears of one stage: the drop
+ * chance is ~3% before ~150 s since the last drop and 25–45% from 180 s on, so ~3 min (the old 13
+ * was a pre-1.3.2 observation, far too long now). Exposed as a user setting
+ * (AppSettings.chestCooldownMin, via clampCooldownMin); this is only the fallback default.
+ * Timestamp-anchored math (below) means changing the duration re-derives every countdown without
+ * migration (persisted `dropAt` keeps working — only remaining time shifts).
  */
-export const DEFAULT_COOLDOWN_MIN = 13;
+export const DEFAULT_COOLDOWN_MIN = 3;
 export const DEFAULT_COOLDOWN_MS = DEFAULT_COOLDOWN_MIN * 60 * 1000;
+/** The pre-1.3.2 blue default. A stored value equal to it (from before the defaults revision)
+ *  is treated as "never changed" and moved to DEFAULT_COOLDOWN_MIN (settings.ts). */
+export const LEGACY_DEFAULT_COOLDOWN_MIN = 13;
+/** Current cooldown-defaults revision (AppSettings.cooldownDefaultsRev). 2 = blue default 13 → 3 min. */
+export const COOLDOWN_DEFAULTS_REV = 2;
+
+/**
+ * Contaminated (925xxx) / blue (920xxx) cooldown ratio — the game's own ItemInfoData.DropCooldown
+ * (360 vs 300). The unit of that column doesn't match real time (300 ≠ the measured ~3 min), but
+ * the ratio between two boxes of the same table is the best available prior: too few contaminated
+ * drops exist to measure it directly (2–4% base rate). User-adjustable like the blue one.
+ */
+export const CONTAM_COOLDOWN_RATIO = 360 / 300;
+/** Default contaminated-box cooldown in minutes (3.6), rounded to the 0.1-min setting grain. */
+export const DEFAULT_CONTAM_COOLDOWN_MIN = Math.round(DEFAULT_COOLDOWN_MIN * CONTAM_COOLDOWN_RATIO * 10) / 10;
+
+/** The cooldown length per tracked box family, in ms (from the two user settings). */
+export interface CooldownDurations {
+  blueMs: number;
+  contamMs: number;
+}
+
+export const DEFAULT_DURATIONS: CooldownDurations = {
+  blueMs: DEFAULT_COOLDOWN_MS,
+  contamMs: DEFAULT_CONTAM_COOLDOWN_MIN * 60 * 1000,
+};
+
+/** The cooldown length (ms) of one box: contaminated boxes run on their own timer. */
+export function cooldownMsForBox(boxKey: number, d: CooldownDurations): number {
+  return isContaminatedBox(boxKey) ? d.contamMs : d.blueMs;
+}
 
 /**
  * Cooldown state broadcast to every window on `meter:cooldowns`:

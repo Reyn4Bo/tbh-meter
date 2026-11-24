@@ -1,22 +1,22 @@
 import { Package, X } from "lucide-react";
 import type { ChestCooldown } from "../../../shared/cooldown-types.js";
-import { remainingMs, remainingFraction } from "../../../shared/cooldown-types.js";
-import { chestSprite, chestLevel, boxBestStage, stageCode, stageDifficulty } from "~/lib/game-data";
+import { remainingMs, remainingFraction, cooldownMsForBox } from "../../../shared/cooldown-types.js";
+import { chestSprite, chestLevel, boxBestStage, stageCode, stageDifficulty, isContaminatedBox } from "~/lib/game-data";
 import { modeAbbrev, modeTextClass } from "~/lib/format";
-import { formatRemaining, buildTrackerEntries, sortTrackerEntries, useCooldowns, useCooldownMs, useNow, useRoute, useTrackerEnabled } from "~/lib/cooldown";
+import { formatRemaining, buildTrackerEntries, sortTrackerEntries, useCooldowns, useCooldownDurations, useNow, useRoute, useTrackerEnabled } from "~/lib/cooldown";
 import { BlueBoxSpots } from "./BlueBoxSpots";
 import { useT } from "~/lib/i18n";
 import { cn } from "~/lib/utils";
 
 interface CooldownCardProps {
-  /** The chest level's box (920xxx) — the card's identity. */
+  /** The tracked box — a blue chest level (920xxx) or a contaminated stage box (925xxx). */
   boxKey: number;
   /** The active cooldown for this box, or null when the box is only PINNED to the route and
    *  hasn't dropped yet (a placeholder shown as "available now"). */
   cd: ChestCooldown | null;
   /** Wall clock (ms) from a single useNow() in the parent, so every card ticks together. */
   now: number;
-  /** Cooldown length in ms (the user setting), so the countdown/fill match the configured timer. */
+  /** Cooldown length in ms of THIS box's family (blue or contaminated user setting). */
   cooldownMs: number;
   variant?: "full" | "compact";
   /** The "X" on a real cooldown: clear this active line (history kept; a re-drop re-creates it,
@@ -47,7 +47,10 @@ export function CooldownCard({ boxKey, cd, now, cooldownMs, variant = "full", on
   const frac = cd ? remainingFraction(cd, now, cooldownMs) : 0; // 1 at drop -> 0 at ready
   const sprite = chestSprite(boxKey);
   const level = chestLevel(boxKey);
-  const label = t("cooldowns.chestLabel", { level: level ?? "?" });
+  // A contaminated box has no level — the stage label next to it ("P-20 TOR") names it.
+  const label = isContaminatedBox(boxKey)
+    ? t("cooldowns.contamLabel")
+    : t("cooldowns.chestLabel", { level: level ?? "?" });
   // Where "open stage" points: the box's best farm spot, or the stage the last drop came from.
   const stageKey = cd?.lastStageKey ?? boxBestStage(boxKey);
   // The chest's CURRENT stage (where this cooldown dropped; the best spot for a pinned
@@ -193,13 +196,13 @@ export function OverlayCooldowns() {
   const enabled = useTrackerEnabled();
   const { active } = useCooldowns();
   const route = useRoute();
-  const cooldownMs = useCooldownMs();
+  const durations = useCooldownDurations();
   const now = useNow(1000);
   if (!enabled) return null;
   // Hidden entries (overlay X) leave the strip but stay tracked + visible in the tab.
   const entries = buildTrackerEntries(active, route).filter((e) => !e.cd?.hidden);
   if (entries.length === 0) return null;
-  const sorted = sortTrackerEntries(entries, now, cooldownMs);
+  const sorted = sortTrackerEntries(entries, now, durations);
   return (
     <div className="flex flex-col gap-0.5 border-t border-surface-600 bg-surface-900/80 px-1 py-1">
       {sorted.map((e) => (
@@ -208,7 +211,7 @@ export function OverlayCooldowns() {
           boxKey={e.boxKey}
           cd={e.cd}
           now={now}
-          cooldownMs={cooldownMs}
+          cooldownMs={cooldownMsForBox(e.boxKey, durations)}
           variant="compact"
           onDismiss={(k) => window.meter.hideCooldown(k)}
           onUnpin={(k) => window.meter.setSettings({ chestRoute: route.filter((b) => b !== k) })}

@@ -3,7 +3,8 @@
 // (cooldown-tracker.ts): it is NOT gated by cooldownTrackerEnabled, owns its own
 // per-(stage,type) baseline, and only fires on a true rising edge (never the first
 // observation of a stage). The reader emits all three counters in live `drops`:
-// [common(0), stageBoss/blue(1), actBoss(2)].
+// [common(0), stageBoss(1), actBoss(2)]. Index 1 is split by stage: on a Plaguelands stage the
+// stage-boss chest is the contaminated box (925xxx), notified under its own type.
 
 import { Notification } from "electron";
 import type { LiveSnapshot } from "../shared/run-types.js";
@@ -13,6 +14,7 @@ import { getSettings } from "./settings.js";
 import { getLiveSource } from "./sources/live-source.js";
 import { tMain } from "./i18n.js";
 import { observeRisingEdge, type SeenCounts } from "./chest-cooldown.js";
+import { bossBoxForStage, isContaminatedBox } from "../shared/chest-boxes.js";
 
 /** A chest type the reader counts in live `drops`, with the setting flag that gates its
  *  notification and the i18n keys for its message. */
@@ -23,23 +25,41 @@ interface ChestType {
   setting: keyof AppSettings["chestDropNotify"];
   titleKey: DictKey;
   bodyKey: DictKey;
+  /** Restrict the type to stages it applies to (two types share index 1). Absent = every stage. */
+  appliesTo?: (stageKey: number) => boolean;
 }
+
+const onPlagueStage = (stageKey: number): boolean => isContaminatedBox(bossBoxForStage(stageKey));
 
 const CHEST_TYPES: ChestType[] = [
   { index: 0, setting: "common", titleKey: "notifications.commonTitle", bodyKey: "notifications.commonBody" },
-  { index: 1, setting: "stageBoss", titleKey: "notifications.stageBossTitle", bodyKey: "notifications.stageBossBody" },
+  {
+    index: 1,
+    setting: "stageBoss",
+    titleKey: "notifications.stageBossTitle",
+    bodyKey: "notifications.stageBossBody",
+    appliesTo: (k) => !onPlagueStage(k),
+  },
+  {
+    index: 1,
+    setting: "contaminated",
+    titleKey: "notifications.contaminatedTitle",
+    bodyKey: "notifications.contaminatedBody",
+    appliesTo: onPlagueStage,
+  },
   { index: 2, setting: "actBoss", titleKey: "notifications.actBossTitle", bodyKey: "notifications.actBossBody" },
 ];
 
 // Ephemeral (NOT persisted): one per-stage last-seen count per chest type, for rising-edge
-// detection. Keyed by chest index so the three types stay independent on the same stage.
-const seenByType = new Map<number, SeenCounts>();
+// detection. Keyed by the type's setting so types stay independent on the same stage (two types
+// share index 1, but `appliesTo` gives each stage to exactly one of them).
+const seenByType = new Map<ChestType["setting"], SeenCounts>();
 
-function seenFor(index: number): SeenCounts {
-  let seen = seenByType.get(index);
+function seenFor(type: ChestType): SeenCounts {
+  let seen = seenByType.get(type.setting);
   if (!seen) {
     seen = new Map();
-    seenByType.set(index, seen);
+    seenByType.set(type.setting, seen);
   }
   return seen;
 }
@@ -57,12 +77,13 @@ function onLive(snap: LiveSnapshot | null): void {
   if (!drops) return;
   const enabled = getSettings().chestDropNotify;
   for (const type of CHEST_TYPES) {
+    if (type.appliesTo && !type.appliesTo(stageKey)) continue;
     const count = drops[type.index];
     if (typeof count !== "number") continue;
     // Always feed the baseline (even when this type's notification is off) so the count is
     // tracked: a rising edge while the type is OFF must not later read as a fresh drop when
     // re-enabled. observeRisingEdge never fires on the first observation of a stage.
-    const rose = observeRisingEdge(seenFor(type.index), stageKey, count);
+    const rose = observeRisingEdge(seenFor(type), stageKey, count);
     if (rose && enabled[type.setting]) notify(snap, type);
   }
 }

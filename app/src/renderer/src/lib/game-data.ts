@@ -4,11 +4,11 @@ import stagesData from "../../../shared/data/stages.json";
 import itemsMinData from "../../../shared/data/items-min.json";
 import chestsMinData from "../../../shared/data/chests-min.json";
 import levelCurveData from "../../../shared/data/level_curve.json";
-import { boxLevel } from "../../../shared/chest-boxes";
+import { boxLevel, isContaminatedBox, isTrackedBox } from "../../../shared/chest-boxes";
 import { formatStageCode } from "../../../shared/stage-code";
 // Stage→box + the route's box list live in shared/ (the main process keys cooldowns by box too);
 // re-exported here so renderer code keeps importing chest facts from one place (game-data).
-export { bossBoxForStage, blueBoxes } from "../../../shared/chest-boxes";
+export { bossBoxForStage, blueBoxes, isContaminatedBox } from "../../../shared/chest-boxes";
 
 interface HeroRecord {
   key: number;
@@ -214,9 +214,10 @@ export function stagesByBox(boxKey: number): number[] {
 }
 
 /** Chest level for a box ("Stage Boss Box Lv80" -> 80). Delegates to the shared parser so the
- *  card and the main-process notification show the same level. */
+ *  card and the main-process notification show the same level. Null for a contaminated box: its
+ *  "- N" suffix is the plague stage number, not a level. */
 export function chestLevel(boxKey: number): number | null {
-  return boxLevel(boxKey);
+  return isContaminatedBox(boxKey) ? null : boxLevel(boxKey);
 }
 
 /** The highest-base-rate stage that drops this box — the best farm spot, used for the card's
@@ -260,11 +261,12 @@ export interface BlueBoxMode {
   segments: BlueBoxSegment[];
 }
 
-/** Every mode/stage a blue box drops at, grouped by rate into `first~last` ranges and ordered
- *  Normal→Torment. Null when the key isn't a blue box (e.g. an act-boss box → 930xxx). Keyed by
- *  box (not stage) since a cooldown card represents the chest level, not one stage. */
+/** Every mode/stage a tracked box drops at, grouped by rate into `first~last` ranges and ordered
+ *  Normal→Torment. Null when the key isn't tracked (e.g. an act-boss box → 930xxx). Keyed by box
+ *  (not stage) since a cooldown card represents the chest level — or, for a contaminated box, its
+ *  single plague stage ("P-20"). */
 export function blueBoxSpotsForBox(boxKey: number | null | undefined): BlueBoxMode[] | null {
-  if (boxKey == null || boxKey < 920000 || boxKey >= 930000) return null; // blue box only
+  if (boxKey == null || !isTrackedBox(boxKey)) return null; // blue + contaminated boxes only
 
   // Reuse the prebuilt box→stages index instead of re-scanning all stages.
   const byMode = new Map<string, { act: number; stageNo: number; rate: number }[]>();
@@ -287,7 +289,7 @@ export function blueBoxSpotsForBox(boxKey: number | null | undefined): BlueBoxMo
     for (const sp of spots) {
       let g = byRate.get(sp.rate);
       if (!g) byRate.set(sp.rate, (g = []));
-      g.push(`${sp.act}-${sp.stageNo}`);
+      g.push(formatStageCode(sp.act, sp.stageNo));
     }
     const segments: BlueBoxSegment[] = [...byRate.entries()]
       .sort((a, b) => b[0] - a[0])

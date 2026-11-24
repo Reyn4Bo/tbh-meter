@@ -33,6 +33,7 @@ import type {
 } from "../../shared/run-types.js";
 import { classifyQuality, computeDps, computeRate, cookBreakdown, modeName, resolveStage, round } from "./helpers.js";
 import { asStatus } from "../sources/runs-source.js";
+import { refineDropBox } from "../../shared/chest-boxes.js";
 
 /** Coerce a raw metric-source tag to the MetricSource union, defaulting an off-union value to "".
  *  `raw` is an untrusted JSON cast (ingest.readRaw), so a corrupt/hand-edited source must not
@@ -53,7 +54,9 @@ function numOrNull(v: unknown): number | null {
  *  from the raw/reader schema version (provenance, carried as `schemaVersion`). */
 // 2 = Plaguelands stage label "P-<stageNo>" instead of the meaningless game act ("23-20") — the bump
 //     re-converts stored logs so already-recorded plague runs pick up the new label.
-export const STRUCTURED_SCHEMA_VERSION = 2;
+// 3 = drops carry the stage's EXACT box (refineDropBox) instead of the reader's per-tier canonical
+//     key — a Plaguelands boss drop is the contaminated box, not a blue one.
+export const STRUCTURED_SCHEMA_VERSION = 3;
 
 /** Unwrap a Field: on `ok` return its value; on error return `fallback` AND record the reason under
  *  `issues[name]`. This is the whole point of the envelope — a failed read becomes a tracked issue,
@@ -78,11 +81,13 @@ function isDegraded(issues: Record<string, string>): boolean {
   return CRITICAL_FIELDS.some((f) => f in issues);
 }
 
-function mapDrops(drops: RawDrop[]): RunDrop[] {
+/** Raw drops -> RunDrops. The reader only knows a drop's TIER (it emits one canonical box key per
+ *  tier), so the box is resolved from the run's stage — each stage drops one box per tier. */
+function mapDrops(drops: RawDrop[], stageKey: number | null): RunDrop[] {
   return drops
     .map((d): RunDrop | null => {
       if (!d || typeof d.box_key !== "number" || typeof d.monster_type !== "number") return null;
-      return { boxKey: d.box_key, monsterType: d.monster_type };
+      return { boxKey: refineDropBox(stageKey, d.monster_type, d.box_key), monsterType: d.monster_type };
     })
     .filter((d): d is RunDrop => d !== null);
 }
@@ -213,7 +218,7 @@ export function convert(raw: AnyRawRun): RunRecord {
   const clearTime = unwrap(raw.clear_time, 0, "clear_time", issues);
   const goldGained = unwrap(raw.gold_gained, 0, "gold_gained", issues);
   const xpGained = unwrap(raw.xp_gained, 0, "xp_gained", issues);
-  const drops = mapDrops(unwrap(raw.drops, [], "drops", issues));
+  const drops = mapDrops(unwrap(raw.drops, [], "drops", issues), stageKey);
   const heroes = unwrap(raw.heroes, [], "heroes", issues).map(mapHero);
   // Per-hero damage (OPTIONAL combat plugin). Read QUIETLY — its err ("combat plugin not running") is the
   // normal state without the plugin, so it must not become an issue (that would flag every run "Bugged").

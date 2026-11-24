@@ -4,13 +4,14 @@
 
 import type { LiveSnapshot } from "../shared/run-types.js";
 import type { ChestCooldown } from "../shared/cooldown-types.js";
-import { bossBoxForStage, isBlueBox } from "../shared/chest-boxes.js";
+import { bossBoxForStage, isTrackedBox } from "../shared/chest-boxes.js";
 
 /** Max drop-log entries kept in settings (append-only history; oldest dropped). Bounds
  *  settings.json growth — ~200 recent farms is plenty of "history" context. */
 export const DROP_LOG_CAP = 200;
 
-/** The reader's stage-boss (blue) chest is `drops` index 1: [common(0), stageBoss(1), actBoss(2)]. */
+/** The reader's stage-boss chest is `drops` index 1: [common(0), stageBoss(1), actBoss(2)]. On a
+ *  normal stage that is the blue box; on a Plaguelands stage, the contaminated box. */
 export const BLUE_CHEST_INDEX = 1;
 
 /** Ephemeral per-stage last-seen count. NOT persisted: rebuilt from the live stream, used
@@ -38,12 +39,12 @@ export function observeRisingEdge(seen: SeenCounts, key: number, count: number):
 }
 
 /**
- * Observe a live snapshot and decide whether it represents a NEW blue-chest (stage-boss)
- * drop. Resolves the snapshot's stage to its BOX (the chest level) and runs the rising-edge
+ * Observe a live snapshot and decide whether it represents a NEW stage-boss chest drop (blue, or
+ * contaminated on a Plaguelands stage). Resolves the snapshot's stage to its BOX (the chest level) and runs the rising-edge
  * on the blue-chest counter keyed by that box — so the same Lv80 box dropping on 3-9 then 1-9
  * is ONE cooldown, not two. Returns the verdict + boxKey + the originating stageKey, or null
- * when the snapshot carries no stage / blue-chest count, or the stage's box is not a blue box
- * (act-boss / unmapped stages have no blue cooldown).
+ * when the snapshot carries no stage / stage-boss count, or the stage's box is not tracked
+ * (act-boss / event / unmapped stages have no cooldown).
  */
 export function observeDrop(
   seen: SeenCounts,
@@ -53,7 +54,7 @@ export function observeDrop(
   const count = snap.drops?.[BLUE_CHEST_INDEX];
   if (stageKey == null || typeof count !== "number" || !Number.isFinite(count)) return null;
   const boxKey = bossBoxForStage(stageKey);
-  if (!isBlueBox(boxKey)) return null;
+  if (!isTrackedBox(boxKey)) return null;
   return { dropped: observeRisingEdge(seen, boxKey!, count), boxKey: boxKey!, stageKey };
 }
 

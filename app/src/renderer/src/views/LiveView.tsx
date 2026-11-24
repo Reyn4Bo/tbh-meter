@@ -15,7 +15,7 @@ import {
 import type { LiveSnapshot } from "../../../shared/run-types.js";
 import type { ReaderState } from "../../../shared/ipc-types.js";
 import { humanize, formatDuration, modeBadgeClass, modeTextClass, modeLabel } from "~/lib/format";
-import { heroName, heroSprite } from "~/lib/game-data";
+import { heroName, heroSprite, bossBoxForStage, isContaminatedBox } from "~/lib/game-data";
 import { HERO_DPS_BG, HERO_DPS_TEXT, heroDpsRows, sharePct, type HeroDpsRow } from "~/lib/hero-damage";
 import { stageThreat, hasThreat } from "~/lib/stage-threat";
 import { StageThreatBadges } from "~/components/StageThreat";
@@ -297,7 +297,7 @@ export function LiveView({ onStartDrag, onOpenLogs }: LiveViewProps) {
             tone="text-emerald-400"
             className="flex-1"
           />
-          <LootBox drops={snap.drops} />
+          <LootBox drops={snap.drops} stageKey={snap.stageKey} />
         </div>
       </div>
 
@@ -455,20 +455,24 @@ const CHEST_TYPES = [
   { idx: 1, tone: "text-sky-400", labelKey: "live.chestStageBoss" },
   { idx: 2, tone: "text-rose-400", labelKey: "live.chestActBoss" },
 ] as const;
+// On a Plaguelands stage the stage-boss slot (index 1) is the contaminated box, not a blue one.
+const CONTAM_CHEST = { idx: 1, tone: "text-lime-400", labelKey: "live.chestContaminated" } as const;
 
 /** Loot row (expanded card, after EXP): chest-drop counts by type — "N×" + a
  *  color-coded chest. ALWAYS rendered (stable layout, no toggle jump): shows a muted
  *  "no loot" until something drops. `drops` is null until the reader emits counts. */
-function LootBox({ drops }: { drops: number[] | null }) {
+function LootBox({ drops, stageKey }: { drops: number[] | null; stageKey: number | null }) {
   const t = useT();
   const counts = drops ?? [];
+  const plague = stageKey != null && isContaminatedBox(bossBoxForStage(stageKey));
+  const types = CHEST_TYPES.map((c) => (plague && c.idx === CONTAM_CHEST.idx ? CONTAM_CHEST : c));
   const hasLoot = counts.some((c) => c > 0);
   return (
     <div className="flex shrink-0 items-center gap-2 rounded bg-surface-800/80 px-2 py-1 ring-1 ring-surface-600/60">
       <span className="tracking-[0.12em] text-zinc-500 uppercase">{t("live.loot")}</span>
       {hasLoot ? (
         <span className="flex items-center gap-1">
-          {CHEST_TYPES.map(({ idx, tone, labelKey }) =>
+          {types.map(({ idx, tone, labelKey }) =>
             counts[idx] > 0 ? (
               <span key={idx} className="flex items-center gap-1 tabular-nums text-zinc-300">
                 {counts[idx]}×<ChestIcon className={tone} title={t(labelKey)} />

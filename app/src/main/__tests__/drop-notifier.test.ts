@@ -54,7 +54,7 @@ function baseSettings(notify: Partial<ChestDropNotify> = {}): AppSettings {
   return {
     // Independence check: tracker OFF must NOT suppress drop notifications.
     cooldownTrackerEnabled: false,
-    chestDropNotify: { common: false, stageBoss: true, actBoss: true, ...notify },
+    chestDropNotify: { common: false, stageBoss: true, actBoss: true, contaminated: true, ...notify },
   } as AppSettings;
 }
 
@@ -103,6 +103,21 @@ describe("drop notifier", () => {
     expect(firedFor("notifications.stageBossTitle")).toHaveLength(1);
     expect(firedFor("notifications.commonTitle")).toHaveLength(0);
     expect(firedFor("notifications.actBossTitle")).toHaveLength(0);
+  });
+
+  it("on a Plaguelands stage, a stage-boss rise is the CONTAMINATED box, not a blue one", () => {
+    liveBus.emit("live", snap(201418, [0, 0, 0])); // Torment P-18 → box 925218
+    liveBus.emit("live", snap(201418, [0, 1, 0]));
+    expect(firedFor("notifications.contaminatedTitle")).toHaveLength(1);
+    expect(firedFor("notifications.stageBossTitle")).toHaveLength(0);
+  });
+
+  it("suppresses the contaminated notification when its toggle is off", () => {
+    state.settings = baseSettings({ contaminated: false });
+    liveBus.emit("live", snap(201417, [0, 0, 0]));
+    liveBus.emit("live", snap(201417, [0, 1, 0]));
+    expect(firedFor("notifications.contaminatedTitle")).toHaveLength(0);
+    expect(firedFor("notifications.stageBossTitle")).toHaveLength(0);
   });
 
   it("fires the act-boss notification on its rising edge when enabled", () => {

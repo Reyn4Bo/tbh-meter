@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AppSettings } from "../../shared/ipc-types.js";
 import type { LiveSnapshot } from "../../shared/run-types.js";
-import { DEFAULT_COOLDOWN_MS } from "../../shared/cooldown-types.js";
+import { DEFAULT_COOLDOWN_MIN, DEFAULT_COOLDOWN_MS, DEFAULT_CONTAM_COOLDOWN_MIN } from "../../shared/cooldown-types.js";
 
 // The tracker is impure glue (settings + live stream + the "ready" OS notification). Stub its
 // collaborators so we can drive onLive deterministically. The per-chest-type DROP notification
@@ -69,7 +69,8 @@ function baseSettings(over: Partial<AppSettings> = {}): AppSettings {
     cooldownTrackerEnabled: true,
     chestCooldowns: [],
     chestDropLog: [],
-    chestCooldownMin: 13,
+    chestCooldownMin: DEFAULT_COOLDOWN_MIN,
+    contamCooldownMin: DEFAULT_CONTAM_COOLDOWN_MIN,
     chestRoute: [],
     trackOutsideRoute: true,
     // The rest of AppSettings is irrelevant to the tracker; cast keeps the test focused.
@@ -149,7 +150,7 @@ describe("cooldown tracker", () => {
       liveBus.emit("live", snap(4109, 1)); // drop now; ready nudge armed for +cooldown
       // No ready notification yet (cooldown still running).
       expect(readyTitles()).toHaveLength(0);
-      vi.advanceTimersByTime(DEFAULT_COOLDOWN_MS + 1000); // default 13-min timer
+      vi.advanceTimersByTime(DEFAULT_COOLDOWN_MS + 1000); // default blue timer
       expect(readyTitles()).toHaveLength(1);
       expect(shows).toHaveBeenCalledTimes(1);
     } finally {
@@ -176,12 +177,12 @@ describe("cooldown tracker", () => {
     vi.useFakeTimers();
     try {
       liveBus.emit("live", snap(4109, 0));
-      liveBus.emit("live", snap(4109, 1)); // drop on the Lv80 box → nudge armed for +13min (default)
+      liveBus.emit("live", snap(4109, 1)); // drop on the Lv80 box → nudge armed for +default (3 min)
       // User RAISES the cooldown to 60 min. The renderer re-derives its countdown every tick; the
-      // main-process timer was armed with the old 13-min delay and must be re-derived too.
+      // main-process timer was armed with the old delay and must be re-derived too.
       state.settings = { ...state.settings, chestCooldownMin: 60 };
       rearmNotifications();
-      // Past the OLD 13-min delay → must NOT fire (the timer was re-armed to 60 min).
+      // Well past the OLD default delay → must NOT fire (the timer was re-armed to 60 min).
       vi.advanceTimersByTime(13 * 60 * 1000 + 1000);
       expect(readyTitles()).toHaveLength(0);
       // Past the NEW 60-min mark → fires exactly once.
@@ -204,6 +205,34 @@ describe("cooldown tracker", () => {
       liveBus.emit("live", snap(1208, 0));
       liveBus.emit("live", snap(1208, 1));
       expect(updateSettings).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("contaminated (Plaguelands) boxes", () => {
+    // 201420 (Torment P-20) → box 925220; 201419 (Torment P-19) → box 925219. Unique boxes.
+    it("tracks a contaminated drop even when the route is exclusive (they can't be pinned)", () => {
+      state.settings = baseSettings({ trackOutsideRoute: false, chestRoute: [920201] });
+      liveBus.emit("live", snap(201420, 0));
+      liveBus.emit("live", snap(201420, 1));
+      expect(state.settings.chestCooldowns.map((c) => c.boxKey)).toEqual([925220]);
+    });
+
+    it("fires the CONTAMINATED ready nudge on its own (longer) timer, not the blue one", () => {
+      vi.useFakeTimers();
+      try {
+        state.settings = baseSettings({ chestCooldownMin: 3, contamCooldownMin: 10 });
+        liveBus.emit("live", snap(201419, 0));
+        liveBus.emit("live", snap(201419, 1));
+        const contamTitles = () =>
+          notificationCalls.filter((c) => c.title === "cooldowns.contamNotifTitle");
+        vi.advanceTimersByTime(3 * 60 * 1000 + 1000); // past the BLUE timer → nothing yet
+        expect(contamTitles()).toHaveLength(0);
+        vi.advanceTimersByTime(7 * 60 * 1000); // past 10 min → contaminated nudge
+        expect(contamTitles()).toHaveLength(1);
+        expect(readyTitles()).toHaveLength(0); // never the blue message
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

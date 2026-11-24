@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { ChestCooldown, CooldownState } from "../../../shared/cooldown-types.js";
-import { DEFAULT_COOLDOWN_MS, remainingMs } from "../../../shared/cooldown-types.js";
-import { clampCooldownMin } from "../../../shared/ipc-types.js";
+import type { ChestCooldown, CooldownDurations, CooldownState } from "../../../shared/cooldown-types.js";
+import { DEFAULT_DURATIONS, cooldownMsForBox, remainingMs } from "../../../shared/cooldown-types.js";
+import { cooldownDurations } from "../../../shared/ipc-types.js";
 
 const EMPTY: CooldownState = { active: [], log: [] };
 
@@ -28,17 +28,16 @@ export function useTrackerEnabled(): boolean {
   return enabled;
 }
 
-/** The configured cooldown length in ms (user setting `chestCooldownMin`, clamped), kept in
- *  sync. Threaded into the cards/overlay so every countdown uses the same duration and one
- *  subscription drives them all. */
-export function useCooldownMs(): number {
-  const [ms, setMs] = useState(DEFAULT_COOLDOWN_MS);
+/** The configured cooldown lengths in ms (settings `chestCooldownMin` for blue boxes,
+ *  `contamCooldownMin` for contaminated ones), kept in sync. Threaded into the cards/overlay via
+ *  cooldownMsForBox so every countdown of a box family uses the same duration. */
+export function useCooldownDurations(): CooldownDurations {
+  const [d, setD] = useState<CooldownDurations>(DEFAULT_DURATIONS);
   useEffect(() => {
-    const read = (min: number): void => setMs(clampCooldownMin(min) * 60 * 1000);
-    void window.meter.getSettings().then((s) => read(s.chestCooldownMin));
-    return window.meter.onSettingsChanged((s) => read(s.chestCooldownMin));
+    void window.meter.getSettings().then((s) => setD(cooldownDurations(s)));
+    return window.meter.onSettingsChanged((s) => setD(cooldownDurations(s)));
   }, []);
-  return ms;
+  return d;
 }
 
 /** The pinned route — blue-box keys the user wants always shown — kept in sync. Used by the
@@ -92,14 +91,14 @@ export function buildTrackerEntries(active: ChestCooldown[], route: number[]): T
 }
 
 /** Sort tracker entries soonest-ready first: a placeholder (no cd) sorts as 0 remaining (ready),
- *  an active cooldown by its remaining time. Sorts in place (the caller passes its own array). */
+ *  an active cooldown by its remaining time on its own box's timer. Sorts in place (the caller
+ *  passes its own array). */
 export function sortTrackerEntries(
   entries: TrackerEntry[],
   now: number,
-  cooldownMs: number,
+  durations: CooldownDurations,
 ): TrackerEntry[] {
-  return entries.sort(
-    (a, b) =>
-      (a.cd ? remainingMs(a.cd, now, cooldownMs) : 0) - (b.cd ? remainingMs(b.cd, now, cooldownMs) : 0),
-  );
+  const left = (e: TrackerEntry): number =>
+    e.cd ? remainingMs(e.cd, now, cooldownMsForBox(e.boxKey, durations)) : 0;
+  return entries.sort((a, b) => left(a) - left(b));
 }

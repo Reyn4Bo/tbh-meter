@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, Power } from "lucide-react";
 import type { ChestCooldown } from "../../../shared/cooldown-types.js";
-import { remainingMs, isReady, DEFAULT_COOLDOWN_MIN } from "../../../shared/cooldown-types.js";
+import type { CooldownDurations } from "../../../shared/cooldown-types.js";
+import { remainingMs, isReady, cooldownMsForBox, DEFAULT_DURATIONS } from "../../../shared/cooldown-types.js";
 import type { AppSettings } from "../../../shared/ipc-types.js";
-import { clampCooldownMin } from "../../../shared/ipc-types.js";
+import { cooldownDurations } from "../../../shared/ipc-types.js";
 import { chestSprite, chestLevel, boxBestStage, bossBoxRate, stageDifficulty, stageCode, blueBoxes } from "~/lib/game-data";
 import { modeTextClass, modeLabel, ago } from "~/lib/format";
 import { useCooldowns, useNow, formatRemaining, buildTrackerEntries, sortTrackerEntries } from "~/lib/cooldown";
@@ -57,12 +58,16 @@ export function CooldownsView() {
   const t = useT();
   const { active, log } = useCooldowns();
   const now = useNow(1000);
-  const [cfg, setCfg] = useState({ enabled: true, cooldownMin: DEFAULT_COOLDOWN_MIN, route: [] as number[] });
+  const [cfg, setCfg] = useState<{ enabled: boolean; durations: CooldownDurations; route: number[] }>({
+    enabled: true,
+    durations: DEFAULT_DURATIONS,
+    route: [],
+  });
   const [historyOpen, setHistoryOpen] = useState(true);
 
   useEffect(() => {
     const apply = (s: AppSettings): void =>
-      setCfg({ enabled: s.cooldownTrackerEnabled, cooldownMin: clampCooldownMin(s.chestCooldownMin), route: s.chestRoute });
+      setCfg({ enabled: s.cooldownTrackerEnabled, durations: cooldownDurations(s), route: s.chestRoute });
     void window.meter.getSettings().then(apply);
     return window.meter.onSettingsChanged(apply);
   }, []);
@@ -79,8 +84,8 @@ export function CooldownsView() {
     void window.meter.setSettings({ chestRoute: route });
   };
 
-  const cooldownMs = cfg.cooldownMin * 60 * 1000;
-  const entries = sortTrackerEntries(buildTrackerEntries(active, cfg.route), now, cooldownMs);
+  const msFor = (boxKey: number): number => cooldownMsForBox(boxKey, cfg.durations);
+  const entries = sortTrackerEntries(buildTrackerEntries(active, cfg.route), now, cfg.durations);
   // History: the 10 most recent drops, newest-first.
   const HISTORY_LIMIT = 10;
   const recent = [...log].sort((a, b) => b.dropAt - a.dropAt).slice(0, HISTORY_LIMIT);
@@ -152,7 +157,7 @@ export function CooldownsView() {
                   boxKey={e.boxKey}
                   cd={e.cd}
                   now={now}
-                  cooldownMs={cooldownMs}
+                  cooldownMs={msFor(e.boxKey)}
                   variant="full"
                   onDismiss={(k) => window.meter.dismissCooldown(k)}
                   onUnpin={toggleBox}
@@ -178,7 +183,7 @@ export function CooldownsView() {
               {historyOpen && (
                 <div className="rounded-lg border border-surface-700 bg-surface-800/50 px-2">
                   {recent.map((cd, i) => (
-                    <HistoryRow key={`${cd.boxKey}-${cd.dropAt}-${i}`} cd={cd} now={now} cooldownMs={cooldownMs} />
+                    <HistoryRow key={`${cd.boxKey}-${cd.dropAt}-${i}`} cd={cd} now={now} cooldownMs={msFor(cd.boxKey)} />
                   ))}
                   {log.length > recent.length && (
                     <p className="border-t border-surface-700/60 px-1 py-1.5 text-center text-[10px] text-zinc-600">
