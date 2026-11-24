@@ -12,6 +12,12 @@ ObscuredInt  (struct: hash@0x0 hidden@0x4 key@0x8 fake@0xC; GameAssembly.dll RVA
     Disasm core: `mov edi,[hidden]; sub edi,[key]; xor edi,[key]`. CONFIRMED live: the hero LEVEL
     field decodes to 91/94/101 == the save levels (3/3 exact).
 
+ObscuredLong (struct: hash@0x0 hidden@0x8 (LONG) key@0x10 (LONG) fake@0x18; 1.3.2 RVA 0x731560 -> getter
+              0x7313D0):
+    value = ((hidden - key) & 0xFFFF_FFFF_FFFF_FFFF) ^ key  # int64 — the 64-bit int cipher
+    Disasm core: `mov rdi,[rbx+8]; sub rdi,[rbx+0x10]; xor rdi,[rbx+0x10]`. CONFIRMED live (1.3.2): the
+    Plaguelands pollution decodes to 28 == the in-game gauge "28/500".
+
 ObscuredFloat (struct: hash@0x0 hidden@0x4 key@0x8 fake@0xC (float) ...; RVA 0x6E4C00):
     value = reinterpret_f32( key ^ byteswap_1_2(hidden) )  # bytes [1] and [2] of `hidden` swapped
     Disasm core: load hidden -> swap bytes 1,2 (helper 0x1807117F0) -> `xor key` -> `movd xmm,...`.
@@ -77,6 +83,19 @@ def decode_obscured_int(hidden, key):
         return None
     raw = ((((hidden - key) & 0xFFFFFFFF) ^ key) & 0xFFFFFFFF)
     return struct.unpack("<i", struct.pack("<I", raw))[0]
+
+
+def decode_obscured_long(hidden, key):
+    """ACTk ObscuredLong -> the real int64 (signed). `hidden`/`key` are the raw u64 words at the
+    struct's hiddenValue@+0x8 / currentCryptoKey@+0x10 (read via ru64). The 64-bit analog of the int
+    cipher — READ FROM THE 1.3.2 BINARY, not extrapolated: op_Implicit(ObscuredLong) RVA 0x731560 ->
+    getter RVA 0x7313D0, core `mov rdi,[rbx+8]; sub rdi,[rbx+0x10]; xor rdi,[rbx+0x10]`. Live oracle:
+    the Plaguelands pollution decodes to 28 == the in-game "28/500" (config/offsets.py::PollutionState).
+    None if either word was unreadable (never a bogus 0)."""
+    if hidden is None or key is None:
+        return None
+    raw = (((hidden - key) & 0xFFFFFFFFFFFFFFFF) ^ key) & 0xFFFFFFFFFFFFFFFF
+    return struct.unpack("<q", struct.pack("<Q", raw))[0]
 
 
 def decode_obscured_float(hidden, key):

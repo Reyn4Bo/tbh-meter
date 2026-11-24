@@ -356,6 +356,32 @@ class HeroRuntime:                     # hero progression runtime (1.3.2 dump: c
     EXP_FAKE = 0x128                   # ObscuredDouble xp fakeValue @ +0x18 (double, DEAD) for _raw_hero_list
 
 
+# ----- Plaguelands pollution (game 1.3.2) -----
+# Path (all read-only): class `Plaguelands` -> Class.STATIC_FIELDS -> CONTROLLER -> PlaguelandsController
+# -> STATE -> PollutionState. The two classes resolve by their STABLE names (metrics/pollution.py), the
+# state's own name (`wh`) drifts per build and is never used. Read by metrics/pollution.py.
+class Plaguelands:                     # static class `xo.Plaguelands` (1.3.2 dump TypeDefIndex 999)
+    CONTROLLER = 0x10                  # static `birr` -> PlaguelandsController (the live instance)
+
+
+class PlaguelandsController:           # `xo.PlaguelandsController` (1.3.2 dump TypeDefIndex 1001)
+    STATE = 0x20                       # `biry` -> PollutionState (`xo.wh`)
+
+
+class PollutionState:                  # `xo.wh` (1.3.2 dump TypeDefIndex 1002) — every field is ACTk Obscured.
+    # No PLAIN substitute exists client-side (the plain pollutionValue only rides transient server *Result
+    # objects), so it is DECODED in place like HeroRuntime level/xp (see obscured-data-offlimits). Field
+    # meaning verified LIVE 2026-11-24 against the in-game gauge "28/500": the value ticked 27 -> 28 exactly
+    # one charge period (360 s) after its update time. The other ObscuredInts (`bism`/`biss`/`bist` =
+    # 2110/3110/4110 unlock stage keys, `bisp`=100, `bisq`=60, `bisr`=30) are NOT read: unverified meaning.
+    VALUE_HIDDEN = 0x18                # ObscuredLong `bisk` (record 0x10): hiddenValue      @ +0x8  (long, ru64)
+    VALUE_KEY = 0x20                   #                                     currentCryptoKey @ +0x10 (long, ru64)
+    MAX_HIDDEN = 0x64                  # ObscuredInt `bisn` (record 0x60) = pollution max (500): hidden @ +0x4
+    MAX_KEY = 0x68                     #                                                         key    @ +0x8
+    CHARGE_SEC_HIDDEN = 0x74           # ObscuredInt `biso` (record 0x70) = seconds per +1 (360): hidden @ +0x4
+    CHARGE_SEC_KEY = 0x78              #                                                          key    @ +0x8
+
+
 class StatsHolder:                     # `xd` (dump.cs:342026)
     MODIFIER_MGR = 0x10                # betr -> uq (raw list of modifiers)
     FINAL_STATS = 0x18                # bets -> Dict<StatType,float> (64 FINAL stats; DictFloat)

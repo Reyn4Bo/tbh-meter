@@ -16,7 +16,7 @@ import struct
 import pytest
 
 from game.obscured import (decode_obscured_double, decode_obscured_float,
-                           decode_obscured_int)
+                           decode_obscured_int, decode_obscured_long)
 
 
 class TestDecodeAgainstLiveGame:
@@ -44,6 +44,25 @@ class TestDecodeAgainstLiveGame:
         # ExpForLevelUp. curve[91]≈1.67e9 / curve[94]≈1.774e9 (config/level_curve.json).
         assert 0 < decode_obscured_float(0x38984737, 0x76EC4E86) < 1.67e9   # Knight Lv91
         assert 0 < decode_obscured_float(0x0088434D, 0x4D487400) < 1.774e9  # Sorcerer Lv94
+
+
+class TestDecodeObscuredLong:
+    """ObscuredLong (1.3.2 getter RVA 0x7313D0: `sub rdi,key; xor rdi,key` on 64 bits)."""
+
+    def test_live_pollution_matches_the_in_game_gauge(self):
+        # PollutionState value @ +0x10 (hidden +0x18, key +0x20), captured live 2026-11-24 10:49. The next
+        # charge tick (10:51:44) moved it to 28 in place, and the game then showed "28/500" — the oracle.
+        assert decode_obscured_long(0xA6EC630150CFB81B, 0x53763180A867DC13) == 27
+
+    def test_round_trip_and_sign(self):
+        M = (1 << 64) - 1
+        for value, key in ((0, 0x1234), (500, 0xDEADBEEFCAFEBABE), (-5, 0x7F), (1 << 62, M)):
+            hidden = ((value & M) ^ key) + key & M        # ACTk encode (inverse of the decode)
+            assert decode_obscured_long(hidden, key) == value
+
+    def test_none_propagates_never_zero(self):
+        assert decode_obscured_long(None, 1) is None
+        assert decode_obscured_long(1, None) is None
 
 
 class TestDecodeObscuredDouble:

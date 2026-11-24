@@ -46,6 +46,7 @@ from metrics import xp
 from metrics.dps import DpsTracker
 from metrics.progress import stage_total_mobs, wave_reduction
 from metrics.combat import read_combat, run_damage, run_taken
+from metrics.pollution import PollutionReader
 from game import build, save
 from game.models import (live_monsters as read_live_monsters, live_stage_key as read_live_stage_key,
                          log_stage as read_log_stage, stage_kills as read_stage_kills)
@@ -425,7 +426,7 @@ def build_raw_record(*, ts_ms, run_outcome, game_version, duration,
 def build_live_record(*, run, stage_key, act, stage_no, difficulty,
                        mobs, total_mobs, damage_now, elapsed, gold_now, xp_now, party, drops,
                        party_stats=None, party_progress=None, party_slots=None, party_items=None,
-                       party_damage=None, party_taken=None, party_dead=None):
+                       party_damage=None, party_taken=None, party_dead=None, pollution=None):
     """Builds the RAW LIVE snapshot (live.json, overwritten ~1x/s) from ALREADY-read values —
     RAW observation, NO cooking. The reader STOPPED deriving dps/label/format here: it emits only the
     live numbers/ids and the APP cooks (computeDps/resolveStage/modeName) with the SAME helpers as the
@@ -460,7 +461,9 @@ def build_live_record(*, run, stage_key, act, stage_no, difficulty,
       (EDamageType flag combo) / by_attribute (EDamageAttribute) breakdowns.
     - `party_taken` = same shape, damage TAKEN per victim hero (plugin >= 0.4). ADDITIVE too.
     - `party_dead` = [heroKey] of run heroes currently DEAD (out of the live HeroList). Their party_progress /
-      party_stats are the last-known values of this run (build.carry_last_known). ADDITIVE too."""
+      party_stats are the last-known values of this run (build.carry_last_known). ADDITIVE too.
+    - `pollution` = {value, max, charge_sec} — the account's Plaguelands pollution gauge (metrics/pollution.py),
+      NOT per-run. `null` when unreadable (no calib type table yet / not unlocked). ADDITIVE too."""
     return {
         "raw_schema_version": RAW_SCHEMA_VERSION,
         "run": run,
@@ -483,6 +486,7 @@ def build_live_record(*, run, stage_key, act, stage_no, difficulty,
         "party_damage": ({str(k): v for k, v in party_damage.items()} if party_damage is not None else None),
         "party_taken": ({str(k): v for k, v in party_taken.items()} if party_taken is not None else None),
         "party_dead": list(party_dead or []),
+        "pollution": pollution,
     }
 
 
@@ -1020,6 +1024,9 @@ def run(hz, output_dir, debug=False):
     # The attached game's pid — the optional combat plugin stamps combat.json with it, so a file left by an
     # earlier game session is rejected (metrics/combat.read_combat). Updated on re-attach.
     game_pid = pid
+    # Plaguelands pollution gauge (overlay only): resolves its classes lazily by table walk, never via
+    # TARGETS/calib (metrics/pollution.py explains why), so a failure only blanks that one value.
+    pollution_reader = PollutionReader()
     _emit_status("resolving")   # app: splash shows "reading the game's memory"
     gv = _detect_game_version(handle)
     game_version = gv or GAME_VERSION
@@ -1790,7 +1797,8 @@ def run(hz, output_dir, debug=False):
                     party_items=build.equipped_item_keys(R["build"], party_keys),
                     party_damage=live_damage,
                     party_taken=run_taken(R.get("combat_start"), _cs),
-                    party_dead=party_dead)
+                    party_dead=party_dead,
+                    pollution=pollution_reader.read(reader, tbase))
                 _write_atomic(live_path, json.dumps(live_rec))
                 last_snap = now
             time.sleep(interval)

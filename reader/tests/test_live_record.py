@@ -112,6 +112,13 @@ def test_party_damage_null_without_plugin_and_stringified_keys():
     assert _live(party_taken={101: {"damage": 40.0}})["party_taken"] == {"101": {"damage": 40.0}}
 
 
+def test_pollution_passes_through_and_defaults_null():
+    # account-level Plaguelands gauge (metrics/pollution.py), additive; None (unreadable) stays null.
+    assert _live()["pollution"] is None
+    g = {"value": 28, "max": 500, "charge_sec": 360}
+    assert _live(pollution=g)["pollution"] == g
+
+
 def test_no_envelope_no_outcome_no_cooked_fields():
     # RAW: NO envelope (ephemeral, not audited), NO run_outcome (run in progress), and ZERO
     # cooked presentation (dps/label/mode/stage-string) — the app cooks it.

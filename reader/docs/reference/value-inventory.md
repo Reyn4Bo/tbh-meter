@@ -7,10 +7,12 @@ code_anchors:
   - game/build.py
   - metrics/dps.py
   - metrics/combat.py
+  - metrics/pollution.py
   - game/save.py
 guarded_by:
   - tests/test_gold.py::TestCombatGoldSave::test_ignores_total_subkey_zero
   - tests/test_gold.py::TestRunGain::test_non_monotonic_returns_none
+  - tests/test_pollution.py::test_decodes_value_max_and_charge_period
 ---
 
 # Inventory of values the reader reads
@@ -40,6 +42,7 @@ Three layers, in order of preference:
 | **Per-hero damage** (optional) | `metrics/combat.py::read_combat` · `run_damage` | NOT a memory read: the OPTIONAL in-game combat plugin (`mod/TbhMeterCombat`, BepInEx) observes each hit's attacker and writes cumulative per-hero counters to `~/tbh-meter-mod/combat.json`; the reader diffs two snapshots per run (live `party_damage`, raw `hero_damage`). Absent/stale/other-pid/restarted plugin → None (degrades to team DPS only). Validated: plugin total = reader team damage at ratio 1.000 (1.3.2). |
 | **64 FINAL stats / hero** | `game/build.py::read_live_stats_by_hero` | HeroRuntime → StatsHolder `FINAL_STATS` (DictFloat). id-only `{statId: value}`. |
 | **Mobs alive / dead** | `metrics/progress.py::ProgressTracker` | MonsterSpawnManager `MONSTER_LIST` / StageManager `STAGE_KILLS` (kills/min; resets on stage reload — 1.3.2 deleted `DeadMonsterUnit`). |
+| **Plaguelands pollution** (account, not per run) | `metrics/pollution.py::PollutionReader` | static `Plaguelands` → `PlaguelandsController` → pollution state (`config/offsets.py::PollutionState`); value (ObscuredLong) + max + charge period (ObscuredInt) DECODED in place — no plain substitute exists ([[invariants/obscured-data-offlimits]]). The two classes resolve lazily by the scan-free table walk, NOT via `TARGETS`/calib, so a failure blanks only this value. Live `pollution` in live.json; oracle: game "28/500" == decoded 28 (1.3.2). |
 | **Event count** | `metrics/events.py::EventFeed` | delta of the LogManager's `LOG_LIST` (today it only COUNTS new entries — the type of each event is TODO; see table below). |
 
 > Note on live gold: `combat_gold_live` reads the **`COMBAT_SUBKEY`** (combat) — NOT the

@@ -18,6 +18,7 @@ code_anchors:
   - config/offsets.py::StatsHolder.FINAL_STATS
   - game/obscured.py::decode_obscured_float
   - game/obscured.py::decode_obscured_double
+  - game/obscured.py::decode_obscured_long
 asserts:
   - config.offsets.Unit.CORE_STATS_OBSCURED == 0x104
   - config.offsets.Monster.CACHE_OBSCURED == 0x3E8
@@ -74,6 +75,9 @@ another):
   the HeroRuntime within-level xp `ObscuredFloat → ObscuredDouble`** (`hidden`/`key` are now 8-byte
   `long`s read via `ru64`, the record moved to `bfcj@0x110`), the same float→double widening seen in
   `HeroSaveData.HeroExp`. The `LEVEL` field stays `ObscuredInt` (unchanged).
+- **ObscuredLong** (1.3.2 getter RVA 0x7313D0): `value = (hidden - key) ^ key` on 64 bits (`hidden@+0x8`,
+  `key@+0x10`, read via `ru64`) — the int cipher widened, confirmed by disassembly AND the live oracle
+  (Plaguelands pollution 28 == the game's "28/500").
 
 Why this is recoverable WITHOUT the fragility the old guidance feared:
 - **Build-independent algorithm.** We reimplement it in Python; we never resolve/call the game's decrypt
@@ -84,7 +88,10 @@ Why this is recoverable WITHOUT the fragility the old guidance feared:
   `ru32`→None), so the caller degrades to SAVE rather than emitting garbage (None-vs-0 discipline,
   [[invariants/metric-fallback-chains]]).
 
-LIVE now: `game/build.read_live_party` decodes the hero LEVEL (`HeroRuntime.LEVEL_HIDDEN`/`_KEY`) and the
+LIVE now: `metrics/pollution.py` decodes the Plaguelands pollution gauge (`PollutionState`: value
+ObscuredLong + max/charge-period ObscuredInt) — it has NO plain substitute client-side (the plain value
+only rides transient server `*Result` objects), which is what justifies decoding it.
+`game/build.read_live_party` decodes the hero LEVEL (`HeroRuntime.LEVEL_HIDDEN`/`_KEY`) and the
 within-level XP (`EXP_HIDDEN`/`_KEY`); the dead `fakeValue` offsets stay only as `_raw_hero_list` history.
 
 **What stays guarded.** The algorithm is build-INDEPENDENT, but the struct BASE can move on a recompile
