@@ -26,7 +26,8 @@ import {
   checkForUpdates,
 } from "./auto-update.js";
 import { requestSessionReset } from "./session-stats.js";
-import { DISCORD_INVITE_URL, GITHUB_ORG_URL } from "./config.js";
+import { DISCORD_INVITE_URL } from "./config.js";
+import { FORK_REPO_URL, UPSTREAM_REPO_URL } from "../shared/links.js";
 import { broadcast } from "./broadcast.js";
 import { registerCombatPluginIpc, syncCombatPluginOnStartup } from "./combat-plugin-ipc.js";
 import { applyGameTaskbarSetting } from "./game-taskbar.js";
@@ -197,7 +198,7 @@ export function registerIpcHandlers(deps: IpcDeps): void {
   // Open an allowlisted URL externally. Validate the target so the renderer can
   // NOT ask the main process to open an arbitrary URL.
   ipcMain.on("meter:open-external", (_event, url: unknown) => {
-    if (url !== DISCORD_INVITE_URL && url !== GITHUB_ORG_URL) return;
+    if (url !== DISCORD_INVITE_URL && url !== UPSTREAM_REPO_URL && url !== FORK_REPO_URL) return;
     void shell.openExternal(url);
   });
 

@@ -30,6 +30,7 @@ import {
   COOLDOWN_STEP_MINUTES,
 } from "../../../shared/ipc-types.js";
 import { DEFAULT_CONTAM_COOLDOWN_MIN } from "../../../shared/cooldown-types.js";
+import { FORK_REPO_URL, UPSTREAM_REPO_URL } from "../../../shared/links.js";
 import { chestSprite } from "~/lib/game-data";
 import { DiscordIcon } from "~/components/DiscordIcon";
 import { Modal } from "~/components/Modal";
@@ -188,11 +189,21 @@ export function SettingsView({ settings, onSettingsChange }: SettingsViewProps) 
           <p className="text-xs text-zinc-500">
             tbh-meter <span className="tabular-nums text-zinc-400">v{version ?? "…"}</span>
             {" · "}
+            {t("settings.communityBuild")}
+            {" · "}
+            {/* Credit the original project (MIT) + name who maintains this build. */}
             <button
-              onClick={() => window.meter.openExternal("https://github.com/mad-labs-org")}
+              onClick={() => window.meter.openExternal(UPSTREAM_REPO_URL)}
               className="cursor-pointer underline-offset-2 transition-colors hover:text-brand-300 hover:underline"
             >
-              {t("settings.createdBy")}
+              {t("settings.basedOn")}
+            </button>
+            {" · "}
+            <button
+              onClick={() => window.meter.openExternal(FORK_REPO_URL)}
+              className="cursor-pointer underline-offset-2 transition-colors hover:text-brand-300 hover:underline"
+            >
+              {t("settings.maintainedBy")}
             </button>
           </p>
           {/* Manual check — only on installs that can self-update, and only when no
