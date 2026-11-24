@@ -118,6 +118,13 @@ describe("settings — persist then reload", () => {
 });
 
 describe("settings — #232 prefs (startup / language / font scales)", () => {
+  it("a fresh install is NOT always-on-top; an existing user's choice is kept", () => {
+    expect(DEFAULT_SETTINGS.alwaysOnTop).toBe(false);
+    expect(loadSettings().alwaysOnTop).toBe(false); // no settings.json yet
+    writeFileSync(settingsFile, JSON.stringify({ alwaysOnTop: true }), "utf-8");
+    expect(loadSettings().alwaysOnTop).toBe(true);
+  });
+
   it("ships the right defaults: no auto-start, auto language, 100% font in both windows", () => {
     expect(DEFAULT_SETTINGS.launchOnStartup).toBe(false);
     expect(DEFAULT_SETTINGS.language).toBe("auto");
