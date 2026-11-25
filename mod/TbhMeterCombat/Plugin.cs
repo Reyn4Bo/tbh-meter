@@ -91,7 +91,7 @@ internal sealed class Acc
 public sealed class Plugin : BasePlugin
 {
     public const string Guid = "wiki.tbh.meter.combat";
-    public const string Version = "0.4.0";   // 0.4: + damage TAKEN per hero (Hero.hal hook), max_hit
+    public const string Version = "0.4.1";   // 0.4: + damage TAKEN per hero (Hero.hal hook), max_hit; 0.4.1: nested hits not double-counted
     /// <summary>combat.json format version (bump on a breaking shape change; the reader checks it).</summary>
     public const int FormatVersion = 1;
     private const string GameNamespace = "TaskbarHero";
@@ -188,6 +188,11 @@ public sealed class Plugin : BasePlugin
         return IntPtr.Zero;
     }
 
+    /// <summary>One Monster.hal call on the stack: the monster it hits + the HP that NESTED hal calls on the
+    /// SAME monster removed while it ran.</summary>
+    private sealed class HalFrame { public IntPtr Self; public double Nested; }
+    [ThreadStatic] private static List<HalFrame> _halStack;
+
     private static unsafe void Hal(IntPtr self, IntPtr di, byte b, IntPtr method)
     {
         float before = -1f;
@@ -202,13 +207,25 @@ public sealed class Plugin : BasePlugin
         }
         catch { Interlocked.Increment(ref _errors); }
 
-        _original(self, di, b, method); // ALWAYS run the game's own code
+        // NESTED hits: some effects deal their extra damage from INSIDE the triggering hit (seen live on 1.3.2: a
+        // relic's "+28% of damage dealt as Chaos" — a Chaos hal call runs inside the Lightning hal call, same
+        // monster). The outer before/after then already contains the inner damage, and the inner call is
+        // measured too → counted twice (plugin total = reader total + exactly the Chaos). Each frame collects
+        // what nested calls on the SAME monster removed; the outer hit keeps only its own part.
+        var stack = _halStack ??= new List<HalFrame>(4);
+        var frame = new HalFrame { Self = self };
+        stack.Add(frame);
+        try { _original(self, di, b, method); } // ALWAYS run the game's own code
+        finally { stack.RemoveAt(stack.Count - 1); }
 
         try
         {
             if (hc == IntPtr.Zero || before < 0f || di == IntPtr.Zero) return;
             float after = *(float*)(hc + Off.HpCurrent);
-            double dmg = before - after;
+            double total = before - after;          // this call's HP change, nested hits included
+            if (total > 0 && stack.Count > 0 && stack[stack.Count - 1].Self == self)
+                stack[stack.Count - 1].Nested += total; // the enclosing hit on this monster must not count it again
+            double dmg = total - frame.Nested;     // this hit's OWN damage
             if (dmg <= 0) return; // dodge/immune/heal — nothing dealt
             IntPtr attacker = *(IntPtr*)(di + Off.DiAttacker);
             float origin = *(float*)(di + Off.DiOriginDamage);

@@ -11,6 +11,11 @@ plugin that runs *inside* the game and **observes** that call. It never changes 
 - Native detour on `Monster.hal(DamageInfo, bool)` — the monster "take damage" entry. Per hit it reads
   the monster's HP before/after the original call (the real damage, overkill excluded) and credits it to
   the attacking hero (summons attack as their hero).
+- **Nested hits are not double-counted (0.4.1).** Some effects deal extra damage from *inside* the triggering
+  hit — e.g. a relic's "extra Chaos damage equal to 28% of damage dealt" runs a Chaos `hal` call within the
+  Lightning one on the same monster. The outer before/after already contains the inner damage, so 0.4.0
+  counted it twice (plugin total = reader total + exactly the Chaos, ~1.09×). Each call now subtracts what
+  nested calls on the same monster removed; validated live on P-20: ratio back to 1.000 with ~9–18% Chaos.
 - Every second writes **cumulative** counters to `%USERPROFILE%\tbh-meter-mod\combat.json`
   (per hero: damage, hits, crits, crit damage, base-attack damage, by damage type/element/source; stamped
   with the game `pid`).
