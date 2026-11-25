@@ -9,7 +9,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078d4)](https://github.com/Reyn4Bo/tbh-meter/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
-<img src=".github/assets/fork/overlay-0.45.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP, Plaguelands pollution gauge, the party and a chest cooldown card">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip-0.45.png" width="261" alt="Per-hero tooltip: DPS, share, crit rate, hits, damage type, resistances">
+<img src=".github/assets/fork/overlay-0.45.png" width="520" alt="Live overlay: team DPS, per-hero DPS share, damage-taken share, mobs, gold/EXP, Plaguelands pollution gauge, the party and a chest cooldown card">&nbsp;&nbsp;<img src=".github/assets/fork/hero-tooltip-0.45.2.png" width="218" alt="Per-hero tooltip: DPS, share, crit rate, hits, damage type and element breakdown, damage taken, resistances">
 
 _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/tbh-meter) — not made by or endorsed by the game's developer or the original authors._
 
@@ -17,7 +17,7 @@ _Unofficial edition of [mad-labs-org/tbh-meter](https://github.com/mad-labs-org/
 
 ---
 
-**中文简介：** 这是 TBH Meter 的非官方修改版，适配 Task Bar Hero **1.3.2**，新增**每个英雄的 DPS / 承伤 / 伤害类型统计**（可选功能，默认关闭）、**瘟疫之地污染度显示与满值提醒**、**污染宝箱冷却追踪**（蓝箱冷却按 1.3.2 实测改为约 3 分钟），修正了抗性、击杀数等显示问题，并支持隐藏 meter 和游戏本体的任务栏图标。安装包在 [Releases](https://github.com/Reyn4Bo/tbh-meter/releases) 页面下载，Windows 10 以上，无需管理员权限；从 0.45.0 起会自动更新（只更新到本仓库发布的版本）。
+**中文简介：** 这是 TBH Meter 的非官方修改版，适配 Task Bar Hero **1.3.2**，新增**每个英雄的 DPS / 承伤 / 伤害类型 / 元素伤害分布统计**（可选功能，默认关闭）、**瘟疫之地污染度显示与满值提醒**、**污染宝箱冷却追踪**（蓝箱冷却按 1.3.2 实测改为约 3 分钟），修正了抗性、击杀数等显示问题，并支持隐藏 meter 和游戏本体的任务栏图标。安装包在 [Releases](https://github.com/Reyn4Bo/tbh-meter/releases) 页面下载，Windows 10 以上，无需管理员权限；从 0.45.0 起会自动更新（只更新到本仓库发布的版本）。
 
 ## What's new in this edition
 
@@ -31,21 +31,21 @@ The upstream meter targets an older game build; on 1.3.2 gold, stage, party and 
 - ships a fresh calibration seed, so the first launch attaches in ~10–30 seconds instead of a 1–2 minute scan;
 - **fixes the stage showing `?` after a game restart:** the meter no longer attaches to a game that is still loading. It waits for it instead, and fills in anything a half-loaded scan missed.
 
-### 2. Per-hero DPS, damage taken and damage types _(optional)_
+### 2. Per-hero DPS, damage taken, damage types and elements _(optional)_
 
 The original meter only knows team DPS: memory alone cannot tell which hero landed a hit. This edition adds an **opt-in** in-game observer that credits every hit to the hero (or summon owner) that dealt it:
 
 | Where | What you get |
 | ----- | ------------ |
 | **Overlay** | Per-hero DPS and share bar; damage-taken share (who is tanking); per-hero DPS under each portrait |
-| **Hero tooltip** | DPS, share of team damage, crit rate, hit count, damage type breakdown; damage taken per second, share and element breakdown |
-| **Run detail** | _Damage by hero_ (DPS, total, share, crit, type breakdown) and _Damage taken by hero_ (by element / type) |
+| **Hero tooltip** | DPS, share of team damage, crit rate, hit count, damage type and **element** breakdown (physical / fire / cold / lightning / chaos); damage taken per second, share and element breakdown |
+| **Run detail** | _Damage by hero_ (DPS, total, share, crit, type and **element** breakdown) and _Damage taken by hero_ (by element) |
 
 <div align="center">
-<img src=".github/assets/fork/run-detail-0.45.png" width="820" alt="Run detail: XP by hero, damage by hero with type breakdown, damage taken by hero by element">
+<img src=".github/assets/fork/run-detail-0.45.2.png" width="820" alt="Run detail: XP by hero, damage by hero with type and element breakdown, damage taken by hero by element">
 </div>
 
-The numbers reconcile exactly with the meter's own team damage (ratio **1.000** across multiple runs and party compositions, summons included). It costs essentially nothing: the plugin only adds counters per hit and writes a small file once a second.
+Mixed-damage heroes show their element split — e.g. a Priest with a chaos relic: lightning 81% · chaos 19%. The numbers reconcile exactly with the meter's own team damage (ratio **1.000** across multiple runs and party compositions, summons and relic "extra damage" effects included). It costs essentially nothing: the plugin only adds counters per hit and writes a small file once a second.
 
 **How it works — and what it changes.** It is **off by default**; without it the meter remains a pure read-only memory reader that never touches the game folder. Turning on **Settings → Per-hero DPS** (with the game closed) installs [BepInEx 6](https://github.com/BepInEx/BepInEx) (LGPL-2.1) plus a small plugin into the game folder. The plugin hooks the game's "take damage" calls, **only observes them** (it never changes a game value and does not touch the anti-cheat) and writes cumulative counters to `%USERPROFILE%\tbh-meter-mod\combat.json`, which the meter reads. Turning the option off removes exactly what was installed — except that if you have since added other BepInEx mods, BepInEx itself is kept for them and only this plugin is removed.
 
