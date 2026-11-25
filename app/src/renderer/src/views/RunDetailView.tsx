@@ -320,8 +320,9 @@ function DamageByHero({ heroes }: { heroes: RunHero[] }) {
                     style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
                   />
                 </div>
-                {/* This hero's damage by TYPE (plugin >= 0.4; hidden on older runs). */}
+                {/* This hero's damage by TYPE, then by ELEMENT (plugin >= 0.4; hidden on older runs). */}
                 <Breakdown data={d.byType} kind="type" max={6} className="mt-1" />
+                <Breakdown data={d.byAttribute} kind="element" max={6} className="mt-1" />
               </div>
             </div>
           );

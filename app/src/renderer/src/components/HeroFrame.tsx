@@ -194,6 +194,8 @@ export function HeroFrame({
                 />
                 <DmgLine label={t("live.hits")} value={String(dps.hits)} />
                 <Breakdown data={dps.byType} kind="type" className="mt-1" />
+                {/* Element mix of this hero's damage — mixed-damage heroes (e.g. Hunter) split across elements. */}
+                <Breakdown data={dps.byAttribute} kind="element" className="mt-1" />
               </div>
             )}
 

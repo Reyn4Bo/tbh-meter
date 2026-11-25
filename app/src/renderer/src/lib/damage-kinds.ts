@@ -36,7 +36,11 @@ export const ELEMENT_BG: Record<number, string> = {
 };
 
 /** Damage-type colours by RANK (largest slice first) — types are combos, so no fixed per-type hue. */
-export const TYPE_BG = ["bg-sky-400", "bg-violet-400", "bg-teal-400", "bg-rose-400", "bg-amber-400", "bg-zinc-400"];
+/** Damage-TYPE colours, by rank. Deliberately avoids every ELEMENT_BG hue (no sky/orange/yellow/fuchsia/zinc):
+ *  the type bar sits right above the element bar in the tooltip and run detail, so a shared colour would read
+ *  as "Projectile = Cold". Rank 0 is teal, not indigo: the run detail's per-hero DPS-share bar (brand) sits just
+ *  above, and an indigo type bar merged into it. */
+export const TYPE_BG = ["bg-teal-400", "bg-violet-400", "bg-rose-400", "bg-lime-400", "bg-indigo-400", "bg-stone-500"];
 
 export interface Slice {
   key: number;
